@@ -1,0 +1,12 @@
+*.pyc
+*.log
+*.swp
+*.bak
+*.weights
+*.DS_Store
+.vscode
+.coverage
+log/*
+.idea/
+.pytest_cache/
+.cache
