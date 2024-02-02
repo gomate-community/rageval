@@ -4,7 +4,6 @@ import time
 import openai
 
 #set openai key
-openai.api_key = "" 
 
 
 def chatgpt_request(inputs, model = "gpt-3.5-turbo", 

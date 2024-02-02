@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import typing as t
+import logging
 from abc import ABC, abstractmethod
 
-from langchain.schema import LLMResult
+import openai
+from langchain.schema.output import Generation, LLMResult
 
 if t.TYPE_CHECKING:
     from langchain.callbacks.base import Callbacks
     from langchain.prompts import ChatPromptTemplate
 
-class OpenAILLM(ABC):
+class BaseLLM(ABC):
     """
     BaseLLM is the base class for all LLMs. It provides a consistent interface for other
     classes that interact with LLMs like Langchains, LlamaIndex, LiteLLM etc. Handles
