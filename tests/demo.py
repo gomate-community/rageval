@@ -1,14 +1,18 @@
-from rageval import evaluate
+#import sys
+#sys.path.insert(0, '../src')
+
+from rageval.evaluations import evaluate
 '''
-from rageval.tasks import (
+from .src.tasks import (
     retriever,
 )
-'''
-from rageval.metrics import (
+from .src.metrics import (
     context_recall,
 )
+'''
 
 
+from rageval.metrics import ContextRecall
 from datasets import Dataset
 import os
  
@@ -41,6 +45,6 @@ dataset = Dataset.from_dict(data)
 #dataset: Dataset
  
 #results = evaluate(dataset, task='retriever', metrics=['context_recall'])
-results = evaluate(dataset, metrics=[context_recall])
+results = evaluate(dataset, metrics=[ContextRecall])
 
 print(results)
