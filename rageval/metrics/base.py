@@ -6,12 +6,8 @@ from math import floor
 from datasets import Dataset
 from tqdm import tqdm
 
-from rageval.llms import llm_factory
-from rageval.llms import ragevalLLM
 
-
-
-def make_batches(total_size: int, batch_size: int) -> list[range]:
+def make_batches(total_size: int, batch_size: int) -> list:
     """
     Take a total size and batch size and return a list of ranges for the batches
     """
@@ -52,18 +48,21 @@ class Metric(ABC):
 
     @abstractmethod
     def _score_batch(
-        selfself,
+        self,
         dataset: Dataset,
     ) -> list:
         ...
 
-    def get_batches(self, dataset_size: int) -> list[range]:
+    def get_batches(self, dataset_size: int) -> list:
         return make_batches(dataset_size, self.batch_size)
 
 
 @dataclass
 class MetricWithLLM(Metric):
-    llm: ragevalLLM = field(default_factory=llm_factory)
+    from rageval.llms.base import OpenAILLM
+
+    # llm: ragevalLLM = field(default_factory=llm_factory)
+    llm: OpenAILLM  = OpenAILLM()
 
     def init_model(self):
         """

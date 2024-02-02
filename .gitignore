@@ -10,3 +10,4 @@ log/*
 .idea/
 .pytest_cache/
 .cache
+htmlcov/*

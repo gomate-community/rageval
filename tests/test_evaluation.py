@@ -1,6 +1,10 @@
+"""Test the evaluation function."""
+
+import sys
+sys.path.insert(0, '../src')
 import pytest
 
-import rageval
+#import rageval
 
 @pytest.mark.cron
 def test_evaluation():
