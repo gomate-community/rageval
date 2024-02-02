@@ -59,7 +59,7 @@ class Metric(ABC):
 
 @dataclass
 class MetricWithLLM(Metric):
-    from rageval.llms.base import OpenAILLM
+    from rageval.llms.openai import OpenAILLM
 
     # llm: ragevalLLM = field(default_factory=llm_factory)
     llm: OpenAILLM  = OpenAILLM()
