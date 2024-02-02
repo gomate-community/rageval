@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from datasets import Dataset, concatenate_datasets
-from dataclasses import dataclass, field
 import typing as t
 import numpy as np
-from rageval.metrics.base import Metric
+from dataclasses import dataclass, field
+from datasets import Dataset, concatenate_datasets
+
+from rageval.metrics import Metric
 
 
 def evaluate(
-    dataset: Dataset,
+    testset: Dataset,
     #task: Task,
-    metrics: list[Metric] | None = None,
-) -> Result:
+    metrics: list[Metric] | None = None
+    )-> Result:
     # Validation
     # TODO
 
@@ -20,20 +21,20 @@ def evaluate(
     scores = []
     for metric in metrics:
         print(f"evaluating with [{metric.name}]")
-        scores.append(metric.score(dataset).select_columns(metric.name))
+        scores.append(metric.score(testset).select_columns(metric.name))
 
     # evaluation log
     # TODO
 
     return Result(
         scores=concatenate_datasets(scores, axis=1),
-        dataset=dataset,
+        testset=testset,
     )
 
 @dataclass
 class Result(dict):
     scores: Dataset
-    dataset: Dataset | None = None
+    testset: Dataset | None = None
 
     def __post_init__(self):
         values = []
@@ -45,10 +46,10 @@ class Result(dict):
                 values.append(value + 1e-10)
 
     def to_pandas(self, batch_size: int | None = None, batched: bool = False):
-        if self.dataset is None:
-            raise ValueError("dataset is not provided for the results class")
-        assert self.scores.shape[0] == self.dataset.shape[0]
-        result_ds = concatenate_datasets([self.dataset, self.scores], axis=1)
+        if self.testset is None:
+            raise ValueError("testset is not provided for the results class")
+        assert self.scores.shape[0] == self.testset.shape[0]
+        result_ds = concatenate_datasets([self.testset, self.scores], axis=1)
 
         return result_ds.to_pandas(batch_size=batch_size, batched=batched)
 

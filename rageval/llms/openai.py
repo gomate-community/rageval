@@ -15,7 +15,7 @@ from langchain.callbacks.manager import (
 )
 from langchain.schema import Generation, LLMResult
 
-from rageval.llms.base import ragevalLLM
+from ..llms import ragevalLLM
 
 
 from langchain.prompts import ChatPromptTemplate

@@ -9,8 +9,7 @@ if t.TYPE_CHECKING:
     from langchain.callbacks.base import Callbacks
     from langchain.prompts import ChatPromptTemplate
 
-
-class ragevalLLM(ABC):
+class OpenAILLM(ABC):
     """
     BaseLLM is the base class for all LLMs. It provides a consistent interface for other
     classes that interact with LLMs like Langchains, LlamaIndex, LiteLLM etc. Handles
@@ -24,7 +23,6 @@ class ragevalLLM(ABC):
     n_completions_supported: bool = False
 
     @property
-    @abstractmethod
     def llm(self) -> t.Any:
         ...
 
@@ -34,7 +32,6 @@ class ragevalLLM(ABC):
         """
         pass
 
-    @abstractmethod
     def generate(
         self,
         prompts: list[ChatPromptTemplate],
@@ -43,3 +40,4 @@ class ragevalLLM(ABC):
         callbacks: t.Optional[Callbacks] = None,
     ) -> LLMResult:
         ...
+        return LLMResult()

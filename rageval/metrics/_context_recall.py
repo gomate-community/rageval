@@ -5,7 +5,8 @@ from datasets import Dataset
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
 from rageval.metrics.base import MetricWithLLM
-from rageval.utils import json_loader
+from rageval.llms.base import OpenAILLM
+from rageval.utils.utility import json_loader
 
 
 CONTEXT_RECALL_RA = HumanMessagePromptTemplate.from_template(
@@ -76,6 +77,9 @@ class ContextRecall(MetricWithLLM):
 
     name: str = "context_recall"  # type: ignore
     batch_size: int = 15
+
+    def init_model(self):
+        self.llm = OpenAILLM()
 
     def _score_batch(
         self,
