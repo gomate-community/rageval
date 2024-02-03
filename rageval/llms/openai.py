@@ -1,44 +1,66 @@
 from __future__ import annotations
 
 import asyncio
+import pytest
 import logging
 import os
-import typing as t
-from abc import abstractmethod
+from abc import ABC
 from dataclasses import dataclass, field
 
 import openai
-from langchain.adapters.openai import convert_message_to_dict
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForLLMRun,
-    CallbackManagerForLLMRun,
-)
 from langchain.schema import Generation, LLMResult
-
-from ..llms import ragevalLLM
-
-
-from langchain.prompts import ChatPromptTemplate
 
 logger = logging.getLogger(__name__)
 
 
-class OpenAIBase(ragevalLLM):
-    def __init__(self, model: str, _api_key_env_var: str, timeout: int = 60) -> None:
+@dataclass
+class OpenAILLM(ABC):
+    """This is the OpenAI LLM model."""
+
+    def __init__(self, model: str = "gpt-3.5-turbo-16k",
+                 _api_key_env_var: str = field(default='NO_KEY', repr=False),
+                 num_retries: int = 3,
+                 timeout: int = 60) -> None:
+        """Init the OpenAI Model."""
         self.model = model
         self._api_key_env_var = _api_key_env_var
+        self.num_retries = num_retries
         self.timeout = timeout
 
         # api key
-        key_from_env = os.getenv(self._api_key_env_var, 'NO_KEY')
-        if key_from_env != 'NO_KEY':
-            self.api_key = key_from_env
-        else:
-            self.api_key = self.api_key
+        self.api_key = os.getenv(self._api_key_env_var, 'NO_KEY')
+        # key_from_env = os.getenv(self._api_key_env_var, 'NO_KEY')
+        # self.api_key = key_from_env if key_from_env != 'NO_KEY' else self.api_key
 
     @property
     def llm(self):
-        return self
+        """Construct the OpenAI LLM model."""
+        return openai.OpenAI(api_key=self.api_key)
+
+    @pytest.mark.api
+    def generate(self,
+                 inputs: list(str),
+                 system_role: str = "You are a helpful assistant") -> LLMResult:
+        """Obtain the LLMResult from the response."""
+        try:
+            response = self.llm.with_options(
+                max_retries=self.num_retries,
+                timeout=self.timeout).chat.completions.create(
+                    model=self.model,
+                    messages=[{"role": "user", "content": input_str} for input_str in inputs])
+            return self.create_llm_result(response)
+        except openai.APIConnectionError as e:
+            logger.info("The server could not be reached")
+            logger.info(e.__cause__)  # an underlying Exception, likely raised within httpx.
+            raise e
+        except openai.RateLimitError as e:
+            logger.info("A 429 status code was received; we should back off a bit.")
+            raise e
+        except openai.APIStatusError as e:
+            logger.info("Another non-200-range status code was received")
+            logger.info(e.status_code)
+            logger.info(e.response)
+            raise e
 
     def create_llm_result(self, response) -> LLMResult:
         """Create the LLMResult from the choices and prompts."""
@@ -66,28 +88,3 @@ class OpenAIBase(ragevalLLM):
         ]
         llm_output = {"token_usage": token_usage, "model_name": self.model}
         return LLMResult(generations=[generations], llm_output=llm_output)
-
-    def generate(
-        self,
-        prompts: list[ChatPromptTemplate],
-        n: int = 1,
-        temperature: float = 0,
-    ) -> t.Any:  # TODO: LLMResult
-        llm_results = [self.generate(p, n, temperature) for p in prompts]
-
-        generations = [r.generations[0] for r in llm_results]
-        return LLMResult(generations=generations)
-
-
-
-
-@dataclass
-class OpenAI(OpenAIBase):
-    model: str = "gpt-3.5-turbo-16k"
-    api_key: str = field(default='NO_KEY', repr=False)
-    _api_key_env_var: str = "OPENAI_API_KEY"
-
-    def validate_api_key(self):
-        # before validating, check if the api key is already set
-        api_key = os.getenv(self._api_key_env_var, 'NO_KEY')
-

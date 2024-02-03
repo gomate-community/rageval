@@ -1,1 +1,1 @@
-from .base import OpenAILLM
+from .openai import OpenAILLM
