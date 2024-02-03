@@ -20,6 +20,7 @@ NO_KEY = "no-key"
 
 @lru_cache(maxsize=1)
 def get_debug_mode() -> bool:
+    """Get debug mode."""
     if os.environ.get(DEBUG_ENV_VAR, str(False)).lower() == "true":
         return True
     else:
@@ -27,9 +28,7 @@ def get_debug_mode() -> bool:
 
 
 def load_as_json(text):
-    """
-    validate and return given text as json
-    """
+    """Validate and return given text as json."""
 
     try:
         return json.loads(text)
@@ -90,9 +89,12 @@ Output:
 
 @dataclass
 class JsonLoader:
+    """This class is for .... (wenshan fix)."""
+
     max_retries: int = 2
 
     def safe_load(self, text: str, llm: ragevalLLM):
+        """Load json in safty mode."""
         retry = 0
         while retry <= self.max_retries:
             try:

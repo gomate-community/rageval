@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #import sys
 #sys.path.insert(0, '../src')
 
@@ -45,6 +47,5 @@ dataset = Dataset.from_dict(data)
 #dataset: Dataset
  
 #results = evaluate(dataset, task='retriever', metrics=['context_recall'])
-results = evaluate(dataset, metrics=[ContextRecall()])
-
-print(results)
+#results = evaluate(dataset, metrics=[ContextRecall()])
+#print(results)
