@@ -5,7 +5,7 @@ from datasets import Dataset
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
 from rageval.metrics.base import MetricWithLLM
-from rageval.llms.base import OpenAILLM
+from rageval.llms.openai import OpenAILLM
 from rageval.utils.utility import json_loader
 
 
@@ -16,7 +16,7 @@ Given a context, and an answer, analyze each sentence in the answer and classify
 
 question: What can you tell me about albert Albert Einstein?
 context: Albert Einstein (14 March 1879 – 18 April 1955) was a German-born theoretical physicist,widely held to be one of the greatest and most influential scientists of all time. Best known for developing the theory of relativity, he also made important contributions to quantum mechanics, and was thus a central figure in the revolutionary reshaping of the scientific understanding of nature that modern physics accomplished in the first decades of the twentieth century. His mass–energy equivalence formula E = mc2, which arises from relativity theory, has been called "the world's most famous equation". He received the 1921 Nobel Prize in Physics "for his services to theoretical physics, and especially for his discovery of the law of the photoelectric effect", a pivotal step in the development of quantum theory. His work is also known for its influence on the philosophy of science. In a 1999 poll of 130 leading physicists worldwide by the British journal Physics World, Einstein was ranked the greatest physicist of all time. His intellectual achievements and originality have made Einstein synonymous with genius.
-answer: Albert Einstein born in 14 March 1879 was  German-born theoretical physicist, widely held to be one of the greatest and most influential scientists of all time. He received the 1921 Nobel Prize in Physics "for his services to theoretical physics. He published 4 papers in 1905.  Einstein moved to Switzerland in 1895 
+answer: Albert Einstein born in 14 March 1879 was  German-born theoretical physicist, widely held to be one of the greatest and most influential scientists of all time. He received the 1921 Nobel Prize in Physics "for his services to theoretical physics. He published 4 papers in 1905.  Einstein moved to Switzerland in 1895
 classification:
 [
     {{  "statement_1":"Albert Einstein, born on 14 March 1879, was a German-born theoretical physicist, widely held to be one of the greatest and most influential scientists of all time.",
@@ -43,7 +43,7 @@ classification:
 question: who won 2020 icc world cup?
 context: Who won the 2022 ICC Men's T20 World Cup?
 The 2022 ICC Men's T20 World Cup, held from October 16 to November 13, 2022, in Australia, was the eighth edition of the tournament. Originally scheduled for 2020, it was postponed due to the COVID-19 pandemic. England emerged victorious, defeating Pakistan by five wickets in the final to clinch their second ICC Men's T20 World Cup title.
-answer: England 
+answer: England
 classification:
 [
     {{
@@ -63,23 +63,22 @@ classification:
 
 @dataclass
 class ContextRecall(MetricWithLLM):
-
     """
-    Estimates context recall by estimating TP and FN using annotated answer and
-    retrieved context.
+    Estimates context recall by estimating TP and FN using annotated answer and retrieved context.
 
     Attributes
     ----------
     name : str
-    batch_size : int
-        Batch size for openai completion.
+    batch_size : int, Batch size for openai completion.
+
     """
 
     name: str = "context_recall"  # type: ignore
     batch_size: int = 15
 
     def init_model(self):
-        self.llm = OpenAILLM()
+        """Initializee the LLM model with OpenAILLM."""
+        self.llm: OpenAILLM = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
 
     def _score_batch(
         self,
@@ -102,10 +101,7 @@ class ContextRecall(MetricWithLLM):
             prompts.append(ChatPromptTemplate.from_messages([human_prompt]))
 
         responses: list[list[str]] = []
-        results = self.llm.generate(
-            prompts,
-            n=1,
-        )
+        results = self.llm.generate(prompts)
         responses = [[i.text for i in r] for r in results.generations]
         scores = []
         for response in responses:
