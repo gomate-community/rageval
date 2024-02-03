@@ -9,12 +9,9 @@ from rageval.metrics import Metric
 
 
 def evaluate(
-    testset: Dataset,
-    #task: Task,
-    metrics: list[Metric] | None = None
-    )-> Result:
-    # Validation
-    # TODO
+        testset: Dataset,
+        metrics: list[Metric] | None = None) -> Result:
+    """Conduct the evaluation on testset."""
 
     # run evaluation
     [m.init_model() for m in metrics]
@@ -31,12 +28,16 @@ def evaluate(
         testset=testset,
     )
 
+
 @dataclass
 class Result(dict):
+    """This is the docstring (wenshan fix)."""
+
     scores: Dataset
     testset: Dataset | None = None
 
     def __post_init__(self):
+        """Post initialization."""
         values = []
         for cn in self.scores.column_names:
             value = np.nanmean(self.scores[cn])
@@ -46,6 +47,7 @@ class Result(dict):
                 values.append(value + 1e-10)
 
     def to_pandas(self, batch_size: int | None = None, batched: bool = False):
+        """Convert batch to pandas."""
         if self.testset is None:
             raise ValueError("testset is not provided for the results class")
         assert self.scores.shape[0] == self.testset.shape[0]
@@ -54,6 +56,7 @@ class Result(dict):
         return result_ds.to_pandas(batch_size=batch_size, batched=batched)
 
     def __repr__(self) -> str:
+        """Repr."""
         scores = self.copy()
         score_strs = [f"'{k}': {v:0.4f}" for k, v in scores.items()]
         return "{" + ", ".join(score_strs) + "}"
