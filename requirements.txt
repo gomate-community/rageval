@@ -5,6 +5,7 @@ h5py >= 2.8.0
 coverage >= 4.3.4
 codecov >= 2.0.15
 pytest >= 3.7.4
+pep257 == 0.7.0
 pytest-cov >= 2.4.0
 flake8 == 7.0.0
 flake8_docstrings == 1.7.0
