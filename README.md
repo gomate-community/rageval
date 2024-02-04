@@ -10,7 +10,7 @@ Rageval is a tool that helps you evaluate RAG system. The evaluation consists of
 ## Installation
 
 ```
-git clone https://github.com/Wenshansilvia/rageval.git
+git clone https://github.com/gomate-community/rageval.git
 ```
 ## Usage
 
