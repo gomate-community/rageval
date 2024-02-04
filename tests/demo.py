@@ -41,6 +41,7 @@ data = {
     "ground_truths": ground_truths
 }
  
+print(data)
 # Convert dict to dataset
 dataset = Dataset.from_dict(data)
 
