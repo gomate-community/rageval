@@ -5,7 +5,7 @@ from datasets import Dataset
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
 from rageval.metrics.base import MetricWithLLM
-from rageval.llms.openai import OpenAILLM
+from rageval.models.openai import OpenAILLM
 from rageval.utils.utility import json_loader
 
 

@@ -59,7 +59,7 @@ class Metric(ABC):
 class MetricWithLLM(Metric):
     """Metrics based on LLM."""
 
-    from rageval.llms.openai import OpenAILLM
+    from rageval.models.openai import OpenAILLM
 
     # llm: ragevalLLM = field(default_factory=llm_factory)
     llm: OpenAILLM = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
