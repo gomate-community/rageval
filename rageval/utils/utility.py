@@ -11,7 +11,7 @@ from langchain.callbacks.manager import CallbackManager, trace_as_chain_group
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
 if t.TYPE_CHECKING:
-    from rageval.llms import ragevalLLM
+    from rageval.models import ragevalLLM
 
 DEBUG_ENV_VAR = "rageval_DEBUG"
 # constant to tell us that there is no key passed to the llm/embeddings

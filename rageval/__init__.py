@@ -7,7 +7,7 @@ except ImportError:
 
 from . import tasks
 from . import metrics
-from . import llms
+from . import models
 from . import utils
 
 # __all__ = ["evaluate", "__version__"]

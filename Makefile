@@ -55,17 +55,17 @@ test:
 	python3 -m flake8 $(FLAKE_ARGS)
 
 push:
-	pytest -m 'not cron' $(TEST_ARGS) ${ARGS}
-	flake8 $(FLAKE_ARGS)
+	python3 -m pytest -m 'not cron' $(TEST_ARGS) ${ARGS}
+	python3 -m flake8 $(FLAKE_ARGS)
 
 quick:
-	pytest -m 'not slow and not cron' $(TEST_ARGS) ${ARGS}
+	python3 -m pytest -m 'not slow and not cron' $(TEST_ARGS) ${ARGS}
 
 slow:
-	pytest -m 'slow and not cron' $(TEST_ARGS) ${ARGS}
+	python3 -m pytest -m 'slow and not cron' $(TEST_ARGS) ${ARGS}
 
 cron:
-	pytest -m 'cron' $(TEST_ARGS) ${ARGS}
+	python3 -m pytest -m 'cron' $(TEST_ARGS) ${ARGS}
 
 flake:
-	flake8 $(FLAKE_ARGS) ${ARGS}
+	python3 -m flake8 $(FLAKE_ARGS) ${ARGS}

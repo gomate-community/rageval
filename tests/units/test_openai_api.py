@@ -6,7 +6,7 @@
 import os
 import pytest
 
-from rageval.llms import OpenAILLM
+from rageval.models import OpenAILLM
  
 
 os.environ["OPENAI_API_KEY"] = "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"
