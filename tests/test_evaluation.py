@@ -6,7 +6,6 @@ import pytest
 
 #import rageval
 
-@pytest.mark.cron
 def test_evaluation():
     '''
     This is test unit for testing the load_dataset function.
