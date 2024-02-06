@@ -5,6 +5,9 @@ try:
 except ImportError:
     __version__ = "unknown version"
 
+import nltk
+nltk.download('punkt')
+
 from . import tasks
 from . import metrics
 from . import models
