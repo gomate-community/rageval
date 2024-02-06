@@ -12,12 +12,13 @@ logger = logging.getLogger(__name__)
 class NLIModel(ABC):
     """This is the Roberta-based NLI model."""
 
-    def __init__(self, task: str = "sentiment-analysis", model: str = "roberta-small-mnli") -> None:
+    def __init__(self, task: str = "sentiment-analysis", model: str = "roberta-large-mnli") -> None:
         """Init the Roberta Model."""
         # tokenizer = AutoTokenizer.from_pretrained(model)
         # classifier = AutoModelForSequenceClassification.from_pretrained(model)
         # self._model = pipeline('sentiment-analysis', model = classifier, tokenizer = tokenizer)
 
+        self._model_name = model
         self._model = pipeline(task=task, model=model)
 
         self._labelmap = {
@@ -63,4 +64,11 @@ class NLIModel(ABC):
         """Predct one sample with NLI model."""
         pred = self.infer_prob(premise, hypothesis)
         # [{'label': 'CONTRADICTION', 'score': 0.9992701411247253}]
-        return self._nli2stance[pred[0]['label']]
+        if 'mnli' in self._model_name:
+            return self._nli2stance[pred[0]['label']]
+        else:
+            nli2stance = {
+                "LABEL_0": "irrelevant",
+                "LABEL_1": "support"
+            }
+            return nli2stance[pred[0]['label']]
