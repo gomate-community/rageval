@@ -76,5 +76,4 @@ class ContextRecall(MetricWithLLM):
                 results.append(pd.DataFrame(data))
 
         df = pd.concat(results)
-        print(df['score'].mean())
         return df['score'].mean(), df
