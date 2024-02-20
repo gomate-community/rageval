@@ -45,8 +45,9 @@ Contributing Flow
 3. Clone your forked RAGEval into your machine, add your changes together with associated tests.
 4. Run `make test` with terminal, ensure all unit tests & integration tests passed on your computer.
 5. Push to your forked repo, then send the pull request to the official repo. In pull request, you need to create a link to the issue you created using `#[issue_id]`, and describe what has been changed.
-6. Wait [Codecov](https://app.codecov.io/gh/gomate-community/rageval) generate the coverage report.
-7. We'll assign reviewers to review your code.
+6. Wait [continuous integration](https://github.com/gomate-community/rageval/blob/main/.github/workflows/makefile.yml) passed.
+7. Wait [Codecov](https://app.codecov.io/gh/gomate-community/rageval) generate the coverage report.
+8. We'll assign reviewers to review your code.
 
 
 Your PR will be merged if:
