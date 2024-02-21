@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+import typing
 import numpy as np
 import pandas as pd
 from datasets import Dataset
@@ -26,9 +27,10 @@ class ContextRecall(MetricWithLLM):
     name: str = "context_recall"  # type: ignore
     batch_size: int = 15
 
-    def init_model(self):
+    def init_model(self, model: typing.Callable):
         """Initializee the LLM model with OpenAILLM."""
-        self.llm: OpenAILLM = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
+        self. llm = model
+        # self.llm: OpenAILLM = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
 
     def _score_batch(
         self,

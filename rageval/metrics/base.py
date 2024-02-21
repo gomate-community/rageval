@@ -1,4 +1,4 @@
-import typing as t
+import typing
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from math import floor
@@ -27,7 +27,7 @@ class Metric(ABC):
     batch_size: int
 
     @abstractmethod
-    def init_model(self):
+    def init_model(self, model: typing.Callable):
         """This method will lazy initialize the model."""
         ...
 
