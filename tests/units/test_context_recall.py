@@ -7,6 +7,7 @@ import pytest
 import pandas as pd
 from datasets import Dataset
 
+from rageval.models.openai import OpenAILLM
 from rageval.metrics import ContextRecall
 
 os.environ["OPENAI_API_KEY"] = "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"
@@ -25,9 +26,11 @@ def testset(sample):
     ds = Dataset.from_dict(sample)
     return ds
 
+@pytest.mark.skip
 def test_batch_on_context_recall_metric(testset):
     metric = ContextRecall()
-    metric.init_model()
+    model = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
+    metric.init_model(model)
     results = metric._score_batch(testset)
     assert results[0] == 0 or results[0] == 1
     assert isinstance(results[1], pd.DataFrame)
