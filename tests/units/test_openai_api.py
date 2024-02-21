@@ -6,11 +6,11 @@
 import os
 import pytest
 
-from rageval.models import OpenAILLM
- 
+from langchain.llms.fake import FakeListLLM
 
-os.environ["OPENAI_API_KEY"] = "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"
- 
+from rageval.models import OpenAILLM
+
+
 @pytest.fixture(scope='module')
 def test_case():
     questions = ["恐龙是怎么被命名的？"]
@@ -24,6 +24,8 @@ def test_case():
 
 @pytest.mark.skip
 def test_openai_api(test_case):
+    #os.environ["OPENAI_API_KEY"] = "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"
+    os.environ["OPENAI_API_KEY"] = "sk-yxoSRUjNPbDq1ynQ4b65CaDfFa7441AbAaD997107fD4EcDc"
     client = OpenAILLM("gpt-3.5-turbo-16k", "OPENAI_API_KEY")
 
     # test request
@@ -31,5 +33,13 @@ def test_openai_api(test_case):
     # print(results)
     assert results is not None
 
+def test_fakelistllm_api(test_case):
+    model = FakeListLLM(responses=["I'll callback later.", "You 'console' them!"])
+
+    # test request
+    results = model.generate(test_case['questions'])
+    #results = agent.generate(test_case['questions'])
+    assert results is not None
 #case = test_case()
 #test_openai_api(case)
+#test_fakelistllm_api(case)

@@ -6,11 +6,10 @@ import os
 import pytest
 import pandas as pd
 from datasets import Dataset
+from langchain.llms.fake import FakeListLLM
 
-from rageval.models.openai import OpenAILLM
 from rageval.metrics import ContextRecall
 
-os.environ["OPENAI_API_KEY"] = "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"
 
 @pytest.fixture(scope='module')
 def sample():
@@ -26,16 +25,16 @@ def testset(sample):
     ds = Dataset.from_dict(sample)
     return ds
 
-@pytest.mark.skip
+@pytest.mark.slow
 def test_batch_on_context_recall_metric(testset):
     metric = ContextRecall()
-    model = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
+    model = FakeListLLM(responses=["I'll callback later.", "You 'console' them!"])
     metric.init_model(model)
     results = metric._score_batch(testset)
     assert results[0] == 0 or results[0] == 1
     assert isinstance(results[1], pd.DataFrame)
 
 
-if __name__=="__main__":
-    case = testset(sample())
-    test_batch_on_context_recall_metric(case)
+#if __name__=="__main__":
+#    case = testset(sample())
+#    test_batch_on_context_recall_metric(case)
