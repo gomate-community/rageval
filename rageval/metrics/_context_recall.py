@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from datasets import Dataset
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
+from langchain.schema import LLMResult
 
 from rageval.metrics.base import MetricWithLLM
 from rageval.models.openai import OpenAILLM
@@ -32,30 +33,14 @@ class ContextRecall(MetricWithLLM):
         self. llm = model
         # self.llm: OpenAILLM = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
 
-    def _score_batch(
-        self,
-        dataset: Dataset,
-    ) -> list:
-        prompts = []
-        question, ground_truths, contexts = (
-            dataset["questions"],
-            dataset["gt_answers"],
-            dataset["contexts"],
-        )
+    def parse_llm_result(self, prompts: str, result: LLMResult):
+        """
+        Parse the LLM Result based on the Prompt.
 
-        prompts = []
-        for qstn, gt, ctx in zip(question, ground_truths, contexts):
-            gt = "\n".join(gt) if isinstance(gt, list) else gt
-            ctx = "\n".join(ctx) if isinstance(ctx, list) else ctx
-            prompt = CONTEXT_RECALL_RA.format(
-                question=qstn, context=ctx, answer=gt
-            )
-            prompts.append(prompt)
-
-        responses: list[list[str]] = []
-        results = self.llm.generate(prompts)
-        responses = [[i.text for i in r] for r in results.generations]
+        TODO: use prompts to parse the result.
+        """
         results = []
+        responses = [[i.text for i in r] for r in result.generations]
         # for each question-answer pair
         for response in responses:
             response = json_loader.safe_load(response[0], self.llm)
@@ -76,6 +61,29 @@ class ContextRecall(MetricWithLLM):
             else:
                 data = {'reasoning': [], 'score': [np.nan]}
                 results.append(pd.DataFrame(data))
-
         df = pd.concat(results)
-        return df['score'].mean(), df
+        return df
+
+    def _score_batch(
+        self,
+        dataset: Dataset,
+    ) -> list:
+        prompts = []
+        question, ground_truths, contexts = (
+            dataset["questions"],
+            dataset["gt_answers"],
+            dataset["contexts"],
+        )
+
+        prompts = []
+        for qstn, gt, ctx in zip(question, ground_truths, contexts):
+            gt = "\n".join(gt) if isinstance(gt, list) else gt
+            ctx = "\n".join(ctx) if isinstance(ctx, list) else ctx
+            prompt = CONTEXT_RECALL_RA.format(
+                question=qstn, context=ctx, answer=gt
+            )
+            prompts.append(prompt)
+
+        result = self.llm.generate(prompts)
+        result = self.parse_llm_result(prompts, result)
+        return result['score'].mean(), result
