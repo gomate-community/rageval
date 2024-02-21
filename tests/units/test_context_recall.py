@@ -33,8 +33,3 @@ def test_batch_on_context_recall_metric(testset):
     results = metric._score_batch(testset)
     assert results[0] >= 0 and results[0] <= 1
     assert isinstance(results[1], pd.DataFrame)
-
-
-#if __name__=="__main__":
-#    case = testset(sample())
-#    test_batch_on_context_recall_metric(case)

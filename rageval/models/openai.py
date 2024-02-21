@@ -23,14 +23,11 @@ class OpenAILLM(ABC):
                  timeout: int = 60) -> None:
         """Init the OpenAI Model."""
         self.model = model
-        self._api_key_env_var = _api_key_env_var
         self.num_retries = num_retries
         self.timeout = timeout
 
         # api key
-        self.api_key = os.getenv(self._api_key_env_var, 'NO_KEY')
-        # key_from_env = os.getenv(self._api_key_env_var, 'NO_KEY')
-        # self.api_key = key_from_env if key_from_env != 'NO_KEY' else self.api_key
+        self.api_key = os.getenv(_api_key_env_var, 'NO_KEY')
 
     @property
     def llm(self):
