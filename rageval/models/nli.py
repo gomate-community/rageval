@@ -14,10 +14,6 @@ class NLIModel(ABC):
 
     def __init__(self, task: str = "sentiment-analysis", model: str = "roberta-large-mnli") -> None:
         """Init the Roberta Model."""
-        # tokenizer = AutoTokenizer.from_pretrained(model)
-        # classifier = AutoModelForSequenceClassification.from_pretrained(model)
-        # self._model = pipeline('sentiment-analysis', model = classifier, tokenizer = tokenizer)
-
         self._model_name = model
         self._model = pipeline(task=task, model=model)
 

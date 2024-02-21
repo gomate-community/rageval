@@ -23,14 +23,11 @@ class OpenAILLM(ABC):
                  timeout: int = 60) -> None:
         """Init the OpenAI Model."""
         self.model = model
-        self._api_key_env_var = _api_key_env_var
         self.num_retries = num_retries
         self.timeout = timeout
 
         # api key
-        self.api_key = os.getenv(self._api_key_env_var, 'NO_KEY')
-        # key_from_env = os.getenv(self._api_key_env_var, 'NO_KEY')
-        # self.api_key = key_from_env if key_from_env != 'NO_KEY' else self.api_key
+        self.api_key = os.getenv(_api_key_env_var, 'NO_KEY')
 
     @property
     def llm(self):
@@ -48,7 +45,8 @@ class OpenAILLM(ABC):
                 timeout=self.timeout).chat.completions.create(
                     model=self.model,
                     messages=[{"role": "user", "content": input_str} for input_str in inputs])
-            return self.create_llm_result(response)
+            result = self.create_llm_result(response)
+            return result
         except openai.APIConnectionError as e:
             logger.info("The server could not be reached")
             logger.info(e.__cause__)  # an underlying Exception, likely raised within httpx.
@@ -71,8 +69,8 @@ class OpenAILLM(ABC):
         token_usage = response.get("usage", {})
         llm_output = {
             "token_usage": token_usage,
-            "model_name": None,
-            "system_fingerprint": response.get("system_fingerprint", ""),
+            "model_name": self.model,
+            "system_fingerprint": response.get("system_fingerprint", "")
         }
 
         choices = response["choices"]
@@ -86,5 +84,4 @@ class OpenAILLM(ABC):
             )
             for choice in choices
         ]
-        llm_output = {"token_usage": token_usage, "model_name": self.model}
         return LLMResult(generations=[generations], llm_output=llm_output)
