@@ -6,7 +6,10 @@
 *.DS_Store
 .vscode
 .coverage
+RagEval.egg-info/*
 log/*
+build/*
+dist/*
 .idea/
 .pytest_cache/
 .cache
