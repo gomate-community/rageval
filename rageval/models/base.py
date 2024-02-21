@@ -42,4 +42,3 @@ class BaseLLM(ABC):
     ) -> LLMResult:
         """Call the llm model to generate results."""
         ...
-        # return LLMResult()

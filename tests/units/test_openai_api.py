@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-#import sys
-#sys.path.insert(0, '../src')
-
 import os
 import pytest
 
@@ -24,13 +21,11 @@ def test_case():
 
 @pytest.mark.skip
 def test_openai_api(test_case):
-    #os.environ["OPENAI_API_KEY"] = "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"
-    os.environ["OPENAI_API_KEY"] = "sk-yxoSRUjNPbDq1ynQ4b65CaDfFa7441AbAaD997107fD4EcDc"
+    os.environ["OPENAI_API_KEY"] = "NOKEY"
     client = OpenAILLM("gpt-3.5-turbo-16k", "OPENAI_API_KEY")
 
     # test request
     results = client.generate(test_case['questions'])
-    # print(results)
     assert results is not None
 
 def test_fakelistllm_api(test_case):
@@ -38,8 +33,4 @@ def test_fakelistllm_api(test_case):
 
     # test request
     results = model.generate(test_case['questions'])
-    #results = agent.generate(test_case['questions'])
     assert results is not None
-#case = test_case()
-#test_openai_api(case)
-#test_fakelistllm_api(case)
