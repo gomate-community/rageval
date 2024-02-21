@@ -4,14 +4,13 @@ import pytest
 import numpy as np
 import pandas as pd
 from abc import ABC
-from typing import List, Any
+from typing import List, Any, Callable
 
 
 from datasets import Dataset
 from dataclasses import dataclass
 
 from rageval.metrics import Metric
-from rageval.models import NLIModel
 from rageval.utils import text_to_sents
 
 
@@ -30,9 +29,9 @@ class AnswerGroundedness(Metric):
     name: str = "answer_groundednss"  # type: ignore
     batch_size: int = 2
 
-    def init_model(self, task: str = "sentiment-analysis", model: str = "roberta-large-mnli"):
-        """Initializee the LLM model with OpenAILLM."""
-        self.model: NLIModel = NLIModel(task, model)
+    def init_model(self, model: Callable):
+        """Initializee the LLM model."""
+        self.model = model
 
     def _verify_by_stance(self, claim: str, evidences: List[str]) -> Any:
         """Verify the faithfulness of the `claim` based on `evidences`."""
