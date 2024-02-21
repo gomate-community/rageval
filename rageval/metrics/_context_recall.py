@@ -59,7 +59,7 @@ class ContextRecall(MetricWithLLM):
                 data = {'reasoning': reasonings, 'score': scores}
                 results.append(pd.DataFrame(data))
             else:
-                data = {'reasoning': [], 'score': [np.nan]}
+                data = {'reasoning': [np.nan], 'score': [np.nan]}
                 results.append(pd.DataFrame(data))
         df = pd.concat(results)
         return df
@@ -86,4 +86,5 @@ class ContextRecall(MetricWithLLM):
 
         result = self.llm.generate(prompts)
         result = self.parse_llm_result(prompts, result)
-        return result['score'].mean(), result
+        average_score = result['score'].mean() if not np.isnan(result['score'].mean()) else 0
+        return average_score, result
