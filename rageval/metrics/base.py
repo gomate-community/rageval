@@ -5,6 +5,7 @@ from math import floor
 
 from datasets import Dataset
 from tqdm import tqdm
+from langchain.schema import LLMResult
 
 
 def make_batches(total_size: int, batch_size: int) -> list:
@@ -79,3 +80,7 @@ class MetricWithLLM(Metric):
             if hasattr(self.embeddings, "validate_api_key"):
                 # TODO
                 ...
+
+    def parse_llm_result(self, prompts: [str], result: LLMResult):
+        """Parse the LLM Result based on the Prompt."""
+        ...
