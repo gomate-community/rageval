@@ -15,9 +15,23 @@ Rageval is a tool that helps you evaluate RAG system. The evaluation consists of
 
 ```
 git clone https://github.com/gomate-community/rageval.git
+cd rageval
+python setup.py install
 ```
 ## Usage
 
 ```
-git install ...
+import rageval as rl
+
+test_set = rl.datasets.load_data('ALCE', task='')
+metric = rl.metrics.ContextRecall()
+model = rl.models.OpenAILLM()
+metric.init_model(model)
+
+results = metric._score_batch(teset_set)
+
 ```
+
+## Contribution
+
+Please make sure to read the [Contributing Guide](./CONTRIBUTING.md) before creating a pull request.
