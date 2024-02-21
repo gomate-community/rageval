@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 
+import typing
 import numpy as np
 import pandas as pd
 from datasets import Dataset
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
+from langchain.schema import LLMResult
 
 from rageval.metrics.base import MetricWithLLM
 from rageval.models.openai import OpenAILLM
@@ -26,9 +28,41 @@ class ContextRecall(MetricWithLLM):
     name: str = "context_recall"  # type: ignore
     batch_size: int = 15
 
-    def init_model(self):
+    def init_model(self, model: typing.Callable):
         """Initializee the LLM model with OpenAILLM."""
-        self.llm: OpenAILLM = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
+        self. llm = model
+        # self.llm: OpenAILLM = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
+
+    def parse_llm_result(self, prompts: str, result: LLMResult):
+        """
+        Parse the LLM Result based on the Prompt.
+
+        TODO: use prompts to parse the result.
+        """
+        results = []
+        responses = [[i.text for i in r] for r in result.generations]
+        # for each question-answer pair
+        for response in responses:
+            response = json_loader.safe_load(response[0], self.llm)
+            # response: list of dict; each dict is a statement extracted from gt_answer
+            if response:
+                reasonings = [
+                    str(item)
+                    for item in response
+                ]
+                scores = [
+                    int(item.get("Attributed", "0").strip() == "1")
+                    if item.get("Attributed")
+                    else np.nan
+                    for item in response
+                ]
+                data = {'reasoning': reasonings, 'score': scores}
+                results.append(pd.DataFrame(data))
+            else:
+                data = {'reasoning': [], 'score': [np.nan]}
+                results.append(pd.DataFrame(data))
+        df = pd.concat(results)
+        return df
 
     def _score_batch(
         self,
@@ -50,30 +84,6 @@ class ContextRecall(MetricWithLLM):
             )
             prompts.append(prompt)
 
-        responses: list[list[str]] = []
-        results = self.llm.generate(prompts)
-        responses = [[i.text for i in r] for r in results.generations]
-        results = []
-        # for each question-answer pair
-        for response in responses:
-            response = json_loader.safe_load(response[0], self.llm)
-            # response: list of dict; each dict is a statement extracted from gt_answer
-            if response:
-                reasonings = [
-                    str(item)
-                    for item in response
-                ]
-                scores = [
-                    int(item.get("Attributed", "0").strip() == "1")
-                    if item.get("Attributed")
-                    else np.nan
-                    for item in response
-                ]
-                data = {'reasoning': reasonings, 'score': scores}
-                results.append(pd.DataFrame(data))
-            else:
-                data = {'reasoning': [], 'score': [np.nan]}
-                results.append(pd.DataFrame(data))
-
-        df = pd.concat(results)
-        return df['score'].mean(), df
+        result = self.llm.generate(prompts)
+        result = self.parse_llm_result(prompts, result)
+        return result['score'].mean(), result

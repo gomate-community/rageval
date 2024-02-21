@@ -6,10 +6,10 @@ import os
 import pytest
 import pandas as pd
 from datasets import Dataset
+from langchain.llms.fake import FakeListLLM
 
 from rageval.metrics import ContextRecall
 
-os.environ["OPENAI_API_KEY"] = "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"
 
 @pytest.fixture(scope='module')
 def sample():
@@ -25,14 +25,11 @@ def testset(sample):
     ds = Dataset.from_dict(sample)
     return ds
 
+@pytest.mark.slow
 def test_batch_on_context_recall_metric(testset):
     metric = ContextRecall()
-    metric.init_model()
+    model = FakeListLLM(responses=['[\n    {\n        "statement_1":"恐龙的命名始于1841年，由英国科学家理查德·欧文命名。",\n        "reason": "The answer provides the exact year and the scientist who named the dinosaurs.",\n        "Attributed": "1"\n    },\n    {\n        "statement_2":"欧文在研究几块样子像蜥蜴骨头化石时，认为它们是某种史前动物留下来的，并命名为恐龙。",\n        "reason": "The answer accurately describes the process of how dinosaurs were named.",\n        "Attributed": "1"\n    }\n]'])
+    metric.init_model(model)
     results = metric._score_batch(testset)
-    assert results[0] == 0 or results[0] == 1
+    assert results[0] >= 0 and results[0] <= 1
     assert isinstance(results[1], pd.DataFrame)
-
-
-if __name__=="__main__":
-    case = testset(sample())
-    test_batch_on_context_recall_metric(case)

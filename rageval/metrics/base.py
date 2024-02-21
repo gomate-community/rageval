@@ -1,10 +1,11 @@
-import typing as t
+import typing
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from math import floor
 
 from datasets import Dataset
 from tqdm import tqdm
+from langchain.schema import LLMResult
 
 
 def make_batches(total_size: int, batch_size: int) -> list:
@@ -27,7 +28,7 @@ class Metric(ABC):
     batch_size: int
 
     @abstractmethod
-    def init_model(self):
+    def init_model(self, model: typing.Callable):
         """This method will lazy initialize the model."""
         ...
 
@@ -79,3 +80,7 @@ class MetricWithLLM(Metric):
             if hasattr(self.embeddings, "validate_api_key"):
                 # TODO
                 ...
+
+    def parse_llm_result(self, prompts: [str], result: LLMResult):
+        """Parse the LLM Result based on the Prompt."""
+        ...
