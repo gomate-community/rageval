@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import typing
+import numpy as np
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from math import floor
@@ -6,19 +9,6 @@ from math import floor
 from datasets import Dataset
 from tqdm import tqdm
 from langchain.schema import LLMResult
-
-
-def make_batches(total_size: int, batch_size: int) -> list:
-    """Take a total size and batch size and return a list of ranges for the batches."""
-    tail = total_size % batch_size
-    num_batches = floor(total_size / batch_size)
-    batches = [
-        range(i, i + batch_size) for i in range(0, batch_size * num_batches, batch_size)
-    ]
-    if tail != 0:
-        batches.append(range(batch_size * num_batches, batch_size * num_batches + tail))
-
-    return batches
 
 
 @dataclass
@@ -35,25 +25,25 @@ class Metric(ABC):
     def score(
         self,
         dataset: Dataset,
-    ) -> Dataset:
+        batch_size: int = None,
+    ) -> (float, Dataset):
         """Evaluate the dataset."""
         scores = []
-        for batch in tqdm(self.get_batches(len(dataset))):
-            score = self._score_batch(dataset.select(batch))
-            scores.extend(score)
+        length = len(dataset)
+        if batch_size:
+            for start in tqdm(range(0, length, batch_size)):
+                end = start + batch_size
+                end = end if end < length else length
+                score = self._score_batch(dataset.select(range(start, end)))
+                scores.extend(score)
+        else:
+            scores = self._score_batch(dataset)
 
-        return dataset.add_column(f"{self.name}", scores)  # type: ignore
+        return np.average(scores), dataset.add_column(f"{self.name}", scores)
 
     @abstractmethod
-    def _score_batch(
-        self,
-        dataset: Dataset,
-    ) -> list:
+    def _score_batch(self, dataset: Dataset) -> list:
         ...
-
-    def get_batches(self, dataset_size: int) -> list:
-        """Get batches."""
-        return make_batches(dataset_size, self.batch_size)
 
 
 @dataclass
