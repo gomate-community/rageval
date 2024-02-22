@@ -30,24 +30,24 @@ def test_batch_on_context_recall_metric(testset):
     metric = ContextRecall()
     model = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
     metric.init_model(model)
-    results = metric._score_batch(testset)
-    assert results[0] == 0 or results[0] == 1
-    assert isinstance(results[1], pd.DataFrame)
+    score, results = metric.compute(testset)
+    assert score == 0 or score == 1
+    assert isinstance(results, Dataset)
 
 @pytest.mark.slow
 def test_batch_on_context_recall_metric_fakellm1(testset):
     metric = ContextRecall()
     model = FakeListLLM(responses=['[\n    {\n        "statement_1":"恐龙的命名始于1841年，由英国科学家理查德·欧文命名。",\n        "reason": "The answer provides the exact year and the scientist who named the dinosaurs.",\n        "Attributed": "1"\n    },\n    {\n        "statement_2":"欧文在研究几块样子像蜥蜴骨头化石时，认为它们是某种史前动物留下来的，并命名为恐龙。",\n        "reason": "The answer accurately describes the process of how dinosaurs were named.",\n        "Attributed": "1"\n    }\n]'])
     metric.init_model(model)
-    results = metric._score_batch(testset)
-    assert results[0] >= 0 and results[0] <= 1
-    assert isinstance(results[1], pd.DataFrame)
+    score, results = metric.compute(testset)
+    assert score >= 0 or score <= 1
+    assert isinstance(results, Dataset)
 
 @pytest.mark.slow
 def test_batch_on_context_recall_metric_fakellm2(testset):
     metric = ContextRecall()
     model = FakeListLLM(responses=['wrong response format'])
     metric.init_model(model)
-    results = metric._score_batch(testset)
-    assert results[0] >= 0 and results[0] <= 1
-    assert isinstance(results[1], pd.DataFrame)
+    score, results = metric.compute(testset)
+    assert score >= 0 or score <= 1
+    assert isinstance(results, Dataset)
