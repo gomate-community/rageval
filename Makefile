@@ -46,8 +46,7 @@
 init:
 	pip3 install -r requirements.txt
 
-# TEST_ARGS = -v --full-trace -l --doctest-modules --doctest-continue-on-failure --cov rageval/ --cov-report term-missing --cov-report html --cov-config .coveragerc rageval/ tests/ -W ignore::DeprecationWarning
-TEST_ARGS = -v --full-trace -l --doctest-modules --doctest-continue-on-failure --cov rageval/ --cov-report term-missing --cov-report html --cov-config .coveragerc tests/ -W ignore::DeprecationWarning
+TEST_ARGS = -v --full-trace -l --doctest-modules --doctest-continue-on-failure --cov rageval/ --cov-report term-missing --cov-report html --cov-config .coveragerc rageval/ tests/ -W ignore::DeprecationWarning
 FLAKE_ARGS = ./rageval --exclude=__init__.py
 
 test:

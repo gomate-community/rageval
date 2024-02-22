@@ -24,22 +24,18 @@ class AnswerGroundedness(Metric):
     name : str
     batch_size : int, Batch size for openai completion.
 
-    Example:
-    ```
-    >>> from datasets import Dataset
-    >>> import rageval as rl
-    >>> sample = {
-        "questions": ["this is a test"],
-        "answers": ["test answer"],
-        "contexts": ["test context"]
-    }
-    >>> dataset = Dataset.from_dict(sampe)
-    >>> s, ds = rl.AnswerGroundedness.score(dataset)
-    >>> assert s == 0 or s == 1
-    true
-    >>> assert isinstance(Dataset, ds)
-    true
-    ```
+    Examples:
+        >>> from datasets import Dataset
+        >>> import rageval as rl
+        >>> sample = {"questions": ["this is a test"],"answers": ["test answer"],"contexts": ["test context"]}
+        >>> dataset = Dataset.from_dict(sample)
+        >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
+        >>> metric = rl.metrics.AnswerGroundedness()
+        >>> metric.init_model(model)
+        >>> s,ds = metric.compute(dataset, batch_size=1)
+        >>> assert s == 0 or s == 1
+        >>> type(ds)
+        <class 'datasets.arrow_dataset.Dataset'>
 
     """
 
@@ -63,7 +59,7 @@ class AnswerGroundedness(Metric):
         else:
             return False
 
-    def _score_one(
+    def _compute_one(
         self,
         answer: str,
         evidences: List[str]
@@ -92,9 +88,10 @@ class AnswerGroundedness(Metric):
                 "factuality": label,
             })
             scores.append(label)
+        # Note that the detail_results can be recorded by logger.info
         return np.average(scores)
 
-    def _score_batch(
+    def _compute_batch(
         self,
         dataset: Dataset
     ) -> list:
@@ -114,6 +111,6 @@ class AnswerGroundedness(Metric):
         results = []
         for i, answer in enumerate(answers):
             # decompose answers into a list of claim
-            r = self._score_one(answer, contexts[i])
+            r = self._compute_one(answer, contexts[i])
             results.append(r)
         return results
