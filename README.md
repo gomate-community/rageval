@@ -37,3 +37,5 @@ results = metric._score_batch(teset_set)
 Please make sure to read the [Contributing Guide](./CONTRIBUTING.md) before creating a pull request.
 
 ## About
+
+This project is currently at its preliminary stage.
