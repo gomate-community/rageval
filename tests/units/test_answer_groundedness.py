@@ -23,18 +23,10 @@ def testset(sample):
     ds = Dataset.from_dict(sample)
     return ds
 
-def test_case_on_answer_groundedness_metric(sample):
+def test_case_on_answer_groundedness_metric(testset):
     metric = AnswerGroundedness()
     model = NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
     metric.init_model(model)
-    results = metric._score(sample['answers'][0], sample['contexts'][0])
-    assert results[0] == 0 or results[0] == 1
-    assert isinstance(results[1], pd.DataFrame)
-
-def test_batch_on_answer_groundedness_metric(testset):
-    metric = AnswerGroundedness()
-    model = NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-    metric.init_model(model)
-    results = metric._score_batch(testset)
-    assert results[0] == 0 or results[0] == 1
-    assert isinstance(results[1], pd.DataFrame)
+    score, results = metric.score(testset, 1)
+    assert score == 0 or score == 1
+    assert isinstance(results, Dataset)

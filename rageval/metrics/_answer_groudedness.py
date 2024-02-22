@@ -24,6 +24,23 @@ class AnswerGroundedness(Metric):
     name : str
     batch_size : int, Batch size for openai completion.
 
+    Example:
+    ```
+    >>> from datasets import Dataset
+    >>> import rageval as rl
+    >>> sample = {
+        "questions": ["this is a test"],
+        "answers": ["test answer"],
+        "contexts": ["test context"]
+    }
+    >>> dataset = Dataset.from_dict(sampe)
+    >>> s, ds = rl.AnswerGroundedness.score(dataset)
+    >>> assert s == 0 or s == 1
+    true
+    >>> assert isinstance(Dataset, ds)
+    true
+    ```
+
     """
 
     name: str = "answer_groundednss"  # type: ignore
@@ -46,11 +63,11 @@ class AnswerGroundedness(Metric):
         else:
             return False
 
-    def _score(
+    def _score_one(
         self,
         answer: str,
-        evidences: List[str],
-    ) -> list:
+        evidences: List[str]
+    ) -> float:
         """
         Evaluate the groundedness of an answer.
 
@@ -59,27 +76,27 @@ class AnswerGroundedness(Metric):
         Finally, aggregate all faithfulness score of each claim.
         """
 
-        results = []
+        detail_results = []
         # decompose answers into a list of claim
         claims = text_to_sents(answer)
+        scores = []
 
         for i, claim in enumerate(claims):
             # obtain the faithfulness of each claim by language inference model.
             label = self._verify_by_stance(claim, evidences)
-            results.append({
+            detail_results.append({
                 "claim": claim,
                 "evidence": evidences[i],
                 "reasoning": "",
                 "error": "",
                 "factuality": label,
             })
-        df = pd.DataFrame(results)
-        return all(df['factuality']), df
+            scores.append(label)
+        return np.average(scores)
 
     def _score_batch(
         self,
-        dataset: Dataset,
-        callback_group_name: str = "batch",
+        dataset: Dataset
     ) -> list:
         """
         Evaluate the groundedness of a batch of answers.
@@ -97,8 +114,6 @@ class AnswerGroundedness(Metric):
         results = []
         for i, answer in enumerate(answers):
             # decompose answers into a list of claim
-            _, r = self._score(answer, contexts[i])
-
+            r = self._score_one(answer, contexts[i])
             results.append(r)
-        df = pd.concat(results)
-        return all(df['factuality']), df
+        return results
