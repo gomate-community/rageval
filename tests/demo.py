@@ -19,8 +19,6 @@ from datasets import Dataset
 import os
  
 
-os.environ["OPENAI_API_KEY"] = "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"
- 
 # 准备您的huggingface数据集，格式如下
 # Dataset({
 #     features: ['question', 'contexts', 'answer', 'ground_truths'],
