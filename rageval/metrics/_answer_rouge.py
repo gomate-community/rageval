@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import pytest
-import numpy as np
-import pandas as pd
-from abc import ABC
-from typing import List, Any, Callable
+from typing import List, Any, Callable, Union
 from rouge_score import rouge_scorer
 
 from datasets import Dataset
 from dataclasses import dataclass
 
 from rageval.metrics import Metric
-from rageval.utils import text_to_sents
 
 
 @dataclass
@@ -32,13 +27,12 @@ class AnswerRouge(Metric):
 
     This metrics is a wrapper around the https://github.com/google-research/google-research/blob/master/rouge/rouge_scorer.py
 
-    Examples:
     """
 
     name = "answer_rouge"
 
-    def init_model(self, rouge_type: str, tokenizer: Callable|None = None):
-        """Initializee the rouge type."""
+    def init_model(self, rouge_type: str, tokenizer: Union[Callable, None] = None):
+        """Initialize the rouge type."""
         self.rouge_type = rouge_type
         self.scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True, tokenizer=tokenizer)
 
