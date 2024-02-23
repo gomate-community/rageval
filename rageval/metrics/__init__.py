@@ -1,4 +1,6 @@
-from .base import Metric, MetricWithLLM, add_attribute
+from .base import Metric
+from .base import MetricWithLLM
 from ._context_recall import ContextRecall
-from ._answer_exact_match import AnswerEMCorrectness
-from ._answer_claim_recall import AnswerNLICorrectness
+from ._answer_exact_match import AnswerExactMatch
+from ._answer_groudedness import AnswerGroundedness
+from ._answer_rouge import AnswerRouge
