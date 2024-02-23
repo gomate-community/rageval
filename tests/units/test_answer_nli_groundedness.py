@@ -1,4 +1,4 @@
-"""Test the AnswerGroundedness Metric."""
+"""Test the AnswerNLIGroundedness Metric."""
 
 # -*- coding: utf-8 -*-
 
@@ -8,7 +8,7 @@ import pandas as pd
 from datasets import Dataset
 
 from rageval.models import NLIModel
-from rageval.metrics import AnswerGroundedness
+from rageval.metrics import AnswerNLIGroundedness
 
 @pytest.fixture(scope='module')
 def sample():
@@ -24,9 +24,10 @@ def testset(sample):
     return ds
 
 def test_case_on_answer_groundedness_metric(testset):
-    metric = AnswerGroundedness()
+    metric = AnswerNLIGroundedness()
     model = NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
     metric.init_model(model)
+    assert metric.mtype == 'AnswerGroundedness'
     score, results = metric.compute(testset, 1)
     assert score == 0 or score == 1
     assert isinstance(results, Dataset)

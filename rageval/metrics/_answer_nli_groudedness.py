@@ -10,12 +10,13 @@ from typing import List, Any, Callable
 from datasets import Dataset
 from dataclasses import dataclass
 
-from rageval.metrics import Metric
+from rageval.metrics import Metric, add_attribute
 from rageval.utils import text_to_sents
 
 
 @dataclass
-class AnswerGroundedness(Metric):
+@add_attribute('mtype', 'AnswerGroundedness')
+class AnswerNLIGroundedness(Metric):
     """
     Estimates answer groundedness by estimating citation precision/recall using answer and retrieved context.
 
@@ -30,7 +31,9 @@ class AnswerGroundedness(Metric):
         >>> sample = {"questions": ["this is a test"],"answers": ["test answer"],"contexts": [["test context"]]}
         >>> dataset = Dataset.from_dict(sample)
         >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-        >>> metric = rl.metrics.AnswerGroundedness()
+        >>> metric = rl.metrics.AnswerNLIGroundedness()
+        >>> metric.mtype
+        'AnswerGroundedness'
         >>> metric.init_model(model)
         >>> s,ds = metric.compute(dataset, batch_size=1)
         >>> assert s == 0 or s == 1
@@ -39,7 +42,8 @@ class AnswerGroundedness(Metric):
 
     """
 
-    name = "answer_groundedness"
+    name = "answer_nli_groundedness"
+    _required_columns = ['answers', 'contexts']
 
     def init_model(self, model: Callable):
         """Initializee the LLM model."""

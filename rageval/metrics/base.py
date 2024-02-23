@@ -5,21 +5,41 @@ import numpy as np
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from math import floor
+from collections import defaultdict
 
 from datasets import Dataset
 from tqdm import tqdm
 from langchain.schema import LLMResult
 
 
+def add_attribute(attribute_name, attribute_value):
+    """
+    This decorate is used to set attribute for Class.
+
+    Currently, this decorate can be used to set attr:metric_type for each metric.
+    There are four types, i.e., 'AnswerCorrectness', 'AnswerGroundedness', 'ContextRelevancy', 'ContextAdequacy', for all RAG metrics.
+    """
+    def decorator(cls):
+        setattr(cls, attribute_name, attribute_value)
+        return cls
+    return decorator
+
+
 @dataclass
 class Metric(ABC):
     """Metric base class without LLM."""
+
+    _required_columns = []
 
     @property
     @abstractmethod
     def name(self) -> str:
         """The metric name."""
         ...
+
+    def _validate_data(self, dataset: Dataset) -> bool:
+        """Validate the of the input dataset."""
+        return all(c in dataset.column_names for c in self._required_columns)
 
     def compute(
         self,
@@ -29,6 +49,8 @@ class Metric(ABC):
         """Evaluate the dataset."""
         scores = []
         length = len(dataset)
+        if not self._validate_data(dataset):
+            raise ValueError("The input dataset of f{self.name} metric should include f{self._required_columns} columns.")
         if batch_size:
             for start in tqdm(range(0, length, batch_size)):
                 end = start + batch_size
