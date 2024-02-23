@@ -1,6 +1,5 @@
 import pytest
 from datasets import Dataset
-import logging
 
 from rageval.metrics import AnswerExactMatch
 
