@@ -39,8 +39,7 @@ class AnswerGroundedness(Metric):
 
     """
 
-    name: str = "answer_groundednss"  # type: ignore
-    batch_size: int = 2
+    name = "answer_groundedness"
 
     def init_model(self, model: Callable):
         """Initializee the LLM model."""

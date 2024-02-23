@@ -21,12 +21,10 @@ class ContextRecall(MetricWithLLM):
     Attributes
     ----------
     name : str
-    batch_size : int, Batch size for openai completion.
 
     """
 
-    name: str = "context_recall"  # type: ignore
-    batch_size: int = 15
+    name = "context_recall"
 
     def init_model(self, model: typing.Callable):
         """Initializee the LLM model."""

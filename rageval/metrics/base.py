@@ -15,7 +15,11 @@ from langchain.schema import LLMResult
 class Metric(ABC):
     """Metric base class without LLM."""
 
-    batch_size: int
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """The metric name."""
+        ...
 
     def compute(
         self,
