@@ -5,7 +5,7 @@
 *.weights
 *.DS_Store
 .vscode
-.coverage
+.coverage*
 RagEval.egg-info/*
 log/*
 build/*

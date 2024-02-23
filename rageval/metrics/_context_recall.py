@@ -21,17 +21,14 @@ class ContextRecall(MetricWithLLM):
     Attributes
     ----------
     name : str
-    batch_size : int, Batch size for openai completion.
 
     """
 
-    name: str = "context_recall"  # type: ignore
-    batch_size: int = 15
+    name = "context_recall"
 
     def init_model(self, model: typing.Callable):
-        """Initializee the LLM model with OpenAILLM."""
+        """Initializee the LLM model."""
         self. llm = model
-        # self.llm: OpenAILLM = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
 
     def parse_llm_result(self, prompts: str, result: LLMResult):
         """
@@ -40,6 +37,7 @@ class ContextRecall(MetricWithLLM):
         TODO: use prompts to parse the result.
         """
         results = []
+        scores = []
         responses = [[i.text for i in r] for r in result.generations]
         # for each question-answer pair
         for response in responses:
@@ -50,21 +48,22 @@ class ContextRecall(MetricWithLLM):
                     str(item)
                     for item in response
                 ]
-                scores = [
+                score = [
                     int(item.get("Attributed", "0").strip() == "1")
                     if item.get("Attributed")
                     else np.nan
                     for item in response
                 ]
-                data = {'reasoning': reasonings, 'score': scores}
-                results.append(pd.DataFrame(data))
+                data = {'reasoning': reasonings, 'score': score}
+                scores.append(np.average(score))
             else:
-                data = {'reasoning': [np.nan], 'score': [np.nan]}
-                results.append(pd.DataFrame(data))
-        df = pd.concat(results)
-        return df
+                data = {'reasoning': [np.nan], 'score': [0.]}
+                scores.append(0.)
+            results.append(pd.DataFrame(data))
+        # Note that the `results can be recorded by logger.info`
+        return scores
 
-    def _score_batch(
+    def _compute_batch(
         self,
         dataset: Dataset,
     ) -> list:
@@ -85,6 +84,5 @@ class ContextRecall(MetricWithLLM):
             prompts.append(prompt)
 
         result = self.llm.generate(prompts)
-        result = self.parse_llm_result(prompts, result)
-        average_score = result['score'].mean() if not np.isnan(result['score'].mean()) else 0
-        return average_score, result
+        scores = self.parse_llm_result(prompts, result)
+        return scores
