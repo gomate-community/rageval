@@ -24,10 +24,22 @@ class AnswerGroundedness(Metric):
     name : str
     batch_size : int, Batch size for openai completion.
 
+    Examples:
+        >>> from datasets import Dataset
+        >>> import rageval as rl
+        >>> sample = {"questions": ["this is a test"],"answers": ["test answer"],"contexts": ["test context"]}
+        >>> dataset = Dataset.from_dict(sample)
+        >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
+        >>> metric = rl.metrics.AnswerGroundedness()
+        >>> metric.init_model(model)
+        >>> s,ds = metric.compute(dataset, batch_size=1)
+        >>> assert s == 0 or s == 1
+        >>> type(ds)
+        <class 'datasets.arrow_dataset.Dataset'>
+
     """
 
-    name: str = "answer_groundednss"  # type: ignore
-    batch_size: int = 2
+    name = "answer_groundedness"
 
     def init_model(self, model: Callable):
         """Initializee the LLM model."""
@@ -46,11 +58,11 @@ class AnswerGroundedness(Metric):
         else:
             return False
 
-    def _score(
+    def _compute_one(
         self,
         answer: str,
-        evidences: List[str],
-    ) -> list:
+        evidences: List[str]
+    ) -> float:
         """
         Evaluate the groundedness of an answer.
 
@@ -59,27 +71,28 @@ class AnswerGroundedness(Metric):
         Finally, aggregate all faithfulness score of each claim.
         """
 
-        results = []
+        detail_results = []
         # decompose answers into a list of claim
         claims = text_to_sents(answer)
+        scores = []
 
         for i, claim in enumerate(claims):
             # obtain the faithfulness of each claim by language inference model.
             label = self._verify_by_stance(claim, evidences)
-            results.append({
+            detail_results.append({
                 "claim": claim,
                 "evidence": evidences[i],
                 "reasoning": "",
                 "error": "",
                 "factuality": label,
             })
-        df = pd.DataFrame(results)
-        return all(df['factuality']), df
+            scores.append(label)
+        # Note that the detail_results can be recorded by logger.info
+        return np.average(scores)
 
-    def _score_batch(
+    def _compute_batch(
         self,
-        dataset: Dataset,
-        callback_group_name: str = "batch",
+        dataset: Dataset
     ) -> list:
         """
         Evaluate the groundedness of a batch of answers.
@@ -97,8 +110,6 @@ class AnswerGroundedness(Metric):
         results = []
         for i, answer in enumerate(answers):
             # decompose answers into a list of claim
-            _, r = self._score(answer, contexts[i])
-
+            r = self._compute_one(answer, contexts[i])
             results.append(r)
-        df = pd.concat(results)
-        return all(df['factuality']), df
+        return results

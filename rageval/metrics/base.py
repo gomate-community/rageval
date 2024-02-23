@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import typing
+import numpy as np
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from math import floor
@@ -8,78 +11,48 @@ from tqdm import tqdm
 from langchain.schema import LLMResult
 
 
-def make_batches(total_size: int, batch_size: int) -> list:
-    """Take a total size and batch size and return a list of ranges for the batches."""
-    tail = total_size % batch_size
-    num_batches = floor(total_size / batch_size)
-    batches = [
-        range(i, i + batch_size) for i in range(0, batch_size * num_batches, batch_size)
-    ]
-    if tail != 0:
-        batches.append(range(batch_size * num_batches, batch_size * num_batches + tail))
-
-    return batches
-
-
 @dataclass
 class Metric(ABC):
     """Metric base class without LLM."""
 
-    batch_size: int
-
+    @property
     @abstractmethod
-    def init_model(self, model: typing.Callable):
-        """This method will lazy initialize the model."""
+    def name(self) -> str:
+        """The metric name."""
         ...
 
-    def score(
+    def compute(
         self,
         dataset: Dataset,
-    ) -> Dataset:
+        batch_size: int = None,
+    ) -> (float, Dataset):
         """Evaluate the dataset."""
         scores = []
-        for batch in tqdm(self.get_batches(len(dataset))):
-            score = self._score_batch(dataset.select(batch))
-            scores.extend(score)
+        length = len(dataset)
+        if batch_size:
+            for start in tqdm(range(0, length, batch_size)):
+                end = start + batch_size
+                end = end if end < length else length
+                score = self._compute_batch(dataset.select(range(start, end)))
+                scores.extend(score)
+        else:
+            scores = self._compute_batch(dataset)
 
-        return dataset.add_column(f"{self.name}", scores)  # type: ignore
+        return np.average(scores), dataset.add_column(f"{self.name}", scores)
 
     @abstractmethod
-    def _score_batch(
-        self,
-        dataset: Dataset,
-    ) -> list:
+    def _compute_batch(self, dataset: Dataset) -> list:
         ...
-
-    def get_batches(self, dataset_size: int) -> list:
-        """Get batches."""
-        return make_batches(dataset_size, self.batch_size)
 
 
 @dataclass
 class MetricWithLLM(Metric):
     """Metrics based on LLM."""
 
-    from rageval.models.openai import OpenAILLM
-
-    # llm: ragevalLLM = field(default_factory=llm_factory)
-    llm: OpenAILLM = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
-
-    def init_model(self):
-        """
-        Initialize the LLM model.
-
-        Init any models in the metric, this is invoked before evaluate()
-        to load all the models
-        Also check if the api key is valid for OpenAI and AzureOpenAI
-        """
-        if hasattr(self.llm, "validate_api_key"):
-            self.llm.validate_api_key()
-        if hasattr(self, "embeddings"):
-            # since we are using Langchain Embeddings directly, we need to check this
-            if hasattr(self.embeddings, "validate_api_key"):
-                # TODO
-                ...
+    @abstractmethod
+    def init_model(self, model: typing.Callable):
+        """This method will lazy initialize the model."""
+        ...
 
     def parse_llm_result(self, prompts: [str], result: LLMResult):
         """Parse the LLM Result based on the Prompt."""
