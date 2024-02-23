@@ -27,7 +27,7 @@ class AnswerGroundedness(Metric):
     Examples:
         >>> from datasets import Dataset
         >>> import rageval as rl
-        >>> sample = {"questions": ["this is a test"],"answers": ["test answer"],"contexts": ["test context"]}
+        >>> sample = {"questions": ["this is a test"],"answers": ["test answer"],"contexts": [["test context"]]}
         >>> dataset = Dataset.from_dict(sample)
         >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
         >>> metric = rl.metrics.AnswerGroundedness()
@@ -81,7 +81,7 @@ class AnswerGroundedness(Metric):
             label = self._verify_by_stance(claim, evidences)
             detail_results.append({
                 "claim": claim,
-                "evidence": evidences[i],
+                "evidence": evidences,
                 "reasoning": "",
                 "error": "",
                 "factuality": label,

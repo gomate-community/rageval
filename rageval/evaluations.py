@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import typing as t
+import typing
 import numpy as np
 from dataclasses import dataclass, field
 from datasets import Dataset, concatenate_datasets
@@ -10,53 +10,19 @@ from rageval.metrics import Metric
 
 def evaluate(
         testset: Dataset,
-        metrics: list[Metric] | None = None) -> Result:
+        metrics: list[Metric] | None = None,
+        models: list[typing.Callable] | None = None) -> (Dataset, Dataset):
     """Conduct the evaluation on testset."""
 
     # run evaluation
-    [m.init_model() for m in metrics]
-    scores = []
+    assert (len(metrics) == len(models))
+    [metrics[i].init_model(models[i]) for i in range(len(metrics))]
+    avg_scores = []
+    instance_scores = [testset]
     for metric in metrics:
         print(f"evaluating with [{metric.name}]")
-        scores.append(metric.score(testset).select_columns(metric.name))
+        avg_score, _testset = metric.compute(testset)
+        avg_scores.append(Dataset.from_dict({metric.name: [avg_score]}))
+        instance_scores.append(_testset.select_columns(metric.name))
 
-    # evaluation log
-    # TODO
-
-    return Result(
-        scores=concatenate_datasets(scores, axis=1),
-        testset=testset,
-    )
-
-
-@dataclass
-class Result(dict):
-    """This is the docstring (wenshan fix)."""
-
-    scores: Dataset
-    testset: Dataset | None = None
-
-    def __post_init__(self):
-        """Post initialization."""
-        values = []
-        for cn in self.scores.column_names:
-            value = np.nanmean(self.scores[cn])
-            self[cn] = value
-            if cn not in self.binary_columns:
-                value = t.cast(float, value)
-                values.append(value + 1e-10)
-
-    def to_pandas(self, batch_size: int | None = None, batched: bool = False):
-        """Convert batch to pandas."""
-        if self.testset is None:
-            raise ValueError("testset is not provided for the results class")
-        assert self.scores.shape[0] == self.testset.shape[0]
-        result_ds = concatenate_datasets([self.testset, self.scores], axis=1)
-
-        return result_ds.to_pandas(batch_size=batch_size, batched=batched)
-
-    def __repr__(self) -> str:
-        """Repr."""
-        scores = self.copy()
-        score_strs = [f"'{k}': {v:0.4f}" for k, v in scores.items()]
-        return "{" + ", ".join(score_strs) + "}"
+    return concatenate_datasets(avg_scores), concatenate_datasets(instance_scores)
