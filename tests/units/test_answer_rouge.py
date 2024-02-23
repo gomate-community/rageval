@@ -1,10 +1,11 @@
 import pytest
 from datasets import Dataset
+from typing import List
 from rageval.metrics import AnswerRouge
 
 class CharTokenizer:
     """Tokenize text into characters."""
-    def tokenize(self, text: str) -> list[str]:
+    def tokenize(self, text: str) -> List[str]:
         # Tokenize by characters to avoid a dependency on word segmentation methods.
         return [c for c in text]
 
