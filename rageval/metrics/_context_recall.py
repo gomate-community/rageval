@@ -7,13 +7,14 @@ from datasets import Dataset
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema import LLMResult
 
-from rageval.metrics.base import MetricWithLLM
+from rageval.metrics import MetricWithLLM, add_attribute
 from rageval.models.openai import OpenAILLM
 from rageval.utils.utility import json_loader
 from rageval.utils import CONTEXT_RECALL_RA
 
 
 @dataclass
+@add_attribute('mtype', 'ContextRelevancy')
 class ContextRecall(MetricWithLLM):
     """
     Estimates context recall by estimating TP and FN using annotated answer and retrieved context.
@@ -25,6 +26,7 @@ class ContextRecall(MetricWithLLM):
     """
 
     name = "context_recall"
+    _required_columns = ['questions', 'gt_answers', 'contexts']
 
     def init_model(self, model: typing.Callable):
         """Initializee the LLM model."""
