@@ -6,10 +6,10 @@ from rouge_score import rouge_scorer
 from datasets import Dataset
 from dataclasses import dataclass
 
-from rageval.metrics import Metric
-
+from rageval.metrics import Metric, add_attribute
 
 @dataclass
+@add_attribute('mtype', 'AnswerCorrectness')
 class AnswerRouge(Metric):
     """
     Estimates ROUGE score by estimating answer and groundtruth answers.
@@ -26,9 +26,22 @@ class AnswerRouge(Metric):
         "rougeLSum": splits text using "\n"
     tokenizer : Callable, optional, for non-latin languages, a tokenizer can be passed to the scorer. For example, the `jieba.cut` can be used for Chinese.
 
+    Examples:
+        >>> from datasets import Dataset
+        >>> import rageval as rl
+        >>> sample = {"answers": ["test answer"],"gt_answers": [["test gt_answer", "test groundtruth answer"]]}
+        >>> dataset = Dataset.from_dict(sample)
+        >>> metric = rl.metrics.AnswerRouge()
+        >>> metric.init_model('rougeL')
+        >>> score, results = metric.compute(dataset, batch_size = 1)
+        >>> assert 0 <= score <= 1
+        >>> type(results)
+        <class 'datasets.arrow_dataset.Dataset'>
+
     """
 
     name = "answer_rouge"
+    _required_columns = ['answers', 'gt_answers']
 
     def init_model(self, rouge_type: str, tokenizer: Union[Callable, None] = None):
         """Initialize the rouge type."""
