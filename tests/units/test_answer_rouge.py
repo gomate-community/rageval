@@ -42,11 +42,13 @@ def test_case_on_answer_exact_match(testset):
     chinese_tokenizer = CharTokenizer()
     metric.init_model('rouge1', chinese_tokenizer)
     score, results = metric.compute(testset, 1)
+    assert metric.mtype == 'AnswerCorrectness'
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)
     
     # Test with English tokenizer
     metric.init_model('rouge1')
     score, results = metric.compute(testset, 1)
+    assert metric.mtype == 'AnswerCorrectness'
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)
