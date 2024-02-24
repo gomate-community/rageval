@@ -41,7 +41,7 @@ def test_batch_on_context_recall_metric_fakellm1(testset):
     metric.init_model(model)
     score, results = metric.compute(testset)
     assert metric.mtype == 'ContextRelevancy'
-    assert score >= 0 or score <= 1
+    assert 0 <= score <= 1
     assert isinstance(results, Dataset)
 
 @pytest.mark.slow
@@ -51,5 +51,5 @@ def test_batch_on_context_recall_metric_fakellm2(testset):
     metric.init_model(model)
     score, results = metric.compute(testset)
     assert metric.mtype == 'ContextRelevancy'
-    assert score >= 0 or score <= 1
+    assert 0 <= score <= 1
     assert isinstance(results, Dataset)
