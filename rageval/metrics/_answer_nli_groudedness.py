@@ -7,43 +7,86 @@ from abc import ABC
 from typing import List, Any, Callable
 
 
-from datasets import Dataset
+import datasets
+# from datasets import Dataset
 from dataclasses import dataclass
 
 from rageval.metrics import Metric, add_attribute
 from rageval.utils import text_to_sents
 
 
-@dataclass
-@add_attribute('mtype', 'AnswerGroundedness')
-class AnswerNLIGroundedness(Metric):
-    """
-    Estimates answer groundedness by estimating citation precision/recall using answer and retrieved context.
+_DESCRIPTION = """\
+AnswerNLIGroundedness is the metric build based on NLI model.
 
-    Attributes
-    ----------
+For details, see the paper: https://arxiv.org/abs/XXX.
+"""
+
+_KWARGS_DESCRIPTION = """\
+Args:
     name : str
     batch_size : int, Batch size for openai completion.
 
-    Examples:
-        >>> from datasets import Dataset
-        >>> import rageval as rl
-        >>> sample = {"questions": ["this is a test"],"answers": ["test answer"],"contexts": [["test context"]]}
-        >>> dataset = Dataset.from_dict(sample)
-        >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-        >>> metric = rl.metrics.AnswerNLIGroundedness()
-        >>> metric.mtype
-        'AnswerGroundedness'
-        >>> metric.init_model(model)
-        >>> s,ds = metric.compute(dataset, batch_size=1)
-        >>> assert s == 0 or s == 1
-        >>> type(ds)
-        <class 'datasets.arrow_dataset.Dataset'>
+Optional Args:
+    None
 
-    """
+Functions:
+    init_model: initialize the model used in evaluation.
+    _verify_by_stance: verify whether the stance of args:`claim` can be supported by args:`evidences`.
+    _compute_one: compute the score by measure whether the args:`answer` can be supported by args:`evidences`.
+
+Examples:
+    >>> from datasets import Dataset
+    >>> import rageval as rl
+    >>> sample = {"questions": ["this is a test"],"answers": ["test answer"],"contexts": [["test context"]]}
+    >>> dataset = Dataset.from_dict(sample)
+    >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
+    >>> metric = rl.metrics.AnswerNLIGroundedness()
+    >>> metric.mtype
+    'AnswerGroundedness'
+    >>> metric.init_model(model)
+    >>> s,ds = metric.compute(dataset, batch_size=1)
+    >>> assert s == 0 or s == 1
+    >>> type(ds)
+    <class 'datasets.arrow_dataset.Dataset'>
+"""
+
+_CITATION = """\
+@inproceeding={
+    title={},
+    author={},
+    booklet={},
+    year={2021}
+}
+"""
+
+
+@dataclass
+@add_attribute('mtype', 'AnswerGroundedness')
+@datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
+class AnswerNLIGroundedness(Metric):
 
     name = "answer_nli_groundedness"
-    _required_columns = ['answers', 'contexts']
+
+    def __init__(self):
+        """Explicitly initialize the AnswerNLIGroundedness to ensure all parent class initialized."""
+        self._required_columns = ['answers', 'contexts']
+        super().__init__()
+
+    def _info(self):
+        return datasets.MetricInfo(
+            description=_DESCRIPTION,
+            inputs_description=_KWARGS_DESCRIPTION,
+            citation=_CITATION,
+            homepage="",
+            features=datasets.Features(
+                {
+                    "answers": datasets.Value("string", id="sequence"),
+                    "contexts": datasets.Value("string", id="sequence"),
+                }
+            ),
+            codebase_urls=[],
+            reference_urls=[]
+        )
 
     def init_model(self, model: Callable):
         """Initializee the LLM model."""
@@ -96,7 +139,7 @@ class AnswerNLIGroundedness(Metric):
 
     def _compute_batch(
         self,
-        dataset: Dataset
+        dataset: datasets.Dataset
     ) -> list:
         """
         Evaluate the groundedness of a batch of answers.

@@ -27,6 +27,8 @@ def test_case_on_answer_groundedness_metric(testset):
     metric = AnswerNLIGroundedness()
     model = NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
     metric.init_model(model)
+    assert metric.name == "answer_nli_groundedness"
+    assert metric.homepage == ""
     assert metric.mtype == 'AnswerGroundedness'
     score, results = metric.compute(testset, 1)
     assert score == 0 or score == 1
