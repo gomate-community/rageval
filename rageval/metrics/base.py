@@ -7,7 +7,9 @@ from dataclasses import dataclass, field
 from math import floor
 from collections import defaultdict
 
-from datasets import Dataset
+from datasets import Dataset, MetricInfo
+from datasets.metric import MetricInfoMixin
+from datasets.naming import camelcase_to_snakecase
 from tqdm import tqdm
 from langchain.schema import LLMResult
 
@@ -26,16 +28,44 @@ def add_attribute(attribute_name, attribute_value):
 
 
 @dataclass
-class Metric(ABC):
+class Metric(MetricInfoMixin):
     """Metric base class without LLM."""
 
-    _required_columns = []
+    def __init__(
+        self,
+        config_name: typing.Optional[str] = None,
+        experiment_id: typing.Optional[str] = None
+    ):
+        """Initialization.
+
+        Args:
+            config_name: type(string), Optional.
+            experiment_id: type(string), Optional.
+        """
+        self._required_columns = []
+        info = self._info()
+        info.metric_name = camelcase_to_snakecase(self.__class__.__name__)
+        info.config_name = config_name or "default"
+        info.experiment_id = experiment_id or "default_experiment"
+        MetricInfoMixin.__init__(self, info)
 
     @property
     @abstractmethod
     def name(self) -> str:
         """The metric name."""
         ...
+
+    def _info(self) -> MetricInfo:
+        """Construct the MetricInfo object. See `datasets.MetricInfo` for details.
+
+        Warning: This function is only called once and the result is cached for all
+        following .info() calls.
+
+        Returns:
+            info: (datasets.MetricInfo) The metrics information
+
+        """
+        raise NotImplementedError
 
     def _validate_data(self, dataset: Dataset) -> bool:
         """Validate the of the input dataset."""
