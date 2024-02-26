@@ -53,7 +53,7 @@ Examples:
 
 _CITATION = """\
 @misc{stelmakh2023asqa,
-      title={ASQA: Factoid Questions Meet Long-Form Answers}, 
+      title={ASQA: Factoid Questions Meet Long-Form Answers},
       author={Ivan Stelmakh and Yi Luan and Bhuwan Dhingra and Ming-Wei Chang},
       year={2023},
       eprint={2204.06092},
