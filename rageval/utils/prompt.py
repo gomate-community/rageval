@@ -494,5 +494,5 @@ else, output your answer.
 
 Question: {question}
 Evidence: {evidence}
-Answer: 
+Answer:
 """
