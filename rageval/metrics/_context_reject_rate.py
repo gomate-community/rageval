@@ -74,8 +74,7 @@ class ContextRejectRate(MetricWithLLM):
                 question=question_, evidence=context
             )
             prompts.append(prompt)
-        
+
         result = self.llm.generate(prompts)
         score = self.parse_llm_result(prompts, result)
         return score
-    
