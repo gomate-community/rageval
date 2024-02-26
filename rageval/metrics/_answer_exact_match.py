@@ -37,9 +37,7 @@ Examples:
     ...         [
     ...             ["Jeanne Calment"],
     ...             ["Sarah Knauss"],
-    ...             ["Augusta Holtz"],
-    ...             ["xxxx"],
-    ...             ["xxxx", "Calment"]
+    ...             ["Augusta-Holtz"],
     ...         ]
     ...     ],
     ... }
@@ -54,11 +52,13 @@ Examples:
 """
 
 _CITATION = """\
-@inproceeding={
-    title={},
-    author={},
-    booklet={},
-    year={}
+@misc{stelmakh2023asqa,
+      title={ASQA: Factoid Questions Meet Long-Form Answers}, 
+      author={Ivan Stelmakh and Yi Luan and Bhuwan Dhingra and Ming-Wei Chang},
+      year={2023},
+      eprint={2204.06092},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
 }
 """
 
