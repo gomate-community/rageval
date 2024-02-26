@@ -4,14 +4,16 @@ from typing import List
 import numpy as np
 from datasets import Dataset
 
-from rageval.metrics import Metric
+from rageval.metrics import Metric, add_attribute
 
 
 @dataclass
+@add_attribute('mtype', 'AnswerCorrectness')
 class AnswerExactMatch(Metric):
     """Estimates correctness using annotated short answers."""
 
     name = "answer_exact_match"
+    _required_columns = ['answers', 'gt_answers']
 
     def _compute_one(self, output: str, short_answers: List[List]) -> float:
         """Compute the correctness of a single answer."""
