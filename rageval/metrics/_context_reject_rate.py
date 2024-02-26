@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from langchain.schema import LLMResult
 
 from rageval.metrics import MetricWithLLM, add_attribute
-from rageval.utils import REJECT_RATE_PROMPT
+from rageval.utils.prompt import REJECT_RATE_PROMPT
 
 
 _DESCRIPTION = """\
