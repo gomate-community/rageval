@@ -20,9 +20,7 @@ def sample():
             [
                 ["Jeanne Calment"],
                 ["Sarah Knauss"],
-                ["Augusta Holtz"],
-                ["xxxx"],
-                ["xxxx", "Calment"]
+                ["Augusta-Holtz"],
             ]
         ]
     }
