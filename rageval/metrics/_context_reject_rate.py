@@ -17,8 +17,8 @@ from rageval.utils.prompt import REJECT_RATE_PROMPT
 
 
 _DESCRIPTION = """\
-ContextRejectRate is the metric to meature the unknown robustness of LLM based 
-on the given context. 
+ContextRejectRate is the metric to meature the unknown robustness of LLM based
+on the given context.
 
 """
 
@@ -55,7 +55,7 @@ class ContextRejectRate(MetricWithLLM):
                 num = num + 1
             else:
                 num = num + 1
-        score = num_reject/num
+        score = num_reject / num
         return score
 
     def _compute_batch(
@@ -78,3 +78,4 @@ class ContextRejectRate(MetricWithLLM):
         result = self.llm.generate(prompts)
         score = self.parse_llm_result(prompts, result)
         return score
+    
