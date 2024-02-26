@@ -8,6 +8,7 @@ from dataclasses import dataclass
 
 from rageval.metrics import Metric, add_attribute
 
+
 @dataclass
 @add_attribute('mtype', 'AnswerCorrectness')
 class AnswerRouge(Metric):
