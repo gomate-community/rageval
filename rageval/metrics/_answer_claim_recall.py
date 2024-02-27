@@ -1,24 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import pytest
-import numpy as np
-import pandas as pd
-from abc import ABC
 from typing import List, Any, Callable
 
-
 import datasets
-# from datasets import Dataset
+import numpy as np
 from dataclasses import dataclass
 
 from rageval.metrics import Metric, add_attribute
-from rageval.utils import text_to_sents
 
 
 _DESCRIPTION = """\
-AnswerNLIGroundedness is the metric build based on NLI model.
+AnswerClaimRecall is the metric build based on NLI model.
 
-For details, see the paper: https://arxiv.org/abs/XXX.
+For details, see the paper: http://arxiv.org/abs/2305.14627.
 """
 
 _KWARGS_DESCRIPTION = """\
@@ -31,45 +25,47 @@ Optional Args:
 
 Functions:
     init_model: initialize the model used in evaluation.
-    _verify_by_stance: verify whether the stance of args:`claim` can be supported by args:`evidences`.
-    _compute_one: compute the score by measure whether the args:`answer` can be supported by args:`evidences`.
+    _verify_by_stance: verify whether the stance of args:`claims` can be supported by args:`answer`.
+    _compute_one: compute the score by measure whether the args:`claims` can be supported by args:`answers`.
 
 Examples:
     >>> from datasets import Dataset
     >>> import rageval as rl
-    >>> sample = {"questions": ["this is a test"],"answers": ["test answer"],"contexts": [["test context"]]}
+    >>> sample = {"answers": ["test answer"], "gt_answers": [["test context"]]}
     >>> dataset = Dataset.from_dict(sample)
     >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-    >>> metric = rl.metrics.AnswerNLIGroundedness()
+    >>> metric = rl.metrics.AnswerClaimRecall()
     >>> metric.mtype
-    'AnswerGroundedness'
+    'AnswerCorrectness'
     >>> metric.init_model(model)
-    >>> s,ds = metric.compute(dataset, batch_size=1)
+    >>> s, ds = metric.compute(dataset, batch_size=1)
     >>> assert s == 0 or s == 1
     >>> type(ds)
     <class 'datasets.arrow_dataset.Dataset'>
 """
 
 _CITATION = """\
-@inproceeding={
-    title={},
-    author={},
-    booklet={},
-    year={2021}
+@misc{gao2023enabling,
+      title={Enabling Large Language Models to Generate Text with Citations},
+      author={Tianyu Gao and Howard Yen and Jiatong Yu and Danqi Chen},
+      year={2023},
+      eprint={2305.14627},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
 }
 """
 
 
 @dataclass
-@add_attribute('mtype', 'AnswerGroundedness')
+@add_attribute('mtype', 'AnswerCorrectness')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
-class AnswerNLIGroundedness(Metric):
+class AnswerClaimRecall(Metric):
 
-    name = "answer_nli_groundedness"
+    name = "answer_claim_recall"
 
     def __init__(self):
-        """Explicitly initialize the AnswerNLIGroundedness to ensure all parent class initialized."""
-        self._required_columns = ['answers', 'contexts']
+        """Explicitly initialize the AnswerClaimRecall to ensure all parent class initialized."""
+        self._required_columns = ['answers', 'gt_answers']
         super().__init__()
 
     def _info(self):
@@ -80,23 +76,23 @@ class AnswerNLIGroundedness(Metric):
             homepage="",
             features=datasets.Features(
                 {
-                    "answers": datasets.Value("string", id="sequence"),
-                    "contexts": datasets.Value("string", id="sequence"),
+                    "answers": datasets.Value("string"),
+                    "gt_answers": datasets.Sequence(datasets.Value("string"))
                 }
             ),
-            codebase_urls=[],
-            reference_urls=[]
+            codebase_urls=["https://github.com/princeton-nlp/ALCE"],
+            reference_urls=["http://arxiv.org/abs/2305.14627"]
         )
 
     def init_model(self, model: Callable):
         """Initializee the LLM model."""
         self.model = model
 
-    def _verify_by_stance(self, claim: str, evidences: List[str]) -> Any:
+    def _verify_by_stance(self, answer: str, claims: List[str]) -> Any:
         """Verify the faithfulness of the `claim` based on `evidences`."""
         labels = []
-        for evidence in evidences:
-            label = self.model.infer(premise=evidence, hypothesis=claim)
+        for claim in claims:
+            label = self.model.infer(premise=answer, hypothesis=claim)
             labels.append(label)
         if "support" in labels:
             return True
@@ -108,27 +104,26 @@ class AnswerNLIGroundedness(Metric):
     def _compute_one(
         self,
         answer: str,
-        evidences: List[str]
+        claims: List[str]
     ) -> float:
         """
-        Evaluate the groundedness of an answer.
+        Evaluate the correctness of an answer.
 
-        Firstly,split the answer into a set of claims.
+        Firstly, split the gt_answer into a set of claims. (There are many ways to obtain claims.)
+        It is assumed that claims have been obtained here.
         Then, compute the faithfulness score of each claim. The faithfulness is a binary score.
         Finally, aggregate all faithfulness score of each claim.
         """
 
         detail_results = []
-        # decompose answers into a list of claim
-        claims = text_to_sents(answer)
         scores = []
 
         for i, claim in enumerate(claims):
             # obtain the faithfulness of each claim by language inference model.
-            label = self._verify_by_stance(claim, evidences)
+            label = self._verify_by_stance(answer, claims)
             detail_results.append({
+                "answer": answer,
                 "claim": claim,
-                "evidence": evidences,
                 "reasoning": "",
                 "error": "",
                 "factuality": label,
@@ -142,21 +137,21 @@ class AnswerNLIGroundedness(Metric):
         dataset: datasets.Dataset
     ) -> list:
         """
-        Evaluate the groundedness of a batch of answers.
+        Evaluate the correctness of a batch of answers.
 
-        Firstly,split the answer into a set of claims.
+        Firstly, split the gt_answer into a set of claims. (There are many ways to obtain claims.)
+        It is assumed that claims have been obtained here.
         Then, compute the faithfulness score of each claim. The faithfulness is a binary score.
         Finally, aggregate all faithfulness score of each claim.
         """
 
-        answers, contexts = (
+        answers, claims = (
             dataset["answers"],
-            dataset["contexts"],
+            dataset["gt_answers"],
         )
 
         results = []
         for i, answer in enumerate(answers):
-            # decompose answers into a list of claim
-            r = self._compute_one(answer, contexts[i])
+            r = self._compute_one(answer, claims[i])
             results.append(r)
         return results
