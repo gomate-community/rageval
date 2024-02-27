@@ -5,7 +5,7 @@ sys.path.insert(0, '../src')
 import pytest
 from datasets import load_dataset
 from rageval import evaluate
-from rageval.metrics import ContextRecall, AnswerNLIGroundedness
+from rageval.metrics import ContextRecall, AnswerClaimRecall
 from langchain.llms.fake import FakeListLLM
 from rageval.models import NLIModel
 
@@ -44,8 +44,8 @@ def test_evaluation():
     # run evaluate
     result, instance_level_result = evaluate(
         ds.select(range(3)),
-        metrics=[ContextRecall(), AnswerNLIGroundedness()],
-        models = [cr_model, ag_model]
+        metrics=[ContextRecall(), AnswerClaimRecall()],
+        models=[cr_model, ag_model]
     )
     assert result is not None
     assert instance_level_result is not None
