@@ -10,7 +10,7 @@ from rageval.metrics import Metric, add_attribute
 from rageval.utils.check_utils import text_to_sents
 
 _DESCRIPTION = """\
-The AnswerClaimRecall is to measure the correctness of long-form answers. In the original paper, the author first use \
+The AnswerNLICorrectness is to measure the correctness of long-form answers. In the original paper, the author first use \
 Instruct-GPT(text-davinci-003) to generate three "sub-claims" (based on gold answers) and use a state-of-the-art \
 natural-language inference (NLI) model TRUE(Honovich et al., 2022) to check whether the model output entails the \
 sub-claims (claim recall).
@@ -37,7 +37,7 @@ Examples:
     >>> sample = {"answers": ["test answer"], "gt_answers": [["test context"]]}
     >>> dataset = Dataset.from_dict(sample)
     >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-    >>> metric = rl.metrics.AnswerClaimRecall()
+    >>> metric = rl.metrics.AnswerNLICorrectness()
     >>> metric.mtype
     'AnswerCorrectness'
     >>> metric.init_model(model)
@@ -62,14 +62,20 @@ _CITATION = """\
 @dataclass
 @add_attribute('mtype', 'AnswerCorrectness')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
-class AnswerClaimRecall(Metric):
+class AnswerNLICorrectness(Metric):
 
     name = "answer_claim_recall"
 
+    ALIAS = ['answer_claim_recall']
+
     def __init__(self):
-        """Explicitly initialize the AnswerClaimRecall to ensure all parent class initialized."""
+        """Explicitly initialize the AnswerNLICorrectness to ensure all parent class initialized."""
         self._required_columns = ['answers', 'gt_answers']
         super().__init__()
+
+    def __repr__(self) -> str:
+        """:return: Formated string representation of the metric."""
+        return f"{self.ALIAS[0]}"
 
     def _info(self):
         return datasets.MetricInfo(
