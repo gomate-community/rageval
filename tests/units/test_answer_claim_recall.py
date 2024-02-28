@@ -6,7 +6,7 @@ import pytest
 from datasets import Dataset
 
 from rageval.models import NLIModel
-from rageval.metrics import AnswerClaimRecall
+from rageval.metrics import AnswerNLICorrectness
 
 
 @pytest.fixture(scope='module')
@@ -47,7 +47,7 @@ def testset_with_decompose(sample_with_decompose):
 
 @pytest.mark.slow
 def test_case_on_answer_claim_recall_metric(testset):
-    metric = AnswerClaimRecall()
+    metric = AnswerNLICorrectness()
     model = NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
     metric.init_model(model)
     assert metric.name == "answer_claim_recall"
@@ -60,7 +60,7 @@ def test_case_on_answer_claim_recall_metric(testset):
 
 @pytest.mark.skip
 def test_case_on_answer_claim_recall_metric_with_decompose(testset_with_decompose):
-    metric = AnswerClaimRecall()
+    metric = AnswerNLICorrectness()
     model = NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
     metric.init_model(model)
     assert metric.name == "answer_claim_recall"
