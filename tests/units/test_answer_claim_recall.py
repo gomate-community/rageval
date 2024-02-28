@@ -58,9 +58,9 @@ def test_case_on_answer_claim_recall_metric(testset):
     assert isinstance(results, Dataset)
 
 
-@pytest.mark.skip
+@pytest.mark.slow
 def test_case_on_answer_claim_recall_metric_with_decompose(testset_with_decompose):
-    metric = AnswerNLICorrectness()
+    metric = AnswerNLICorrectness(decompose_model="nltk")
     model = NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
     metric.init_model(model)
     assert metric.name == "answer_claim_recall"
