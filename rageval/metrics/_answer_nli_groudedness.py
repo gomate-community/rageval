@@ -1,14 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import pytest
 import numpy as np
-import pandas as pd
-from abc import ABC
 from typing import List, Any, Callable
-
-
 import datasets
-# from datasets import Dataset
 from dataclasses import dataclass
 
 from rageval.metrics import Metric, add_attribute
@@ -40,10 +34,9 @@ Examples:
     >>> sample = {"questions": ["this is a test"],"answers": ["test answer"],"contexts": [["test context"]]}
     >>> dataset = Dataset.from_dict(sample)
     >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-    >>> metric = rl.metrics.AnswerNLIGroundedness()
+    >>> metric = rl.metrics.AnswerNLIGroundedness(model)
     >>> metric.mtype
     'AnswerGroundedness'
-    >>> metric.init_model(model)
     >>> s,ds = metric.compute(dataset, batch_size=1)
     >>> assert s == 0 or s == 1
     >>> type(ds)
@@ -67,8 +60,10 @@ class AnswerNLIGroundedness(Metric):
 
     name = "answer_nli_groundedness"
 
-    def __init__(self):
-        """Explicitly initialize the AnswerNLIGroundedness to ensure all parent class initialized."""
+    def __init__(self, model: Callable):
+        """Explicitly initialize the AnswerNLIGroundedness to ensure all parent class initialized as well as initialize the LLM model."""
+
+        self.model = model
         self._required_columns = ['answers', 'contexts']
         super().__init__()
 
@@ -87,10 +82,6 @@ class AnswerNLIGroundedness(Metric):
             codebase_urls=[],
             reference_urls=[]
         )
-
-    def init_model(self, model: Callable):
-        """Initializee the LLM model."""
-        self.model = model
 
     def _verify_by_stance(self, claim: str, evidences: List[str]) -> Any:
         """Verify the faithfulness of the `claim` based on `evidences`."""
