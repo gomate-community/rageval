@@ -45,18 +45,16 @@ Examples:
 """
 
 _CITATION = """\
-@inproceedings{lin-2004-rouge,
-    title = "{ROUGE}: A Package for Automatic Evaluation of Summaries",
-    author = "Lin, Chin-Yew",
-    booktitle = "Text Summarization Branches Out",
-    month = jul,
-    year = "2004",
-    address = "Barcelona, Spain",
-    publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/W04-1013",
-    pages = "74--81",
+@article{lewis2020retrieval,
+  title={Retrieval-augmented generation for knowledge-intensive nlp tasks},
+  author={Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and K{\"u}ttler, Heinrich and Lewis, Mike and Yih, Wen-tau and Rockt{\"a}schel, Tim and others},
+  journal={Advances in Neural Information Processing Systems},
+  volume={33},
+  pages={9459--9474},
+  year={2020}
 }
 """
+
 
 @dataclass
 @add_attribute('mtype', 'AnswerCorrectness')
