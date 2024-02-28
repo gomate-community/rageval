@@ -33,6 +33,7 @@ def testset(sample):
     return ds
 
 
+@pytest.mark.slow
 def test_case_on_answer_exact_match(testset):
     metric = AnswerExactMatch()
     assert metric.name == "answer_exact_match"

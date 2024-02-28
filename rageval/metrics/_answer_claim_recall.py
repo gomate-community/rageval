@@ -7,10 +7,13 @@ import numpy as np
 from dataclasses import dataclass
 
 from rageval.metrics import Metric, add_attribute
-
+from rageval.utils.check_utils import text_to_sents
 
 _DESCRIPTION = """\
-AnswerClaimRecall is the metric build based on NLI model.
+The AnswerClaimRecall is to measure the correctness of long-form answers. In the original paper, the author first use \
+Instruct-GPT(text-davinci-003) to generate three "sub-claims" (based on gold answers) and use a state-of-the-art \
+natural-language inference (NLI) model TRUE(Honovich et al., 2022) to check whether the model output entails the \
+sub-claims (claim recall).
 
 For details, see the paper: http://arxiv.org/abs/2305.14627.
 """
@@ -109,8 +112,7 @@ class AnswerClaimRecall(Metric):
         """
         Evaluate the correctness of an answer.
 
-        Firstly, split the gt_answer into a set of claims. (There are many ways to obtain claims.)
-        It is assumed that claims have been obtained here.
+        Firstly, split the gt_answer into a set of claims.
         Then, compute the faithfulness score of each claim. The faithfulness is a binary score.
         Finally, aggregate all faithfulness score of each claim.
         """
@@ -132,6 +134,11 @@ class AnswerClaimRecall(Metric):
         # Note that the detail_results can be recorded by logger.info
         return np.average(scores)
 
+    def decompose(self, example, model_name="gpt-3.5-turbo"):
+        """Decompose the gt_answers into a set of claims."""
+        example["gt_answers"] = text_to_sents(example["gt_answers"], model_name)
+        return example
+
     def _compute_batch(
         self,
         dataset: datasets.Dataset
@@ -139,11 +146,22 @@ class AnswerClaimRecall(Metric):
         """
         Evaluate the correctness of a batch of answers.
 
-        Firstly, split the gt_answer into a set of claims. (There are many ways to obtain claims.)
-        It is assumed that claims have been obtained here.
+        Firstly, split the gt_answer into a set of claims.
         Then, compute the faithfulness score of each claim. The faithfulness is a binary score.
         Finally, aggregate all faithfulness score of each claim.
         """
+
+        if isinstance(dataset["gt_answers"], list):
+            if isinstance(dataset["gt_answers"][0], list):
+                # gt_answers has been decomposed into claims list
+                pass
+            elif isinstance(dataset["gt_answers"][0], str):
+                # use gpt-3.5-turbo to decompose the gt_answers into claims list
+                dataset = dataset.map(lambda example: self.decompose(example, model_name="gpt-3.5-turbo"))
+            else:
+                raise ValueError("The type of gt_answers element should be list or string.")
+        else:
+            raise ValueError("The type of gt_answers should be list.")
 
         answers, claims = (
             dataset["answers"],
