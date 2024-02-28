@@ -28,8 +28,8 @@ class ContextRecall(MetricWithLLM):
     name = "context_recall"
     _required_columns = ['questions', 'gt_answers', 'contexts']
 
-    def init_model(self, model: typing.Callable):
-        """Initializee the LLM model."""
+    def __init__(self, model: typing.Callable):
+        """Initialize the LLM model."""
         self. llm = model
 
     def parse_llm_result(self, prompts: str, result: LLMResult):
