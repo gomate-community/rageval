@@ -1,7 +1,7 @@
 import pytest
 from datasets import Dataset
 from typing import List
-from rageval.metrics import AnswerRouge
+from rageval.metrics import AnswerRougeCorrectness
 
 class CharTokenizer:
     """Tokenize text into characters."""
@@ -36,7 +36,7 @@ def testset(sample):
 
 
 def test_case_on_answer_exact_match(testset):
-    metric = AnswerRouge()
+    metric = AnswerRougeCorrectness()
     
     # Test with Chinese tokenizer
     chinese_tokenizer = CharTokenizer()
