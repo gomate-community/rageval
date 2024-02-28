@@ -34,10 +34,25 @@ Functions:
 Examples:
     >>> from datasets import Dataset
     >>> import rageval as rl
-    >>> sample = {"answers": ["test answer"], "gt_answers": [["test context"]]}
+    >>> sample = {
+    ...     "answers": [
+    ...         "They went a while before introducing ads, so they could make money, as they needed to \
+    ...          establish their brand and amass users. Once you have dedicated users, introducing ads won't \
+    ...          deter most, but if you are still new, having ads will deter a lot. The same goes for Uber, \
+    ...          it's not that they aren't making money, it's that they are reinvesting a ton of it to make \
+    ...          their service better."
+    ...     ],
+    ...     "gt_answers": [
+    ...         [
+    ...             "Firms like Snapchat and Uber need to establish their brand and amass users before introducing ads.",
+    ...             "Introducing ads too early can deter potential users.",
+    ...             "Uber is reinvesting a lot of money to make their service better."
+    ...         ]
+    ...     ]
+    ... }
     >>> dataset = Dataset.from_dict(sample)
     >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-    >>> metric = rl.metrics.AnswerNLICorrectness()
+    >>> metric = rl.metrics.AnswerNLICorrectness(decompose_model="nltk")
     >>> metric.mtype
     'AnswerCorrectness'
     >>> metric.init_model(model)
@@ -68,9 +83,10 @@ class AnswerNLICorrectness(Metric):
 
     ALIAS = ['answer_claim_recall']
 
-    def __init__(self):
+    def __init__(self, decompose_model: str = "gpt-3.5-turbo"):
         """Explicitly initialize the AnswerNLICorrectness to ensure all parent class initialized."""
         self._required_columns = ['answers', 'gt_answers']
+        self.decompose_model = decompose_model
         super().__init__()
 
     def __repr__(self) -> str:
@@ -86,22 +102,22 @@ class AnswerNLICorrectness(Metric):
             features=datasets.Features(
                 {
                     "answers": datasets.Value("string"),
-                    "gt_answers": datasets.Sequence(datasets.Value("string"))
+                    "gt_answers": datasets.Value("string")
                 }
             ),
             codebase_urls=["https://github.com/princeton-nlp/ALCE"],
             reference_urls=["http://arxiv.org/abs/2305.14627"]
         )
 
-    def init_model(self, model: Callable):
-        """Initializee the LLM model."""
-        self.model = model
+    def init_model(self, nli_model: Callable):
+        """Initializee the NLI model."""
+        self.nli_model = nli_model
 
     def _verify_by_stance(self, answer: str, claims: List[str]) -> Any:
         """Verify the faithfulness of the `claim` based on `evidences`."""
         labels = []
         for claim in claims:
-            label = self.model.infer(premise=answer, hypothesis=claim)
+            label = self.nli_model.infer(premise=answer, hypothesis=claim)
             labels.append(label)
         if "support" in labels:
             return True
@@ -140,11 +156,6 @@ class AnswerNLICorrectness(Metric):
         # Note that the detail_results can be recorded by logger.info
         return np.average(scores)
 
-    def decompose(self, example, model_name="gpt-3.5-turbo"):
-        """Decompose the gt_answers into a set of claims."""
-        example["gt_answers"] = text_to_sents(example["gt_answers"], model_name)
-        return example
-
     def _compute_batch(
         self,
         dataset: datasets.Dataset
@@ -160,19 +171,16 @@ class AnswerNLICorrectness(Metric):
         if isinstance(dataset["gt_answers"], list):
             if isinstance(dataset["gt_answers"][0], list):
                 # gt_answers has been decomposed into claims list
-                pass
+                claims = dataset["gt_answers"]
             elif isinstance(dataset["gt_answers"][0], str):
-                # use gpt-3.5-turbo to decompose the gt_answers into claims list
-                dataset = dataset.map(lambda example: self.decompose(example, model_name="gpt-3.5-turbo"))
+                # use decompose_model to decompose the gt_answers into claims list
+                claims = [text_to_sents(gt_answer, self.decompose_model) for gt_answer in dataset["gt_answers"]]
             else:
                 raise ValueError("The type of gt_answers element should be list or string.")
         else:
             raise ValueError("The type of gt_answers should be list.")
 
-        answers, claims = (
-            dataset["answers"],
-            dataset["gt_answers"],
-        )
+        answers = dataset["answers"]
 
         results = []
         for i, answer in enumerate(answers):
