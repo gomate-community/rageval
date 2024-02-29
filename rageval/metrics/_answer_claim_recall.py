@@ -86,7 +86,6 @@ class AnswerNLICorrectness(Metric):
         """Explicitly initialize the AnswerNLICorrectness to ensure all parent class initialized."""
         self._required_columns = ['answers', 'gt_answers']
         self.decompose_model = decompose_model
-        self.nli_model = nli_model
         super().__init__()
 
     def __repr__(self) -> str:
