@@ -3,7 +3,7 @@
 import sys
 sys.path.insert(0, '../src')
 import pytest
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 import rageval as rl
 from langchain.llms.fake import FakeListLLM
 from rageval.models import NLIModel
@@ -31,10 +31,14 @@ def test_evaluation():
     # crop answers longer than 300 words, since tiny nli model has maximum sequence length of 500
     def truncate_answer(example):
         max_length = 100
-        contexts = []
-        for context in example["contexts"]:
-            contexts.append([c[:max_length] if len(c) > max_length else c for c in context])
-        example["contexts"] = contexts
+        answers = []
+        gt_answers = []
+        #for a in example["answers"]:
+        #    answers.append([c[:max_length] if len(c) > max_length else c for c in a])
+        #example["answers"] = answers
+        for ga in example["gt_answers"]:
+            gt_answers.append([q[:max_length] if len(q) > max_length else q for q in ga])
+        example["gt_answers"] = gt_answers
         return example
     ds = ds.map(truncate_answer, batched=True)
 
