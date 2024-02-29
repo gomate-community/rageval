@@ -87,7 +87,6 @@ class AnswerNLICorrectness(Metric):
         self._required_columns = ['answers', 'gt_answers']
         self.nli_model = nli_model
         self.decompose_model = decompose_model
-        self.nli_model = nli_model
         super().__init__()
 
     def __repr__(self) -> str:
