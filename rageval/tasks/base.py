@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """Base task."""
 
-from typing import Union, Type, List
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Union, Type, List
+
 from datasets import Dataset, concatenate_datasets
-from dataclasses import dataclass, field
 
 from rageval.metrics import Metric
 

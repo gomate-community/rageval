@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from typing import Union, List
 
 from rageval.metrics import Metric

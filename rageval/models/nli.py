@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import os
 import logging
-import pytest
 from abc import ABC
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+
+import pytest
+from transformers import pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +43,10 @@ class NLIModel(ABC):
     def infer_prob(self, premise, hypothesis):
         """Predit one sample with NLI model."""
         try:
+            if len(premise) > 200:
+                premise = premise[:200]
+            if len(hypothesis) > 200:
+                hypothesis = hypothesis[:200]
             input = "<s>{}</s></s>{}</s></s>".format(premise, hypothesis)
             pred = self._model(input)
             # print(pred)
