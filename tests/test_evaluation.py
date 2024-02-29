@@ -3,8 +3,7 @@
 import sys
 sys.path.insert(0, '../src')
 import pytest
-from datasets import load_dataset, Dataset
-
+from datasets import load_dataset
 import rageval as rl
 from langchain.llms.fake import FakeListLLM
 from rageval.models import NLIModel
@@ -44,7 +43,7 @@ def test_evaluation():
     ag_model = NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
     
     # define metrics
-    metrics = [rl.metrics.ContextRecall(cr_model), rl.metrics.AnswerNLIGroundedness(ag_model)]
+    metrics = [rl.metrics.ContextRecall(cr_model), rl.metrics.AnswerNLICorrectness(ag_model)]
 
     # define task
     task = rl.tasks.Generate(metrics = metrics)
