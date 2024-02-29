@@ -47,9 +47,8 @@ def testset_with_decompose(sample_with_decompose):
 
 @pytest.mark.slow
 def test_case_on_answer_claim_recall_metric(testset):
-    metric = AnswerNLICorrectness()
     model = NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-    metric.init_model(model)
+    metric = AnswerNLICorrectness(model)
     assert metric.name == "answer_claim_recall"
     assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
@@ -60,9 +59,8 @@ def test_case_on_answer_claim_recall_metric(testset):
 
 @pytest.mark.slow
 def test_case_on_answer_claim_recall_metric_with_decompose(testset_with_decompose):
-    metric = AnswerNLICorrectness(decompose_model="nltk")
     model = NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-    metric.init_model(model)
+    metric = AnswerNLICorrectness(model, decompose_model="nltk")
     assert metric.name == "answer_claim_recall"
     assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
