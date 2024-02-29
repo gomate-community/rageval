@@ -3,7 +3,6 @@
 #import sys
 #sys.path.insert(0, '../src')
 
-import os
 import pytest
 
 from rageval.models import NLIModel
