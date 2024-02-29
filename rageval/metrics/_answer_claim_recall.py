@@ -51,8 +51,8 @@ Examples:
     ...     ]
     ... }
     >>> dataset = Dataset.from_dict(sample)
-    >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-    >>> metric = rl.metrics.AnswerNLICorrectness(nli_model = model, decompose_model="nltk")
+    >>> nli_model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
+    >>> metric = rl.metrics.AnswerNLICorrectness(nli_model=nli_model, decompose_model="nltk")
     >>> metric.mtype
     'AnswerCorrectness'
     >>> s, ds = metric.compute(dataset, batch_size=1)
@@ -83,8 +83,9 @@ class AnswerNLICorrectness(Metric):
     ALIAS = ['answer_claim_recall']
 
     def __init__(self, nli_model: Callable, decompose_model: str = "gpt-3.5-turbo"):
-        """Explicitly initialize the AnswerNLICorrectness to ensure all parent class initialized."""
+        """Explicitly initialize the AnswerNLICorrectness to ensure all parent class initialized as well as initialize the LLM model."""
         self._required_columns = ['answers', 'gt_answers']
+        self.nli_model = nli_model
         self.decompose_model = decompose_model
         self.nli_model = nli_model
         super().__init__()

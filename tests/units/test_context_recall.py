@@ -2,11 +2,10 @@
 
 # -*- coding: utf-8 -*-
 
-import os
 import pytest
-import pandas as pd
 from datasets import Dataset
 from langchain.llms.fake import FakeListLLM
+
 from rageval.models.openai import OpenAILLM
 from rageval.metrics import ContextRecall
 
@@ -27,9 +26,8 @@ def testset(sample):
 
 @pytest.mark.skip
 def test_batch_on_context_recall_metric(testset):
-    metric = ContextRecall()
     model = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
-    metric.init_model(model)
+    metric = ContextRecall(model)
     score, results = metric.compute(testset)
     assert score == 0 or score == 1
     assert isinstance(results, Dataset)

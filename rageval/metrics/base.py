@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import typing
-import numpy as np
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from math import floor
-from collections import defaultdict
+from abc import abstractmethod
+from dataclasses import dataclass
 
+import numpy as np
 from datasets import Dataset, MetricInfo
 from datasets.metric import MetricInfoMixin
 from datasets.naming import camelcase_to_snakecase
-from tqdm import tqdm
 from langchain.schema import LLMResult
+from tqdm import tqdm
 
 
 def add_attribute(attribute_name, attribute_value):
