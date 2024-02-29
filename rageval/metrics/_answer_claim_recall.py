@@ -51,11 +51,10 @@ Examples:
     ...     ]
     ... }
     >>> dataset = Dataset.from_dict(sample)
-    >>> model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
-    >>> metric = rl.metrics.AnswerNLICorrectness(decompose_model="nltk")
+    >>> nli_model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
+    >>> metric = rl.metrics.AnswerNLICorrectness(nli_model=nli_model, decompose_model="nltk")
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> metric.init_model(model)
     >>> s, ds = metric.compute(dataset, batch_size=1)
     >>> assert s == 0 or s == 1
     >>> type(ds)
@@ -83,10 +82,12 @@ class AnswerNLICorrectness(Metric):
 
     ALIAS = ['answer_claim_recall']
 
-    def __init__(self, decompose_model: str = "gpt-3.5-turbo"):
-        """Explicitly initialize the AnswerNLICorrectness to ensure all parent class initialized."""
+    def __init__(self, nli_model: Callable, decompose_model: str = "gpt-3.5-turbo"):
+        """Explicitly initialize the AnswerNLICorrectness to ensure all parent class initialized as well as initialize the LLM model."""
         self._required_columns = ['answers', 'gt_answers']
+        self.nli_model = nli_model
         self.decompose_model = decompose_model
+        self.nli_model = nli_model
         super().__init__()
 
     def __repr__(self) -> str:
@@ -108,10 +109,6 @@ class AnswerNLICorrectness(Metric):
             codebase_urls=["https://github.com/princeton-nlp/ALCE"],
             reference_urls=["http://arxiv.org/abs/2305.14627"]
         )
-
-    def init_model(self, nli_model: Callable):
-        """Initializee the NLI model."""
-        self.nli_model = nli_model
 
     def _verify_by_stance(self, answer: str, claims: List[str]) -> Any:
         """Verify the faithfulness of the `claim` based on `evidences`."""

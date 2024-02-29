@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
-#import sys
-#sys.path.insert(0, '../src')
+# import sys
+# sys.path.insert(0, '../src')
 
-from rageval.evaluations import evaluate
-'''
+# from rageval.evaluations import evaluate
+"""
 from .src.tasks import (
     retriever,
 )
 from .src.metrics import (
     context_recall,
 )
-'''
+"""
 
 
-from rageval.metrics import ContextRecall
+# from rageval.metrics import ContextRecall
 from datasets import Dataset
-import os
+# import os
  
 
 # 准备您的huggingface数据集，格式如下
@@ -42,8 +42,8 @@ data = {
 # Convert dict to dataset
 dataset = Dataset.from_dict(data)
 
-#dataset: Dataset
+# dataset: Dataset
  
-#results = evaluate(dataset, task='retriever', metrics=['context_recall'])
-#results = evaluate(dataset, metrics=[ContextRecall()])
-#print(results)
+# results = evaluate(dataset, task='retriever', metrics=['context_recall'])
+# results = evaluate(dataset, metrics=[ContextRecall()])
+# print(results)
