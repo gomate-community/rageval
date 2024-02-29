@@ -30,7 +30,7 @@ class ContextRecall(MetricWithLLM):
 
     def init_model(self, model: typing.Callable):
         """Initializee the LLM model."""
-        self. llm = model
+        self.llm = model
 
     def parse_llm_result(self, prompts: str, result: LLMResult):
         """
