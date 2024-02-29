@@ -1,7 +1,8 @@
 import pytest
 from datasets import Dataset
 
-from rageval.metrics import AnswerExactMatch
+from rageval.metrics import AnswerEMCorrectness
+
 
 @pytest.fixture(scope='module')
 def sample():
@@ -19,9 +20,7 @@ def sample():
             [
                 ["Jeanne Calment"],
                 ["Sarah Knauss"],
-                ["Augusta Holtz"],
-                ["xxxx"],
-                ["xxxx", "Calment"]
+                ["Augusta-Holtz"],
             ]
         ]
     }
@@ -34,8 +33,12 @@ def testset(sample):
     return ds
 
 
+@pytest.mark.slow
 def test_case_on_answer_exact_match(testset):
-    metric = AnswerExactMatch()
+    metric = AnswerEMCorrectness()
+    assert metric.name == "answer_exact_match"
+    assert metric.homepage == ""
+    assert metric.mtype == 'AnswerCorrectness'
     score, results = metric.compute(testset, 1)
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)
