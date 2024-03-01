@@ -27,7 +27,6 @@ Optional Args:
     None
 
 Functions:
-    init_model: initialize the model used in evaluation.
     _verify_by_stance: verify whether the stance of args:`claims` can be supported by args:`answer`.
     _compute_one: compute the score by measure whether the args:`claims` can be supported by args:`answers`.
 
