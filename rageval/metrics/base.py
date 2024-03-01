@@ -65,7 +65,7 @@ class Metric(MetricInfoMixin):
         """
         raise NotImplementedError
 
-    def _validate_data(self, dataset: Dataset) -> bool:
+    def _validate_data(self, dataset: Dataset):
         """Validate the of the input dataset."""
         if not all(c in dataset.column_names for c in self._required_columns):
             raise ValueError("The input dataset of f{self.name} metric should include f{self._required_columns} columns.")
@@ -76,9 +76,9 @@ class Metric(MetricInfoMixin):
         batch_size: int = None,
     ) -> Tuple[float, Dataset]:
         """Evaluate the dataset."""
+        self._validate_data(dataset)
         scores = []
         length = len(dataset)
-        self._validate_data(dataset)
         if batch_size:
             for start in tqdm(range(0, length, batch_size)):
                 end = start + batch_size
