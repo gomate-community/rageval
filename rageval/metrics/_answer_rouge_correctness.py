@@ -28,7 +28,6 @@ Optional Args:
     tokenizer : Callable, a tokenizer can be passed to the scorer, replacing the default tokenizer which tokenizes on whitespace, especially for non-latin languages. For example, the `jieba.cut` can be used for Chinese.
 
 Functions:
-    init_model: initialize the `rouge_type` used in evaluation.
     _compute_one: compute the score by measure whether the args:`answer` contains short answer in list:`gt_answers`.
 
 Examples:
@@ -36,8 +35,7 @@ Examples:
     >>> import rageval as rl
     >>> sample = {"answers": ["test answer"],"gt_answers":[["test gt_answer", "test groundtruth answer"]]}
     >>> dataset = Dataset.from_dict(sample)
-    >>> metric = rl.metrics.AnswerRougeCorrectness()
-    >>> metric.init_model('rougeL')
+    >>> metric = rl.metrics.AnswerRougeCorrectness('rougeL')
     >>> score, results = metric.compute(dataset, batch_size= 1)
     >>> assert 0 <= score <= 1
     >>> type(results)
@@ -63,10 +61,18 @@ class AnswerRougeCorrectness(Metric):
 
     name = "answer_rouge_correctness"
 
-    def __init__(self):
-        """Explicitly initialize the AnswerRougeCorrectness to ensure all parent class initialized."""
+    ALIAS = ['answer_rouge_correctness']
+
+    def __init__(self, rouge_type: str, tokenizer: Union[Callable, None] = None):
+        """Explicitly initialize the AnswerRougeCorrectness to ensure all parent class initialized as well as initialize the rouge type and tokenizer."""
         self._required_columns = ['answers', 'gt_answers']
+        self.rouge_type = rouge_type
+        self.scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True, tokenizer=tokenizer)
         super().__init__()
+
+    def __repr__(self) -> str:
+        """:return: Formated string representation of the metric."""
+        return f"{self.ALIAS[0]}"
 
     def _info(self):
         return datasets.MetricInfo(
@@ -83,11 +89,6 @@ class AnswerRougeCorrectness(Metric):
             codebase_urls=[],
             reference_urls=[]
         )
-
-    def init_model(self, rouge_type: str, tokenizer: Union[Callable, None] = None):
-        """Initialize the rouge type."""
-        self.rouge_type = rouge_type
-        self.scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True, tokenizer=tokenizer)
 
     def _compute_one(self, answer: str, gt_answers: List[str]) -> float:
         """Evaluate the ROUGE between a single answer and groundtruth answers."""
