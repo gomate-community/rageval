@@ -7,7 +7,7 @@ import numpy as np
 from rageval.metrics import Metric, add_attribute
 
 
-_DESCRIPTION = """AnswerExactMatch evaluates answer correctness based on exact matching of annotated short answers."""
+_DESCRIPTION = """AnswerEMCorrectness evaluates answer correctness based on exact matching of annotated short answers."""
 
 _KWARGS_DESCRIPTION = """\
 Args:
@@ -42,7 +42,7 @@ Examples:
     ...     ],
     ... }
     >>> dataset = Dataset.from_dict(sample)
-    >>> metric = rl.metrics.AnswerExactMatch()
+    >>> metric = rl.metrics.AnswerEMCorrectness()
     >>> metric.mtype
     'AnswerCorrectness'
     >>> s, ds = metric.compute(dataset, batch_size=1)
@@ -66,15 +66,21 @@ _CITATION = """\
 @dataclass
 @add_attribute('mtype', 'AnswerCorrectness')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
-class AnswerExactMatch(Metric):
+class AnswerEMCorrectness(Metric):
     """Estimates correctness using annotated short answers."""
 
     name = "answer_exact_match"
 
+    ALIAS = ['answer_exact_match']
+
     def __init__(self):
-        """Explicitly initialize the AnswerExactMatch to ensure all parent class initialized."""
+        """Explicitly initialize the AnswerEMCorrectness to ensure all parent class initialized."""
         self._required_columns = ['answers', 'gt_answers']
         super().__init__()
+
+    def __repr__(self) -> str:
+        """:return: Formated string representation of the metric."""
+        return f"{self.ALIAS[0]}"
 
     def _info(self):
         return datasets.MetricInfo(

@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import asyncio
-import pytest
 import logging
 import os
 from abc import ABC
 from dataclasses import dataclass, field
 
 import openai
+import pytest
 from langchain.schema import Generation, LLMResult
 
 logger = logging.getLogger(__name__)
