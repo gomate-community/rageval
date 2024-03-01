@@ -1,20 +1,16 @@
-# -*- coding: utf-8 -*-
-
 from dataclasses import dataclass
-from typing import List, Any, Callable
+from typing import Callable
 
 import datasets
 from datasets import Dataset
 from langchain.schema import LLMResult
 
-from rageval.metrics import MetricWithLLM, add_attribute
+from rageval.metrics import Metric, add_attribute
 from rageval.utils.prompt import REJECT_RATE_PROMPT
-
+from rageval.utils.utility import json_loader
 
 _DESCRIPTION = """\
-ContextRejectRate is the metric to meature the unknown robustness of LLM based
-on the given context.
-
+ContextRejectRate is the metric to measure the unknown robustness of LLM based on the given context.
 """
 
 _KWARGS_DESCRIPTION = """\
@@ -44,14 +40,21 @@ _CITATION = """\
 @dataclass
 @add_attribute('mtype', 'ContextRejectRate')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
-class ContextRejectRate(MetricWithLLM):
+class ContextRejectRate(Metric):
 
     name = "context_reject_rate"
 
-    def __init__(self):
+    ALIAS = ['context_reject_rate']
+
+    def __init__(self, model: Callable):
         """Explicitly initialize the ContextRejectRate to ensure all parent class initialized."""
         self._required_columns = ['questions', 'contexts']
+        self.model = model
         super().__init__()
+
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"
 
     def _info(self):
         return datasets.MetricInfo(
@@ -69,43 +72,37 @@ class ContextRejectRate(MetricWithLLM):
             reference_urls=[]
         )
 
-    def init_model(self, model: Callable):
-        """Initializee the LLM model."""
-        self.model = model
-
-    def parse_llm_result(self, prompts: str, result: LLMResult):
+    def parse_llm_result(self, result: LLMResult):
         """Parse the LLM Result based on the Prompt."""
-        num_reject = 0
-        num = 0
         responses = [[i.text for i in r] for r in result.generations]
+        scores = []
         # for each question-answer pair
         for response in responses:
+            response = response[0]
             answer = response.split("Answer:")[1]
             if "sorry, cannot answer the question" in answer:
-                num_reject = num_reject + 1
-                num = num + 1
+                scores.append(1.0)
             else:
-                num = num + 1
-        score = num_reject / num
-        return score
+                scores.append(0.)
+        return scores
 
     def _compute_batch(
         self,
         dataset: Dataset,
-    ) -> float:
-        prompts = []
+    ) -> list:
+        """Compute the score by measure how many rejected answers in all answers."""
         questions, contexts = (
             dataset["questions"],
             dataset["contexts"],
         )
 
         prompts = []
-        for question_, context in zip(questions, contexts):
+        for question, context in zip(questions, contexts):
             prompt = REJECT_RATE_PROMPT.format(
-                question=question_, evidence=context
+                question=question, evidence=context
             )
             prompts.append(prompt)
 
-        result = self.model.generate(prompts)
-        score = self.parse_llm_result(prompts, result)
-        return score
+        results = self.model.generate(prompts)
+        scores = self.parse_llm_result(results)
+        return scores
