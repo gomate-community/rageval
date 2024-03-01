@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import pytest
-import numpy as np
-import pandas as pd
-from abc import ABC
+from dataclasses import dataclass
 from typing import List, Any, Callable
-
 
 import datasets
 from datasets import Dataset
-from dataclasses import dataclass
 from langchain.schema import LLMResult
 
 from rageval.metrics import MetricWithLLM, add_attribute
