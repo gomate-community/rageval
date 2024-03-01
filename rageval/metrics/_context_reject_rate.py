@@ -7,7 +7,6 @@ from langchain.schema import LLMResult
 
 from rageval.metrics import Metric, add_attribute
 from rageval.utils.prompt import REJECT_RATE_PROMPT
-from rageval.utils.utility import json_loader
 
 _DESCRIPTION = """\
 ContextRejectRate is the metric to measure the unknown robustness of LLM based on the given context.
@@ -22,6 +21,7 @@ Optional Args:
     None
 
 Functions:
+    parse_llm_result: parse the results of LLM
     _compute_batch: compute the score by measure how many rejected answers in all answers.
 """
 
@@ -81,7 +81,7 @@ class ContextRejectRate(Metric):
             response = response[0]
             answer = response.split("Answer:")[1]
             if "sorry, cannot answer the question" in answer:
-                scores.append(1.0)
+                scores.append(1.)
             else:
                 scores.append(0.)
         return scores
