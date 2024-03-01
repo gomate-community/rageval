@@ -1,8 +1,6 @@
 from __future__ import annotations
+from typing import Callable, List
 
-import typing
-import numpy as np
-from dataclasses import dataclass, field
 from datasets import Dataset, concatenate_datasets
 
 from rageval.metrics import Metric
@@ -10,8 +8,8 @@ from rageval.metrics import Metric
 
 def evaluate(
         testset: Dataset,
-        metrics: list[Metric] | None = None,
-        models: list[typing.Callable] | None = None) -> (Dataset, Dataset):
+        metrics: List[Metric] | None = None,
+        models: List[Callable] | None = None) -> (Dataset, Dataset):
     """Conduct the evaluation on testset."""
 
     # run evaluation

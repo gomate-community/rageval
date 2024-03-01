@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import typing as t
-import logging
-from abc import ABC, abstractmethod
+from abc import ABC
 
-import openai
-from langchain.schema.output import Generation, LLMResult
+from langchain.schema.output import LLMResult
 
 if t.TYPE_CHECKING:
     from langchain.callbacks.base import Callbacks
