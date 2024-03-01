@@ -104,6 +104,7 @@ class MetricWithLLM(Metric):
         """This method will lazy initialize the model."""
         ...
 
+    @abstractmethod
     def parse_llm_result(self, prompts: List[str], result: LLMResult):
         """Parse the LLM Result based on the Prompt."""
         ...
