@@ -36,18 +36,17 @@ def testset(sample):
 
 
 def test_case_on_answer_exact_match(testset):
-    metric = AnswerRougeCorrectness()
     
     # Test with Chinese tokenizer
     chinese_tokenizer = CharTokenizer()
-    metric.init_model('rouge1', chinese_tokenizer)
+    metric = AnswerRougeCorrectness('rouge1', chinese_tokenizer)
     score, results = metric.compute(testset, 1)
     assert metric.mtype == 'AnswerCorrectness'
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)
     
     # Test with English tokenizer
-    metric.init_model('rouge1')
+    metric = AnswerRougeCorrectness('rouge1')
     score, results = metric.compute(testset, 1)
     assert metric.mtype == 'AnswerCorrectness'
     assert 0 <= score <= 1
