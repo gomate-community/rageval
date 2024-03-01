@@ -1,14 +1,12 @@
+import typing
 from dataclasses import dataclass
 
-import typing
 import numpy as np
 import pandas as pd
 from datasets import Dataset
-from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema import LLMResult
 
 from rageval.metrics import MetricWithLLM, add_attribute
-from rageval.models.openai import OpenAILLM
 from rageval.utils.utility import json_loader
 from rageval.utils import CONTEXT_RECALL_RA
 
@@ -26,11 +24,11 @@ class ContextRecall(MetricWithLLM):
     """
 
     name = "context_recall"
-    _required_columns = ['questions', 'gt_answers', 'contexts']
 
-    def init_model(self, model: typing.Callable):
-        """Initializee the LLM model."""
-        self. llm = model
+    def __init__(self, model: typing.Callable):
+        """Initialize the LLM model."""
+        self.llm = model
+        self._required_columns = ['questions', 'gt_answers', 'contexts']
 
     def parse_llm_result(self, prompts: str, result: LLMResult):
         """
@@ -69,7 +67,6 @@ class ContextRecall(MetricWithLLM):
         self,
         dataset: Dataset,
     ) -> list:
-        prompts = []
         question, ground_truths, contexts = (
             dataset["questions"],
             dataset["gt_answers"],
