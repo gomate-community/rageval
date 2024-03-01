@@ -23,6 +23,26 @@ on the given context.
 """
 
 _KWARGS_DESCRIPTION = """\
+Args:
+    name : str
+    batch_size : int, Batch size for openai completion.
+
+Optional Args:
+    None
+
+Functions:
+    _compute_batch: compute the score by measure how many rejected answers in all answers.
+"""
+
+_CITATION = """\
+@misc{yu2023chainofnote,
+      title={Chain-of-Note: Enhancing Robustness in Retrieval-Augmented Language Models},
+      author={Wenhao Yu and Hongming Zhang and Xiaoman Pan and Kaixin Ma and Hongwei Wang and Dong Yu},
+      year={2023},
+      eprint={2311.09210},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
 """
 
 
@@ -37,6 +57,22 @@ class ContextRejectRate(MetricWithLLM):
         """Explicitly initialize the ContextRejectRate to ensure all parent class initialized."""
         self._required_columns = ['questions', 'contexts']
         super().__init__()
+
+    def _info(self):
+        return datasets.MetricInfo(
+            description=_DESCRIPTION,
+            inputs_description=_KWARGS_DESCRIPTION,
+            citation=_CITATION,
+            homepage="",
+            features=datasets.Features(
+                {
+                    "questions": datasets.Value("string"),
+                    "contexts": datasets.Sequence(datasets.Value("string"))
+                }
+            ),
+            codebase_urls=[],
+            reference_urls=[]
+        )
 
     def init_model(self, model: Callable):
         """Initializee the LLM model."""
@@ -75,6 +111,6 @@ class ContextRejectRate(MetricWithLLM):
             )
             prompts.append(prompt)
 
-        result = self.llm.generate(prompts)
+        result = self.model.generate(prompts)
         score = self.parse_llm_result(prompts, result)
         return score
