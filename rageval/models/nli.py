@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import logging
 from abc import ABC
 
@@ -41,7 +39,7 @@ class NLIModel(ABC):
 
     @pytest.mark.api
     def infer_prob(self, premise, hypothesis):
-        """Predit one sample with NLI model."""
+        """Predict one sample with NLI model."""
         try:
             if len(premise) > 200:
                 premise = premise[:200]
@@ -61,7 +59,7 @@ class NLIModel(ABC):
 
     @pytest.mark.api
     def infer(self, premise, hypothesis):
-        """Predct one sample with NLI model."""
+        """Predict one sample with NLI model."""
         pred = self.infer_prob(premise, hypothesis)
         # [{'label': 'CONTRADICTION', 'score': 0.9992701411247253}]
         if 'mnli' in self._model_name:
