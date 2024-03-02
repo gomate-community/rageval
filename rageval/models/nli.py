@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
-import os
 import logging
-import pytest
 from abc import ABC
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+
+import pytest
+from transformers import pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -41,8 +39,12 @@ class NLIModel(ABC):
 
     @pytest.mark.api
     def infer_prob(self, premise, hypothesis):
-        """Predit one sample with NLI model."""
+        """Predict one sample with NLI model."""
         try:
+            if len(premise) > 200:
+                premise = premise[:200]
+            if len(hypothesis) > 200:
+                hypothesis = hypothesis[:200]
             input = "<s>{}</s></s>{}</s></s>".format(premise, hypothesis)
             pred = self._model(input)
             # print(pred)
@@ -57,7 +59,7 @@ class NLIModel(ABC):
 
     @pytest.mark.api
     def infer(self, premise, hypothesis):
-        """Predct one sample with NLI model."""
+        """Predict one sample with NLI model."""
         pred = self.infer_prob(premise, hypothesis)
         # [{'label': 'CONTRADICTION', 'score': 0.9992701411247253}]
         if 'mnli' in self._model_name:

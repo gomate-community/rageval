@@ -94,7 +94,7 @@ class JsonLoader:
     max_retries: int = 2
 
     def safe_load(self, text: str, llm: ragevalLLM):
-        """Load json in safty mode."""
+        """Load json in safety mode."""
         retry = 0
         while retry <= self.max_retries:
             try:

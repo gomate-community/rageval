@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Base task."""
 
 from typing import Union, Type, List

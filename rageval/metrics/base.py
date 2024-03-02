@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from typing import List, Tuple, Callable, Optional
 from abc import abstractmethod
 from dataclasses import dataclass
@@ -17,7 +15,8 @@ def add_attribute(attribute_name, attribute_value):
     This decorate is used to set attribute for Class.
 
     Currently, this decorate can be used to set attr:metric_type for each metric.
-    There are four types, i.e., 'AnswerCorrectness', 'AnswerGroundedness', 'ContextRelevancy', 'ContextAdequacy', for all RAG metrics.
+    There are four types, i.e., 'AnswerCorrectness', 'AnswerGroundedness', 'ContextRelevancy', 'ContextAdequacy', \
+    for all RAG metrics.
     """
     def decorator(cls):
         setattr(cls, attribute_name, attribute_value)
@@ -68,7 +67,9 @@ class Metric(MetricInfoMixin):
     def _validate_data(self, dataset: Dataset):
         """Validate the of the input dataset."""
         if not all(c in dataset.column_names for c in self._required_columns):
-            raise ValueError("The input dataset of f{self.name} metric should include f{self._required_columns} columns.")
+            raise ValueError(
+                "The input dataset of f{self.name} metric should include f{self._required_columns} columns."
+            )
 
     def compute(
         self,
@@ -99,10 +100,10 @@ class Metric(MetricInfoMixin):
 class MetricWithLLM(Metric):
     """Metrics based on LLM."""
 
-    @abstractmethod
-    def init_model(self, model: Callable):
-        """This method will lazy initialize the model."""
-        ...
+    def __init__(self, model: Callable):
+        """Initialization."""
+        super().__init__()
+        self.llm = model
 
     @abstractmethod
     def parse_llm_result(self, prompts: List[str], result: LLMResult):
