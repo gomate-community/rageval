@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import typing
+from typing import List, Tuple, Callable, Optional
 from abc import abstractmethod
 from dataclasses import dataclass
 
@@ -31,8 +31,8 @@ class Metric(MetricInfoMixin):
 
     def __init__(
         self,
-        config_name: typing.Optional[str] = None,
-        experiment_id: typing.Optional[str] = None
+        config_name: Optional[str] = None,
+        experiment_id: Optional[str] = None
     ):
         """Initialization.
 
@@ -65,20 +65,20 @@ class Metric(MetricInfoMixin):
         """
         raise NotImplementedError
 
-    def _validate_data(self, dataset: Dataset) -> bool:
+    def _validate_data(self, dataset: Dataset):
         """Validate the of the input dataset."""
-        return all(c in dataset.column_names for c in self._required_columns)
+        if not all(c in dataset.column_names for c in self._required_columns):
+            raise ValueError("The input dataset of f{self.name} metric should include f{self._required_columns} columns.")
 
     def compute(
         self,
         dataset: Dataset,
         batch_size: int = None,
-    ) -> (float, Dataset):
+    ) -> Tuple[float, Dataset]:
         """Evaluate the dataset."""
+        self._validate_data(dataset)
         scores = []
         length = len(dataset)
-        if not self._validate_data(dataset):
-            raise ValueError("The input dataset of f{self.name} metric should include f{self._required_columns} columns.")
         if batch_size:
             for start in tqdm(range(0, length, batch_size)):
                 end = start + batch_size
@@ -100,10 +100,10 @@ class MetricWithLLM(Metric):
     """Metrics based on LLM."""
 
     @abstractmethod
-    def init_model(self, model: typing.Callable):
+    def init_model(self, model: Callable):
         """This method will lazy initialize the model."""
         ...
 
-    def parse_llm_result(self, prompts: [str], result: LLMResult):
+    def parse_llm_result(self, prompts: List[str], result: LLMResult):
         """Parse the LLM Result based on the Prompt."""
         ...
