@@ -33,7 +33,19 @@ Functions:
 Examples:
     >>> from datasets import Dataset
     >>> import rageval as rl
-    >>> sample = {"answers": ["test answer"],"gt_answers":[["test gt_answer", "test groundtruth answer"]]}
+    >>> sample = {
+    ...    "answers": [
+    ...        "Some nanomaterials may give rise to various kinds of lung damage."
+    ...    ],
+    ...    "gt_answers":[
+    ...        [
+    ...            "Nanoparticles can penetrate the body, affecting the lungs, brain, and other organs,\
+    ...             leading to possible respiratory, cardiovascular, and brain health problems.",
+    ...            "Due to their small size, nanoparticles can infiltrate the body and impact vital organs,\
+    ...             posing risks to respiratory, heart, and neurological health."
+    ...        ]
+    ...    ]
+    ... }
     >>> dataset = Dataset.from_dict(sample)
     >>> metric = rl.metrics.AnswerRougeCorrectness('rougeL')
     >>> score, results = metric.compute(dataset, batch_size= 1)
