@@ -14,12 +14,13 @@ class BaseLLM(ABC):
     """
     BaseLLM is the base class for all LLMs.
 
-    It provides a consistent interface for other classes that interact with LLMs like Langchains, LlamaIndex, LiteLLM etc. Handles multiple_completions even if not supported by the LLM.
+    It provides a consistent interface for other classes that interact with LLMs like Langchains, LlamaIndex, \
+    LiteLLM etc. Handles multiple_completions even if not supported by the LLM.
 
     It currently takes in ChatPromptTemplates and returns LLMResults which are Langchain primitives.
     """
 
-    # supports multiple compeletions for the given prompt
+    # supports multiple completions for the given prompt
     n_completions_supported: bool = False
 
     @property

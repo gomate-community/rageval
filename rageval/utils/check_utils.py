@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-
-import json
-import os
-import nltk
 import logging
 from typing import List
+
+import nltk
 
 from rageval.models import OpenAILLM
 from .prompt import DOC_TO_SENTENCES_PROMPT
@@ -27,7 +24,7 @@ def text_to_sents(text: str, model_name="nltk") -> List[str]:
         r = model.generate([input_str])
         sentences = eval(r)
     else:
-        logger.info("The paramerter `model_name` should be in [`nltk`, `gpt-3.5-turbo-16k`]. ")
+        logger.info("The parameter `model_name` should be in [`nltk`, `gpt-3.5-turbo-16k`]. ")
     assert isinstance(sentences, list)
 
     return sentences

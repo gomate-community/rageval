@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Base task."""
 
 from abc import ABC, abstractmethod
