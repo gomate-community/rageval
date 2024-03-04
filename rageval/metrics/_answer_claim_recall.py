@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from typing import List, Any, Callable
 
 import datasets
@@ -10,12 +8,12 @@ from rageval.metrics import Metric, add_attribute
 from rageval.utils.check_utils import text_to_sents
 
 _DESCRIPTION = """\
-The AnswerNLICorrectness is to measure the correctness of long-form answers. In the original paper, the author first use \
-Instruct-GPT(text-davinci-003) to generate three "sub-claims" (based on gold answers) and use a state-of-the-art \
+The AnswerNLICorrectness is to measure the correctness of long-form answers. In the original paper, the author first \
+use Instruct-GPT(text-davinci-003) to generate three "sub-claims" (based on gold answers) and use a state-of-the-art \
 natural-language inference (NLI) model TRUE(Honovich et al., 2022) to check whether the model output entails the \
 sub-claims (claim recall).
 
-For details, see the paper: http://arxiv.org/abs/2305.14627.
+For details, see the paper: https://arxiv.org/abs/2305.14627.
 """
 
 _KWARGS_DESCRIPTION = """\
@@ -35,22 +33,25 @@ Examples:
     >>> import rageval as rl
     >>> sample = {
     ...     "answers": [
-    ...         "They went a while before introducing ads, so they could make money, as they needed to \
-    ...          establish their brand and amass users. Once you have dedicated users, introducing ads won't \
-    ...          deter most, but if you are still new, having ads will deter a lot. The same goes for Uber, \
-    ...          it's not that they aren't making money, it's that they are reinvesting a ton of it to make \
-    ...          their service better."
+    ...         "They went a while before introducing ads, so they could make money, as they needed to  establish "
+    ...         "their brand and amass users. Once you have dedicated users, introducing ads won't deter most, but if "
+    ...         "you are still new, having ads will deter a lot. The same goes for Uber, it's not that they aren't "
+    ...         "making money, it's that they are reinvesting a ton of it to make their service better."
     ...     ],
     ...     "gt_answers": [
     ...         [
-    ...             "Firms like Snapchat and Uber need to establish their brand and amass users before introducing ads.",
+    ...             "Firms like Snapchat and Uber need to establish their brand and amass users before introducing "
+    ...             "ads.",
     ...             "Introducing ads too early can deter potential users.",
     ...             "Uber is reinvesting a lot of money to make their service better."
     ...         ]
     ...     ]
     ... }
     >>> dataset = Dataset.from_dict(sample)
-    >>> nli_model = rl.models.NLIModel('text-classification', 'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification')
+    >>> nli_model = rl.models.NLIModel(
+    ...     'text-classification',
+    ...     'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification'
+    ... )
     >>> metric = rl.metrics.AnswerNLICorrectness(nli_model=nli_model, decompose_model="nltk")
     >>> metric.mtype
     'AnswerCorrectness'
@@ -76,20 +77,26 @@ _CITATION = """\
 @add_attribute('mtype', 'AnswerCorrectness')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class AnswerNLICorrectness(Metric):
+    """Estimates the correctness of long-form answers based on the NLI model."""
 
     name = "answer_claim_recall"
 
     ALIAS = ['answer_claim_recall']
 
     def __init__(self, nli_model: Callable, decompose_model: str = "gpt-3.5-turbo"):
-        """Explicitly initialize the AnswerNLICorrectness to ensure all parent class initialized as well as initialize the LLM model."""
+        """
+        Explicitly initialize AnswerNLICorrectness.
+
+        Ensure all parent classes are initialized.
+        Ensure nli_model and decompose_model is initialized.
+        """
+        super().__init__()
         self._required_columns = ['answers', 'gt_answers']
         self.nli_model = nli_model
         self.decompose_model = decompose_model
-        super().__init__()
 
     def __repr__(self) -> str:
-        """:return: Formated string representation of the metric."""
+        """:return: Formatted string representation of the metric."""
         return f"{self.ALIAS[0]}"
 
     def _info(self):
@@ -105,7 +112,7 @@ class AnswerNLICorrectness(Metric):
                 }
             ),
             codebase_urls=["https://github.com/princeton-nlp/ALCE"],
-            reference_urls=["http://arxiv.org/abs/2305.14627"]
+            reference_urls=["https://arxiv.org/abs/2305.14627"]
         )
 
     def _verify_by_stance(self, answer: str, claims: List[str]) -> Any:
