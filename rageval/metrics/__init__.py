@@ -4,3 +4,4 @@ from ._context_reject_rate import ContextRejectRate
 from ._answer_exact_match import AnswerEMCorrectness
 from ._answer_claim_recall import AnswerNLICorrectness
 from ._answer_citation_recall import AnswerCitationRecall
+from ._answer_citation_precision import AnswerCitationPrecision
