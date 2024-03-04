@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import List
 
 import nltk
@@ -28,3 +29,8 @@ def text_to_sents(text: str, model_name="nltk") -> List[str]:
     assert isinstance(sentences, list)
 
     return sentences
+
+
+def remove_citations(text: str) -> str:
+    """Remove the citation in the text."""
+    return re.sub(r"\[\d+", "", re.sub(r" \[\d+", "", text)).replace(" |", "").replace("]", "")
