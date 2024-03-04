@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import List, Any, Callable, Union
+from typing import List, Any, Callable, Optional
 from rouge_score import rouge_scorer
 import datasets
 
@@ -63,7 +63,7 @@ class AnswerRougeCorrectness(Metric):
 
     ALIAS = ['answer_rouge_correctness']
 
-    def __init__(self, rouge_type: str, tokenizer: Union[Callable, None] = None):
+    def __init__(self, rouge_type: str, tokenizer: Optional[Callable] = None):
         """Explicitly initialize the AnswerRougeCorrectness to ensure all parent class initialized as well as initialize the rouge type and tokenizer."""
         self._required_columns = ['answers', 'gt_answers']
         self.rouge_type = rouge_type
@@ -89,6 +89,13 @@ class AnswerRougeCorrectness(Metric):
             codebase_urls=[],
             reference_urls=[]
         )
+
+    def _validate_data(self, dataset: Dataset) -> bool:
+        super()._validate_data(dataset)
+        if not all(isinstance(answer, str) for answer in dataset["answers"]):
+            raise ValueError("The type of answers should be a string.")
+        if not all(isinstance(a, List) or not all(isinstance(item, str) for item in a) for a in dataset["gt_answers"]):
+            raise ValueError("The type of gt_answers should be a list of strings.")
 
     def _compute_one(self, answer: str, gt_answers: List[str]) -> float:
         """Evaluate the ROUGE between a single answer and groundtruth answers."""
