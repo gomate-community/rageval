@@ -11,19 +11,20 @@ Evaluation tools for Retrieval-augmented Generation (RAG) methods.
 Rageval is a tool that helps you evaluate RAG system. The evaluation consists of six sub-tasks, including query rewriting, document ranking, information compression, evidence verify, answer generating, and result validating.
 
 ## Definition of tasks and metrics
-### Generator
-After obtaining relevant documents pieces, the generator is tasked with answer the question by utilizing the original user query and the retrieved contexts. We assess a generator module from two distinct perspectives.
-(1) Answer Correctness
-In this task, we compare output answer with groundtruth answer using following metrics. 
-* answer claim recall ("answer_claim_recall")
-* answer exact match ("answer_exact_match")
-* context reject rate ("context_reject_rate")
-(2) Answer Groundednedd
-* answer_citation_precision ("answer_citation_precision")
-* answer_citation_recall ("answer_citation_recall")
+### 1. [The generate task](./rageval/tasks/_generate.py)
+The generate task is to answer the question based on the contexts provided by retrieval modules in RAG. Typically, the context could be extracted/generated text snippets from the compressor, or relevant documents from the re-ranker. Here, we divide the metrics used in the generate task into two categories, namely *answer correctness* and *answer groundedness*.
 
-### Rewriter
-xxx
+(1) **Answer Correctness**: this category of metrics is to evaluate the correctness by comparing the generated answer with the groundtruth answer. Here are some commonly used metrics:
+
+* [Answer NLI Correctness](./rageval/metrics/_answer_claim_recall.py): also know as *claim recall* in [the paper (Tianyu et al.)](https://arxiv.org/abs/2305.14627).
+* [Answer EM Correctness](./rageval/metrics/_answer_claim_recall.py): also know as *Exact Match* as used in [ASQA (Ivan Stelmakh et al.)](https://arxiv.org/abs/2204.06092).
+
+(2) **Answer Groundedness**: this category of metrics is to evaluate the groundedness (also known as factual consistency) by comparing the generated answer with the provided contexts. Here are some commonly used metrics:
+* ~~answer_citation_precision ("answer_citation_precision")~~
+* ~~answer_citation_recall ("answer_citation_recall")~~
+
+### 2. [The rewrite task](./rageval/tasks/_rewrite.py)
+The rewrite task is to reformulate user question into a set of queries, making them more friendly to the search module in RAG. 
 
 
 
