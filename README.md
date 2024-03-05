@@ -10,6 +10,23 @@ Evaluation tools for Retrieval-augmented Generation (RAG) methods.
 
 Rageval is a tool that helps you evaluate RAG system. The evaluation consists of six sub-tasks, including query rewriting, document ranking, information compression, evidence verify, answer generating, and result validating.
 
+## Definition of tasks and metrics
+### Generator
+After obtaining relevant documents pieces, the generator is tasked with answer the question by utilizing the original user query and the retrieved contexts. We assess a generator module from two distinct perspectives.
+(1) Answer Correctness
+In this task, we compare output answer with groundtruth answer using following metrics. 
+* answer claim recall ("answer_claim_recall")
+* answer exact match ("answer_exact_match")
+* context reject rate ("context_reject_rate")
+(2) Answer Groundednedd
+* answer_citation_precision ("answer_citation_precision")
+* answer_citation_recall ("answer_citation_recall")
+
+### Rewriter
+xxx
+
+
+
 
 ## Installation
 
