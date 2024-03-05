@@ -59,7 +59,7 @@ def test_answer_citation_recall(testset):
     )
     metric = AnswerCitationRecall(nli_model=nli_model)
     assert metric.name == "answer_citation_recall"
-    assert metric.mtype == 'AnswerCitationQuality'
+    assert metric.mtype == 'AnswerGroundedness'
     score, results = metric.compute(testset, 1)
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)
