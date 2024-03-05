@@ -153,6 +153,9 @@ class AnswerCitationRecall(Metric):
                 context_id = int(r[1:])
                 if 1 <= context_id <= len(context):
                     context_ids.append(context_id)
+                else:
+                    context_ids = []
+                    break
 
             if len(context_ids) > 0:
                 # citation id starts from 1 in sents
