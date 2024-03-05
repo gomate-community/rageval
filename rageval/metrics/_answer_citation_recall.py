@@ -74,7 +74,7 @@ Examples:
     ... )
     >>> metric = rl.metrics.AnswerCitationRecall(nli_model=nli_model)
     >>> metric.mtype
-    'AnswerCitationQuality'
+    'AnswerGroundedness'
     >>> s, ds = metric.compute(dataset, batch_size=1)
     >>> assert 0 <= s <= 1
     >>> type(ds)
@@ -94,7 +94,7 @@ _CITATION = """\
 
 
 @dataclass
-@add_attribute('mtype', 'AnswerCitationQuality')
+@add_attribute('mtype', 'AnswerGroundedness')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class AnswerCitationRecall(Metric):
     """Estimates the citation recall of the generated answer based on the NLI model."""
