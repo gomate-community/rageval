@@ -4,3 +4,4 @@ from ._answer_rouge_correctness import AnswerRougeCorrectness
 from ._context_reject_rate import ContextRejectRate
 from ._answer_exact_match import AnswerEMCorrectness
 from ._answer_claim_recall import AnswerNLICorrectness
+from ._answer_disambig_f1 import AnswerDisambigF1Correctness
