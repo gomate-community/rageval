@@ -124,8 +124,8 @@ class AnswerDisambigF1Correctness(Metric):
                     "gt_answers": datasets.Value("string")
                 }
             ),
-            codebase_urls=["https://github.com/jzbjyb/FLARE"],
-            reference_urls=["https://aclanthology.org/2022.emnlp-main.566"]
+            codebase_urls=["https://github.com/google-research/language/blob/master/language/asqa", "https://github.com/jzbjyb/FLARE"],
+            reference_urls=["https://aclanthology.org/2022.emnlp-main.566", "https://arxiv.org/abs/2305.06983"]
         )
 
     def _normalize_text(self, s: str) -> str:
