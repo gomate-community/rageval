@@ -57,7 +57,7 @@ Examples:
     ... )
     >>> metric = rl.metrics.ContextRecall(model)
     >>> metric.mtype
-    'ContextRelevancy'
+    'ContextAdequancy'
     >>> s, ds = metric.compute(dataset, batch_size=1)
     >>> assert 0 <= s <= 1
     >>> type(ds)
@@ -75,7 +75,7 @@ _CITATION = """\
 
 
 @dataclass
-@add_attribute('mtype', 'ContextRelevancy')
+@add_attribute('mtype', 'ContextAdequancy')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class ContextRecall(MetricWithLLM):
     """Estimates context recall by estimating TP and FN using annotated answer and retrieved context."""

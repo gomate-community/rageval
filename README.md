@@ -16,8 +16,10 @@ The generate task is to answer the question based on the contexts provided by re
 
 (1) **Answer Correctness**: this category of metrics is to evaluate the correctness by comparing the generated answer with the groundtruth answer. Here are some commonly used metrics:
 
-* [Answer NLI Correctness](./rageval/metrics/_answer_claim_recall.py): also known as *claim recall* in [the paper (Tianyu et al.)](https://arxiv.org/abs/2305.14627).
-* [Answer EM Correctness](./rageval/metrics/_answer_claim_recall.py): also known as *Exact Match* as used in the [ASQA paper (Ivan Stelmakh et al.)](https://arxiv.org/abs/2204.06092).
+* [Answer NLI Correctness](./rageval/metrics/_answer_claim_recall.py): also known as *claim recall* in [the paper (Tianyu et al.)](https://arxiv.org/abs/2305.14627). To include this metric in evaluation criteria, use alias name "answer_claim_recall". 
+* [Answer EM Correctness](./rageval/metrics/_answer_claim_recall.py): also known as *Exact Match* as used in the [ASQA paper (Ivan Stelmakh et al.)](https://arxiv.org/abs/2204.06092). To include this metric in evaluation criteria, use alias name "answer_exact_match". 
+* [Answer Reject Rate](./rageval/metrics/_context_reject_rate.py): also known as *reject rate* in [Chain of Note Paper (Yu et al.)](https://arxiv.org/abs/2311.09210). To include this metric in evaluation criteria, use alias name "context_reject_rate". 
+
 
 (2) **Answer Groundedness**: this category of metrics is to evaluate the groundedness (also known as factual consistency) by comparing the generated answer with the provided contexts. Here are some commonly used metrics:
 * ~~answer_citation_precision ("answer_citation_precision")~~
