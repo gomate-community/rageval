@@ -12,9 +12,9 @@ from rageval.metrics import Metric, add_attribute
 from rageval.utils.check_utils import text_to_sents
 
 _DESCRIPTION = """\
-    Estimates the Disambig-F1 between answers and ground truth answers.
+    The Disambig-F1 is a variant of the F1 score, estimates the similarity between the disambiguation of the answer and the ground truth answer.
 
-    For details, see the paper: https://aclanthology.org/2022.emnlp-main.566
+    The original metric was presented in [ASQA paper](https://aclanthology.org/2022.emnlp-main.566/), and implemented through [this code](https://github.com/google-research/language/blob/master/language/asqa/scoring.py#L273). And we adopted an [alternative implementation](https://github.com/jzbjyb/FLARE/tree/main/src/datasets.py#L29) from the paper [Active Retrieval Augmented Generation](https://arxiv.org/abs/2305.06983).
 """
 
 _KWARGS_DESCRIPTION = """\
@@ -57,6 +57,24 @@ Examples:
 """
 
 _CITATION = """\
+@inproceedings{stelmakh-etal-2022-asqa,
+    title = "{ASQA}: Factoid Questions Meet Long-Form Answers",
+    author = "Stelmakh, Ivan  and
+      Luan, Yi  and
+      Dhingra, Bhuwan  and
+      Chang, Ming-Wei",
+    editor = "Goldberg, Yoav  and
+      Kozareva, Zornitsa  and
+      Zhang, Yue",
+    booktitle = "Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing",
+    month = dec,
+    year = "2022",
+    address = "Abu Dhabi, United Arab Emirates",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.emnlp-main.566",
+    doi = "10.18653/v1/2022.emnlp-main.566",
+    pages = "8273--8288",
+}
 @misc{jiang2023active,
       title={Active Retrieval Augmented Generation},
       author={Zhengbao Jiang and Frank F. Xu and Luyu Gao and Zhiqing Sun and Qian Liu and Jane Dwivedi-Yu and Yiming Yang and Jamie Callan and Graham Neubig},
