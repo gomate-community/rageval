@@ -15,14 +15,29 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class OpenAILLM(ABC):
-    """This is the OpenAI LLM model."""
+    """This is the OpenAI LLM model. See more at https://platform.openai.com/docs/api-reference/chat/create.
+
+    Args:
+        model: str, The model name.
+        _api_key_env_var: str, The environment variable that holds the api key.
+        num_retries: int, The number of retries to make.
+        timeout: int, The timeout for the request.
+
+    Optional Args:
+        max_tokens: int, The maximum number of tokens that can be generated in the chat completion. The total length of input tokens and generated tokens is limited by the model's context length.
+        n: int, How many chat completion choices to generate for each input message. Default to 1.
+        temperature: float, What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.We generally recommend altering this or `top_p` but not both.
+        top_p: float, An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with `top_p` probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. Default to 1.0.
+        logprobs: bool, Whether to return logprobs. Default to False. If true, returns the log probabilities of each output token returned in the content of message. This option is currently not available on the `gpt-4-vision-preview` model.
+        top_logprobs: int, An integer between 0 and 20 specifying the number of most likely tokens to return at each token position, each with an associated log probability. logprobs must be set to true if this parameter is used.
+    """
 
     def __init__(self, model: str = "gpt-3.5-turbo-16k",
                  _api_key_env_var: str = field(default='NO_KEY', repr=False),
                  num_retries: int = 3,
                  timeout: int = 60,
                  max_tokens: Optional[int] = None,
-                 n:Optional[int] = None,
+                 n: Optional[int] = None,
                  temperature: Optional[float] = None,
                  top_p: Optional[float] = None,
                  logprobs: bool = False,
@@ -48,10 +63,13 @@ class OpenAILLM(ABC):
 
     @pytest.mark.api
     def generate(self,
-                 inputs: List[str],
+                 input: str,
                  system_role: str = "You are a helpful assistant") -> LLMResult:
         """Obtain the LLMResult from the response."""
-        messages = [{"role": "system", "content": system_role}, {"role": "user", "content": input_str} for input_str in inputs]
+        messages = [
+            {"role": "system", "content": system_role}, 
+            {"role": "user", "content": input}
+        ]
         try:
             response = self.llm.with_options(
                 max_retries=self.num_retries,
