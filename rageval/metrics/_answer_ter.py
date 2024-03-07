@@ -140,12 +140,11 @@ class AnswerTERCorrectness(Metric):
         predictions = list(dataset["answers"])
         references = list(dataset["gt_answers"])
         result = ter.compute(predictions=predictions,
-                              references=references,
-                              normalized=normalized,
-                              ignore_punct=ignore_punct,
-                              support_zh_ja_chars=support_zh_ja_chars,
-                              case_sensitive=case_sensitive
-        )
+                             references=references,
+                             normalized=normalized,
+                             ignore_punct=ignore_punct,
+                             support_zh_ja_chars=support_zh_ja_chars,
+                             case_sensitive=case_sensitive)
         scores = [ter.compute(predictions=[predictions[i]],
                               references=[references[i]],
                               normalized=normalized,
