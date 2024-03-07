@@ -63,13 +63,13 @@ class OpenAILLM(ABC):
 
     @pytest.mark.api
     def generate(self,
-                 input: str,
-                 system_role: str = "You are a helpful assistant") -> LLMResult:
+                 inputs: List[str],
+                 system_role: Optional[str]) -> LLMResult:
         """Obtain the LLMResult from the response."""
-        messages = [
-            {"role": "system", "content": system_role}, 
-            {"role": "user", "content": input}
-        ]
+        messages = []
+        if system_role:
+            messages.append({"role": "system", "content": system_role})
+        messages.extend([{"role": "user", "content": input_str} for input_str in inputs])
         try:
             response = self.llm.with_options(
                 max_retries=self.num_retries,
@@ -122,3 +122,16 @@ class OpenAILLM(ABC):
             for choice in choices
         ]
         return LLMResult(generations=[generations], llm_output=llm_output)
+
+    def batch_generate(self,
+                       inputs: List[List[str]],
+                       system_roles: Optional[List[str]]) -> List[LLMResult]:
+        """Batch generate the LLMResult from the response."""
+        if not system_roles:
+            system_roles = ["You are a helpful assistant"] * len(inputs)
+
+        results = []
+        for input_str, system_role in zip(inputs, system_roles):
+            result = self.generate(input_str, system_role)
+            results.append(result)
+        return results
