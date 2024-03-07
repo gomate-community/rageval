@@ -7,8 +7,7 @@ from datasets import Dataset
 from rageval.metrics import Metric, add_attribute
 
 _DESCRIPTION = """\
-    ChrF and ChrF++ are two MT evaluation metrics. They both use the F-score statistic for character n-gram matches,
-and ChrF++ adds word n-grams as well which correlates more strongly with direct assessment. 
+    ChrF and ChrF++ are two MT evaluation metrics. They both use the F-score statistic for character n-gram matches, and ChrF++ adds word n-grams as well which correlates more strongly with direct assessment.
 """
 
 _KWARGS_DESCRIPTION = """\
@@ -34,7 +33,7 @@ Examples:
     >>> import rageval as rl
     >>> sample = {
     ...     "answers": [
-    ...         "The relationship between cats and dogs is not exactly friendly.", 
+    ...         "The relationship between cats and dogs is not exactly friendly.",
     ...         "a good bookshop is just a genteel black hole that knows how to read."
     ...     ],
     ...     "gt_answers": [
@@ -155,16 +154,15 @@ class AnswerCHRFCorrectness(Metric):
                               beta=beta,
                               lowercase=lowercase,
                               whitespace=whitespace,
-                              eps_smoothing=eps_smoothing
-        )
+                              eps_smoothing=eps_smoothing)
         scores = [chrf.compute(predictions=[predictions[i]],
-                              references=[references[i]],
-                              char_order=char_order,
-                              word_order=word_order,
-                              beta=beta,
-                              lowercase=lowercase,
-                              whitespace=whitespace,
-                              eps_smoothing=eps_smoothing)['score'] for i in range(len(predictions))]
+                               references=[references[i]],
+                               char_order=char_order,
+                               word_order=word_order,
+                               beta=beta,
+                               lowercase=lowercase,
+                               whitespace=whitespace,
+                               eps_smoothing=eps_smoothing)['score'] for i in range(len(predictions))]
 
         return result['score'], dataset.add_column(f"{self.name}", scores)
 
