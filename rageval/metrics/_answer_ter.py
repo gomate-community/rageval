@@ -16,6 +16,12 @@ here: https://github.com/jhclark/tercom.
 _KWARGS_DESCRIPTION = """\
 Args:
     name : str
+    normalized (boolean): If `True`, applies basic tokenization and normalization to sentences. Defaults to `False`.
+    ignore_punct (boolean): If `True`, applies basic tokenization and normalization to sentences. Defaults to `False`.
+    support_zh_ja_chars (boolean): If `True`, tokenization/normalization supports processing of Chinese characters,
+                                    as well as Japanese Kanji, Hiragana, Katakana, and Phonetic Extensions of Katakana.
+                                    Only applies if `normalized = True`. Defaults to `False`.
+    case_sensitive (boolean): If `False`, makes all predictions and references lowercase to ignore differences in case. Defaults to `False`.
 
 Optional Args:
     None
