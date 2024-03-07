@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import List, Optional, Any
 import logging
 import os
 from abc import ABC
@@ -19,11 +20,23 @@ class OpenAILLM(ABC):
     def __init__(self, model: str = "gpt-3.5-turbo-16k",
                  _api_key_env_var: str = field(default='NO_KEY', repr=False),
                  num_retries: int = 3,
-                 timeout: int = 60) -> None:
+                 timeout: int = 60,
+                 max_tokens: Optional[int] = None,
+                 n:Optional[int] = None,
+                 temperature: Optional[float] = None,
+                 top_p: Optional[float] = None,
+                 logprobs: bool = False,
+                 top_logprobs: Optional[int] = None) -> None:
         """Init the OpenAI Model."""
         self.model = model
         self.num_retries = num_retries
         self.timeout = timeout
+        self.max_tokens = max_tokens
+        self.n = n
+        self.temperature = temperature
+        self.top_p = top_p
+        self.logprobs = logprobs
+        self.top_logprobs = top_logprobs
 
         # api key
         self.api_key = os.getenv(_api_key_env_var, 'NO_KEY')
@@ -35,15 +48,22 @@ class OpenAILLM(ABC):
 
     @pytest.mark.api
     def generate(self,
-                 inputs: list(str),
+                 inputs: List[str],
                  system_role: str = "You are a helpful assistant") -> LLMResult:
         """Obtain the LLMResult from the response."""
+        messages = [{"role": "system", "content": system_role}, {"role": "user", "content": input_str} for input_str in inputs]
         try:
             response = self.llm.with_options(
                 max_retries=self.num_retries,
                 timeout=self.timeout).chat.completions.create(
                     model=self.model,
-                    messages=[{"role": "user", "content": input_str} for input_str in inputs])
+                    messages=messages,
+                    max_tokens=self.max_tokens,
+                    n=self.n,
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                    logprobs=self.logprobs,
+                    top_logprobs=self.top_logprobs)
             result = self.create_llm_result(response)
             return result
         except openai.APIConnectionError as e:
