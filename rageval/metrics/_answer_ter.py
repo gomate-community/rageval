@@ -93,7 +93,13 @@ class AnswerTERCorrectness(Metric):
 
     ALIAS = ['answer_ter']
 
-    def __init__(self, model: str = "en_core_web_sm"):
+    def __init__(
+            self,
+            normalized: bool = False,
+            ignore_punct: bool = False,
+            support_zh_ja_chars: bool = False,
+            case_sensitive: bool = False
+    ):
         """
         Explicitly initialize AnswerTERCorrectness.
 
@@ -101,6 +107,10 @@ class AnswerTERCorrectness(Metric):
         """
         super().__init__()
         self._required_columns = ['answers', 'gt_answers']
+        self.normalized = normalized
+        self.ignore_punct = ignore_punct
+        self.support_zh_ja_chars = support_zh_ja_chars
+        self.case_sensitive = case_sensitive
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -130,10 +140,7 @@ class AnswerTERCorrectness(Metric):
     def compute(
         self,
         dataset: Dataset,
-        normalized: bool = False,
-        ignore_punct: bool = False,
-        support_zh_ja_chars: bool = False,
-        case_sensitive: bool = False,
+        batch_size: int = None,
     ) -> Tuple[float, Dataset]:
         """Evaluate the dataset."""
         ter = datasets.load_metric("ter")
@@ -141,18 +148,18 @@ class AnswerTERCorrectness(Metric):
         references = list(dataset["gt_answers"])
         result = ter.compute(predictions=predictions,
                              references=references,
-                             normalized=normalized,
-                             ignore_punct=ignore_punct,
-                             support_zh_ja_chars=support_zh_ja_chars,
-                             case_sensitive=case_sensitive)
+                             normalized=self.normalized,
+                             ignore_punct=self.ignore_punct,
+                             support_zh_ja_chars=self.support_zh_ja_chars,
+                             case_sensitive=self.case_sensitive)
         scores = [ter.compute(predictions=[predictions[i]],
                               references=[references[i]],
-                              normalized=normalized,
-                              ignore_punct=ignore_punct,
-                              support_zh_ja_chars=support_zh_ja_chars,
-                              case_sensitive=case_sensitive)['score'] for i in range(len(predictions))]
+                              normalized=self.normalized,
+                              ignore_punct=self.ignore_punct,
+                              support_zh_ja_chars=self.support_zh_ja_chars,
+                              case_sensitive=self.case_sensitive)['score'] for i in range(len(predictions))]
 
         return result['score'], dataset.add_column(f"{self.name}", scores)
 
-    def _compute_batch(self):
+    def _compute_batch(self, dataset: Dataset) -> list:
         pass
