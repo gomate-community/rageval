@@ -99,7 +99,15 @@ class AnswerCHRFCorrectness(Metric):
 
     ALIAS = ['answer_chrf']
 
-    def __init__(self, model: str = "en_core_web_sm"):
+    def __init__(
+            self,
+            char_order: int = 6,
+            word_order: int = 0,
+            beta: int = 2,
+            lowercase: bool = False,
+            whitespace: bool = False,
+            eps_smoothing: bool = False
+    ):
         """
         Explicitly initialize AnswerCHRFCorrectness.
 
@@ -107,6 +115,12 @@ class AnswerCHRFCorrectness(Metric):
         """
         super().__init__()
         self._required_columns = ['answers', 'gt_answers']
+        self.char_order = char_order
+        self.word_order = word_order
+        self.beta = beta
+        self.lowercase = lowercase
+        self.whitespace = whitespace
+        self.eps_smoothing = eps_smoothing
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -136,12 +150,7 @@ class AnswerCHRFCorrectness(Metric):
     def compute(
         self,
         dataset: Dataset,
-        char_order: int = 6,
-        word_order: int = 0,
-        beta: int = 2,
-        lowercase: bool = False,
-        whitespace: bool = False,
-        eps_smoothing: bool = False,
+        batch_size: int = None,
     ) -> Tuple[float, Dataset]:
         """Evaluate the dataset."""
         chrf = datasets.load_metric("chrf")
@@ -149,22 +158,22 @@ class AnswerCHRFCorrectness(Metric):
         references = list(dataset["gt_answers"])
         result = chrf.compute(predictions=predictions,
                               references=references,
-                              char_order=char_order,
-                              word_order=word_order,
-                              beta=beta,
-                              lowercase=lowercase,
-                              whitespace=whitespace,
-                              eps_smoothing=eps_smoothing)
+                              char_order=self.char_order,
+                              word_order=self.word_order,
+                              beta=self.beta,
+                              lowercase=self.lowercase,
+                              whitespace=self.whitespace,
+                              eps_smoothing=self.eps_smoothing)
         scores = [chrf.compute(predictions=[predictions[i]],
                                references=[references[i]],
-                               char_order=char_order,
-                               word_order=word_order,
-                               beta=beta,
-                               lowercase=lowercase,
-                               whitespace=whitespace,
-                               eps_smoothing=eps_smoothing)['score'] for i in range(len(predictions))]
+                               char_order=self.char_order,
+                               word_order=self.word_order,
+                               beta=self.beta,
+                               lowercase=self.lowercase,
+                               whitespace=self.whitespace,
+                               eps_smoothing=self.eps_smoothing)['score'] for i in range(len(predictions))]
 
         return result['score'], dataset.add_column(f"{self.name}", scores)
 
-    def _compute_batch(self):
+    def _compute_batch(self, dataset: Dataset) -> list:
         pass

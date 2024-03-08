@@ -65,7 +65,7 @@ class AnswerF1Correctness(Metric):
 
     ALIAS = ['answer_f1']
 
-    def __init__(self, model: str = "en_core_web_sm"):
+    def __init__(self):
         """
         Explicitly initialize AnswerF1Correctness.
 
