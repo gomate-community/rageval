@@ -8,16 +8,19 @@ from rageval.metrics import AnswerBleuScore
 def sample():
     test_case = {
         "answers": [
-            "Hello, world!",
-            "I am a metric named bleu."
+            "It is a guide to action which ensures that the military always obeys the commands of the party.",
+            "It is to insure the troops forever hearing the activity guidebook that party direct."
         ],
         "gt_answers": [
             [
-                "Hello, my world!",
+                "It is a guide to action that ensures that the military will forever heed Party commands.",
+                "It is the guiding principle which guarantees the military forces always being under the command of the Party.",
+                "It is the practical guide for the army always to heed the directions of the party."
             ],
             [
-                "I am a metric named bleu.",
-                "I am bleu metric.",
+                "It is a guide to action that ensures that the military will forever heed Party commands.",
+                "It is the guiding principle which guarantees the military forces always being under the command of the Party.",
+                "It is the practical guide for the army always to heed the directions of the party."
             ]
         ]
     }
@@ -37,5 +40,5 @@ def test_case_on_answer_bleu(testset):
     assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
     score, results = metric.compute(testset, 1)
-    assert 0.0 <= score <= 1.0
+    assert score == 0.3172992057845065
     assert isinstance(results, Dataset)

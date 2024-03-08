@@ -10,7 +10,7 @@ from rageval.metrics import Metric, add_attribute
 
 _DESCRIPTION = """\
 BLEU (Bilingual Evaluation Understudy) is an algorithm for evaluating the quality of text which has been machine-translated from one natural language to another.
-Scores are calculated for individual translated segments—generally sentences—by comparing them with a set of good quality reference translations.
+Scores are calculated by comparing individual translated segments, e.g., sentences, with a set of high-quality reference translations.
 Those scores are then averaged over the whole corpus to reach an estimate of the translation's overall quality.
 Neither intelligibility nor grammatical correctness are not taken into account.
 
@@ -34,16 +34,19 @@ Examples:
     >>> import rageval as rl
     >>> sample = {
     ...     "answers": [
-    ...         "Hello, world!",
-    ...         "I am a metric named bleu."
+    ...         "It is a guide to action which ensures that the military always obeys the commands of the party.",
+    ...         "It is to insure the troops forever hearing the activity guidebook that party direct.",
     ...     ],
     ...     "gt_answers": [
     ...         [
-    ...             "Hello, my world!",
+    ...             "It is a guide to action that ensures that the military will forever heed Party commands.",
+    ...             "It is the guiding principle which guarantees the military forces always being under the command of the Party.",
+    ...             "It is the practical guide for the army always to heed the directions of the party.",
     ...         ],
     ...         [
-    ...             "I am a metric named bleu.",
-    ...             "I am bleu metric.",
+    ...             "It is a guide to action that ensures that the military will forever heed Party commands.",
+    ...             "It is the guiding principle which guarantees the military forces always being under the command of the Party.",
+    ...             "It is the practical guide for the army always to heed the directions of the party.",
     ...         ]
     ...     ],
     ... }
@@ -52,7 +55,7 @@ Examples:
     >>> metric.mtype
     'AnswerCorrectness'
     >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
+    >>> assert s == 0.3172992057845065
     >>> type(ds)
     <class 'datasets.arrow_dataset.Dataset'>
 
@@ -101,11 +104,12 @@ class AnswerBleuScore(Metric):
                     "gt_answers": datasets.Sequence(datasets.Value("string"))
                 }
             ),
-            codebase_urls=[],
+            codebase_urls=["https://github.com/tensorflow/nmt/blob/master/nmt/scripts/bleu.py",
+                           "https://github.com/huggingface/datasets/blob/main/metrics/bleu/bleu.py"],
             reference_urls=["http://www.aclweb.org/anthology/P02-1040.pdf"]
         )
 
-    def _clean(self, sentence: str, subword: str) -> str:
+    def _clean_special_tokens(self, sentence: str, subword: str) -> str:
         """Clean special word in sentence"""
 
         sentence = sentence.strip()
@@ -119,12 +123,12 @@ class AnswerBleuScore(Metric):
         scores = []
         bleu = datasets.load_metric("bleu")
         for output, gt_answers in zip(dataset["answers"], dataset["gt_answers"]):
-            output_clean = self._clean(output, None)
+            output_clean = self._clean_special_tokens(output, None)
             predictions = []
             predictions.append(output_clean.split(' '))
             references = []
             for gt_answer in gt_answers:
-                gt_answer_clean = self._clean(gt_answer, None)
+                gt_answer_clean = self._clean_special_tokens(gt_answer, None)
                 reference = []
                 reference.append(gt_answer_clean.split(' '))
             references.append(reference)
@@ -146,10 +150,10 @@ class AnswerBleuScore(Metric):
         references = []
         reference = []
         for output, gt_answers in zip(dataset["answers"], dataset["gt_answers"]):
-            output_clean = self._clean(output, None)
+            output_clean = self._clean_special_tokens(output, None)
             predictions.append(list(output_clean.split(' ')))
             for gt_answer in gt_answers:
-                gt_answer_clean = self._clean(gt_answer, None)
+                gt_answer_clean = self._clean_special_tokens(gt_answer, None)
                 reference.append(list(gt_answer_clean.split(' ')))
             references.append(reference)
         bleu_result = bleu.compute(predictions=predictions, references=references)
