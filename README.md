@@ -17,11 +17,12 @@ The generate task is to answer the question based on the contexts provided by re
 (1) **Answer Correctness**: this category of metrics is to evaluate the correctness by comparing the generated answer with the groundtruth answer. Here are some commonly used metrics:
 
 * [Answer NLI Correctness](./rageval/metrics/_answer_claim_recall.py): also known as *claim recall* in [the paper (Tianyu et al.)](https://arxiv.org/abs/2305.14627).
-* [Answer EM Correctness](./rageval/metrics/_answer_claim_recall.py): also known as *Exact Match* as used in the [ASQA paper (Ivan Stelmakh et al.)](https://arxiv.org/abs/2204.06092).
+* [Answer EM Correctness](./rageval/metrics/_answer_exact_match.py): also known as *Exact Match* as used in the [ASQA paper (Ivan Stelmakh et al.)](https://arxiv.org/abs/2204.06092).
 
 (2) **Answer Groundedness**: this category of metrics is to evaluate the groundedness (also known as factual consistency) by comparing the generated answer with the provided contexts. Here are some commonly used metrics:
-* ~~answer_citation_precision ("answer_citation_precision")~~
-* ~~answer_citation_recall ("answer_citation_recall")~~
+
+* [Answer Citation Precision](./rageval/metrics/_answer_citation_precision.py): also known as *citation precision* in [the paper (Tianyu et al.)](https://arxiv.org/abs/2305.14627).
+* [Answer Citation Recall](./rageval/metrics/_answer_citation_recall.py): also known as *citation recall* in [the paper (Tianyu et al.)](https://arxiv.org/abs/2305.14627).
 
 ### 2. [The rewrite task](./rageval/tasks/_rewrite.py)
 The rewrite task is to reformulate user question into a set of queries, making them more friendly to the search module in RAG. 

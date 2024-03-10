@@ -13,7 +13,7 @@ class NLIModel(ABC):
     def __init__(self, task: str = "sentiment-analysis", model: str = "roberta-large-mnli") -> None:
         """Init the Roberta Model."""
         self._model_name = model
-        self._model = pipeline(task=task, model=model)
+        self._model = pipeline(task=task, model=model, device_map="auto")
 
         self._labelmap = {
             "NEUTRAL": 3,
@@ -70,3 +70,13 @@ class NLIModel(ABC):
                 "LABEL_1": "support"
             }
             return nli2stance[pred[0]['label']]
+
+    @pytest.mark.api
+    def generate_infer(self, premise, hypothesis):
+        """Predict one sample with NLI model."""
+        input_text = "premise: {} hypothesis: {}".format(premise, hypothesis)
+        pred = self._model(input_text, max_new_tokens=10)
+        # [{'generated_text': 'support'}]
+        if pred[0]["generated_text"] == "1":
+            return 1
+        return 0

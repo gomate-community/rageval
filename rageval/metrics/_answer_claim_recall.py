@@ -1,8 +1,8 @@
-from typing import List, Any, Callable
+from dataclasses import dataclass
+from typing import List, Callable
 
 import datasets
 import numpy as np
-from dataclasses import dataclass
 
 from rageval.metrics import Metric, add_attribute
 from rageval.utils.check_utils import text_to_sents
@@ -49,8 +49,8 @@ Examples:
     ... }
     >>> dataset = Dataset.from_dict(sample)
     >>> nli_model = rl.models.NLIModel(
-    ...     'text-classification',
-    ...     'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification'
+    ...     'text2text-generation',
+    ...     'hf-internal-testing/tiny-random-T5ForConditionalGeneration'
     ... )
     >>> metric = rl.metrics.AnswerNLICorrectness(nli_model=nli_model, decompose_model="nltk")
     >>> metric.mtype
@@ -115,19 +115,6 @@ class AnswerNLICorrectness(Metric):
             reference_urls=["https://arxiv.org/abs/2305.14627"]
         )
 
-    def _verify_by_stance(self, answer: str, claims: List[str]) -> Any:
-        """Verify the faithfulness of the `claim` based on `evidences`."""
-        labels = []
-        for claim in claims:
-            label = self.nli_model.infer(premise=answer, hypothesis=claim)
-            labels.append(label)
-        if "support" in labels:
-            return True
-        elif "refute" in labels:
-            return False
-        else:
-            return False
-
     def _compute_one(
         self,
         answer: str,
@@ -146,7 +133,7 @@ class AnswerNLICorrectness(Metric):
 
         for i, claim in enumerate(claims):
             # obtain the faithfulness of each claim by language inference model.
-            label = self._verify_by_stance(answer, claims)
+            label = self.nli_model.generate_infer(premise=answer, hypothesis=claim)
             detail_results.append({
                 "answer": answer,
                 "claim": claim,
@@ -185,7 +172,8 @@ class AnswerNLICorrectness(Metric):
         answers = dataset["answers"]
 
         results = []
-        for i, answer in enumerate(answers):
+        from tqdm import tqdm
+        for i, answer in tqdm(enumerate(answers)):
             r = self._compute_one(answer, claims[i])
             results.append(r)
         return results
