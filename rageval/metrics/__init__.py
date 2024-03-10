@@ -1,4 +1,5 @@
 from .base import Metric, MetricWithLLM, add_attribute
+from ._answer_bleu import AnswerBleuScore
 from ._answer_citation_precision import AnswerCitationPrecision
 from ._answer_citation_recall import AnswerCitationRecall
 from ._answer_claim_recall import AnswerNLICorrectness
