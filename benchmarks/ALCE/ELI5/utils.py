@@ -1,7 +1,7 @@
 import json
 
 
-def make_doc_prompt(doc, doc_id, doc_prompt, method=None):
+def make_doc_prompt(doc, doc_id, doc_prompt, method):
     # For doc prompt:
     # - {ID}: doc id (starting from 1)
     # - {T}: title
@@ -19,7 +19,7 @@ def make_doc_prompt(doc, doc_id, doc_prompt, method=None):
     return doc_prompt.replace("{T}", doc["title"]).replace("{P}", text).replace("{ID}", str(doc_id+1))
 
 
-def make_demo(item, prompt, ndoc=None, doc_prompt=None, instruction=None, method=None, test=False):
+def make_demo(item, prompt, ndoc, doc_prompt, instruction, method, test=False):
     # For demo prompt
     # - {INST}: the instruction
     # - {D}: the documents
@@ -49,8 +49,8 @@ def make_demo(item, prompt, ndoc=None, doc_prompt=None, instruction=None, method
     return prompt, doc_texts
 
 
-def create_eli5_eval_dataset(result_path):
-    eval_data = json.load(open(result_path, "r"))
+def create_eli5_eval_dataset(gen_result_path):
+    eval_data = json.load(open(gen_result_path, "r"))
     for data in eval_data:
         yield {
             "question": data["question"],
