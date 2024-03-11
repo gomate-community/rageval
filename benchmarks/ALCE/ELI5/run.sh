@@ -10,4 +10,4 @@ python3 $script_dir/run.py\
   --method vanilla\
   --ndoc 5\
   --shot 2\
-  --metrics nli_claim citation_recall citation_precision
+  --metrics nli_claim citation_recall citation_precision\

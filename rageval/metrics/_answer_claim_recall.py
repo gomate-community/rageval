@@ -3,6 +3,7 @@ from typing import List, Callable
 
 import datasets
 import numpy as np
+from tqdm import tqdm
 
 from rageval.metrics import Metric, add_attribute
 from rageval.utils.check_utils import text_to_sents
@@ -172,7 +173,6 @@ class AnswerNLICorrectness(Metric):
         answers = dataset["answers"]
 
         results = []
-        from tqdm import tqdm
         for i, answer in tqdm(enumerate(answers)):
             r = self._compute_one(answer, claims[i])
             results.append(r)
