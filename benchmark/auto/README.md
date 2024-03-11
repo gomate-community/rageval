@@ -1,6 +1,6 @@
 # AUTO BENCHMARK
 
-Auto benchmark aims to generate testsets based on a provided corpus using the LLM. The corpus has two compoents: documents and few-shot cases.
+Auto benchmark aims to generate testsets with synthetic Q&A pairs from raw passages, using as few human annotations as possible. To achieve this, we use LLM as a annotator and dataset quality inspector.
 
 ## Usage
 
