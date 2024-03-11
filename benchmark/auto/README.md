@@ -1,6 +1,6 @@
 # AUTO BENCHMARK
 
-Auto benchmark aims to generate testsets based on a provided corpus using the OpenAI GPT model. The corpus has two compoents: documents and few-shot cases.
+Auto benchmark aims to generate testsets based on a provided corpus using the LLM. The corpus has two compoents: documents and few-shot cases.
 
 ## Usage
 
