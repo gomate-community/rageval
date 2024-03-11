@@ -16,6 +16,14 @@ class ELI5:
     def __init__(self, args):
         self.args = args
 
+        self.model = None
+        self.tokenizer = None
+        self.eval_data = None
+        self.prompt = None
+        self.name = None
+        self.result_path = None
+
+    def generate_init(self):
         print("-" * 10 + "Loading model" + "-" * 10)
         if "gpt-3.5-turbo" in self.args.model:
             os.environ["OPENAI_API_KEY"] = self.args.api_key
@@ -51,13 +59,9 @@ class ELI5:
         )
         print("-" * 10 + "Finish loading dataset" + "-" * 10)
 
-        model_name = self.args.model
-        if "/" in model_name:
-            model_name = model_name.split("/")[-1]
-        self.name = f"eli5-{self.args.dataset}-{model_name}-{self.args.method}-shot{self.args.shot}-ndoc{self.args.ndoc}"
-        self.result_path = ".rageval/results/" + self.name + ".json"
-
     def generate(self):
+        self.generate_init()
+
         head_prompt = ""
         for demo_id in range(self.args.shot):
             demo_item = self.prompt["demos"][demo_id]
@@ -119,10 +123,20 @@ class ELI5:
                 output = self.tokenizer.decode(generation[0][inputs['input_ids'].size(1):], skip_special_tokens=True)
                 item['output'] = output
 
-        json.dump(self.eval_data, open(self.result_path, "w"), indent=4)
+        return self.eval_data
 
-    def evaluate(self):
-        dataset = Dataset.from_generator(create_eli5_eval_dataset, gen_kwargs={"result_path": self.result_path})
+    def save_result(self, gen_result):
+        model_name = self.args.model
+        if "/" in model_name:
+            model_name = model_name.split("/")[-1]
+        self.name = f"eli5-{self.args.dataset}-{model_name}-{self.args.method}-shot{self.args.shot}-ndoc{self.args.ndoc}"
+        self.result_path = ".rageval/results/" + self.name + ".json"
+
+        json.dump(gen_result, open(self.result_path, "w"), indent=4)
+        return self.result_path
+
+    def evaluate(self, gen_result_path):
+        dataset = Dataset.from_generator(create_eli5_eval_dataset, gen_kwargs={"gen_result_path": gen_result_path})
         result = {}
         nli_model = rl.models.NLIModel(
             "text2text-generation",
@@ -145,8 +159,18 @@ class ELI5:
 
         date = time.strftime("%Y%m%d", time.localtime())
 
-        json.dump(
-            result,
-            open(f"benchmarks/ALCE/ELI5/results/{self.name}-{date}.json", "w"),
-            indent=4
-        )
+        if self.name:
+            json.dump(
+                result,
+                open(f"benchmarks/ALCE/ELI5/results/{self.name}-{date}.json", "w"),
+                indent=4
+            )
+        else:
+            gen_result_path = gen_result_path.split("/")[-1].spllit(".")[0]
+            json.dump(
+                result,
+                open(f"benchmarks/ALCE/ELI5/results/{gen_result_path}-{date}.json", "w"),
+                indent=4
+            )
+
+        return result
