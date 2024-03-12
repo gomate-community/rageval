@@ -79,6 +79,8 @@ _CITATION = """\
 class AnswerBleuScore(Metric):
     """Bleu score computing with good quality reference."""
 
+    """Note: this metric is just fit for English data by now(24/03/12)"""
+
     name = "answer_bleu"
 
     ALIAS = ['answer_bleu']
@@ -127,10 +129,10 @@ class AnswerBleuScore(Metric):
             predictions = []
             predictions.append(output_clean.split(' '))
             references = []
+            reference = []
             for gt_answer in gt_answers:
                 gt_answer_clean = self._clean_special_tokens(gt_answer, None)
-                reference = []
-                reference.append(gt_answer_clean.split(' '))
+                reference.append(list(gt_answer_clean.split(' ')))
             references.append(reference)
             bleu_result = bleu.compute(predictions=predictions, references=references)
             bleu_score = bleu_result['bleu']
