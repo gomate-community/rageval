@@ -78,7 +78,7 @@ if __name__ == "__main__":
     dataset = generate_answers(engine, dataset) 
 
     print("Validate questions...")
-    dataset = validate_questions(dataset)
+    dataset = validate_question_with_answer(dataset)
 
     dataset = dataset.filter(lambda x: x["validation"])
     dataset.to_json(f"{args.output_dir}/dataset.json")
