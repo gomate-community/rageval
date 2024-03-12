@@ -47,7 +47,7 @@ def generate_answers(engine: OpenAILLM, dataset: Dataset) -> Dataset:
     answers = generate_responses(engine, user_prompts, system_prompt)
     return dataset.add_column("answer", answers)
 
-def validate_questions(dataset: Dataset) -> Dataset:
+def validate_question_with_answer(dataset: Dataset) -> Dataset:
     def check_generated_answer(answer: str):
         problematic_phrases = ["I don't know", "don't know", "i don't know"]
         for phrase in problematic_phrases:
