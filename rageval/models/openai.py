@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 
 import openai
 import pytest
+from tqdm import tqdm
 from langchain.schema import Generation, LLMResult
 
 logger = logging.getLogger(__name__)
@@ -65,7 +66,10 @@ class OpenAILLM(ABC):
     def generate(self,
                  inputs: List[str],
                  system_role: Optional[str]) -> LLMResult:
-        """Obtain the LLMResult from the response."""
+        """
+        Obtain the LLMResult from the response.
+        TODO: Add cache to the response.
+        """
         messages = []
         if system_role:
             messages.append({"role": "system", "content": system_role})
@@ -131,7 +135,7 @@ class OpenAILLM(ABC):
             system_roles = ["You are a helpful assistant"] * len(inputs)
 
         results = []
-        for input_str, system_role in zip(inputs, system_roles):
+        for input_str, system_role in tqdm(zip(inputs, system_roles), total=len(inputs), desc="Generating"):
             result = self.generate(input_str, system_role)
             results.append(result)
         return results
