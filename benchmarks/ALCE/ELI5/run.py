@@ -19,7 +19,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     eli5 = ELI5(args)
-    # gen_result = eli5.generate()
-    # gen_result_path = eli5.save_result(gen_result)
-    gen_result_path = args.cache_path + "/results/eli5-bm25-Llama-2-7b-chat-hf-vanilla-shot2-ndoc5.json"
-    eval_result = eli5.evaluate(gen_result_path)
+    eli5.init_model(args.model, args.api_key)
+    gen_result = eli5.predict()
+    eli5.evaluate()
+    eli5.save_result()
