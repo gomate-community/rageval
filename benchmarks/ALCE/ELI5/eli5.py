@@ -21,12 +21,14 @@ class ELI5:
         self.eval_data = None
         self.prompt = None
         self.name = None
+        self.result = None
         self.result_path = None
 
-    def generate_init(self):
+    def init_model(self, model, api_key: str = None):
         print("-" * 10 + "Loading model" + "-" * 10)
-        if "gpt-3.5-turbo" in self.args.model:
-            os.environ["OPENAI_API_KEY"] = self.args.api_key
+        model_name = model.split("/")[-1]
+        if "gpt" in model_name:
+            os.environ["OPENAI_API_KEY"] = api_key
             self.model = OpenAILLM(
                 model=self.args.model,
                 _api_key_env_var="OPENAI_API_KEY",
@@ -35,19 +37,20 @@ class ELI5:
                 top_p=self.args.top_p
             )
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.args.model, use_fast=False)
+            self.tokenizer = AutoTokenizer.from_pretrained(model, use_fast=False)
             self.model = AutoModelForCausalLM.from_pretrained(
-                self.args.model,
+                model,
                 device_map='auto'
             )
         print("-" * 10 + "Finish loading model" + "-" * 10)
 
+    def init_dataset(self, dataset):
         print("-" * 10 + "Loading dataset" + "-" * 10)
-        if self.args.dataset == "bm25":
+        if dataset == "bm25":
             self.eval_data = json.load(
                 open(self.args.cache_path + "/datasets/ALCE-data/eli5_eval_bm25_top100.json", "r")
             )
-        elif self.args.dataset == "oracle":
+        elif dataset == "oracle":
             self.eval_data = json.load(
                 open(self.args.cache_path + "/datasets/ALCE-data/eli5_eval_bm25_top100_reranked_oracle.json", "r")
             )
@@ -59,8 +62,8 @@ class ELI5:
         )
         print("-" * 10 + "Finish loading dataset" + "-" * 10)
 
-    def generate(self):
-        self.generate_init()
+    def predict(self):
+        self.init_dataset(self.args.dataset)
 
         head_prompt = ""
         for demo_id in range(self.args.shot):
@@ -92,6 +95,7 @@ class ELI5:
             self.eval_data[idx]['docs'] = eval_item["docs"][:self.args.ndoc]
         print("-" * 10 + "Finish generating prompts" + "-" * 10)
 
+        print("-" * 10 + "Predict" + "-" * 10)
         for idx, item in enumerate(tqdm(self.eval_data)):
             prompt = item['prompt']
             if "gpt-3.5-turbo" in self.args.model:
@@ -122,22 +126,24 @@ class ELI5:
                 )
                 output = self.tokenizer.decode(generation[0][inputs['input_ids'].size(1):], skip_special_tokens=True)
                 item['output'] = output
+        print("-" * 10 + "Finish predicting" + "-" * 10)
 
-        return self.eval_data
-
-    def save_result(self, gen_result):
-        model_name = self.args.model
-        if "/" in model_name:
-            model_name = model_name.split("/")[-1]
+        model_name = self.args.model.split("/")[-1]
         self.name = f"eli5-{self.args.dataset}-{model_name}-{self.args.method}-shot{self.args.shot}-ndoc{self.args.ndoc}"
         self.result_path = ".rageval/results/" + self.name + ".json"
 
-        json.dump(gen_result, open(self.result_path, "w"), indent=4)
-        return self.result_path
+        json.dump(self.eval_data, open(self.result_path, "w"), indent=4)
 
-    def evaluate(self, gen_result_path):
+        return self.eval_data
+
+    def evaluate(self, gen_result_path: str = None):
+        if gen_result_path is None:
+            gen_result_path = self.result_path
+        else:
+            self.result_path = gen_result_path
+
         dataset = Dataset.from_generator(create_eli5_eval_dataset, gen_kwargs={"gen_result_path": gen_result_path})
-        result = {}
+        self.result = {}
         nli_model = rl.models.NLIModel(
             "text2text-generation",
             self.args.cache_path + "/models/t5_xxl_true_nli_mixture",
@@ -145,32 +151,41 @@ class ELI5:
         if "nli_claim" in self.args.metrics:
             metric = rl.metrics.AnswerNLICorrectness(nli_model=nli_model, decompose_model="nltk")
             score, ds = metric.compute(dataset)
-            result["nli_claim"] = 100 * score
+            self.result["nli_claim"] = 100 * score
 
         if "citation_recall" in self.args.metrics:
             metric = rl.metrics.AnswerCitationRecall(nli_model=nli_model)
             score, ds = metric.compute(dataset)
-            result["citation_recall"] = 100 * score
+            self.result["citation_recall"] = 100 * score
 
         if "citation_precision" in self.args.metrics:
             metric = rl.metrics.AnswerCitationPrecision(nli_model=nli_model)
             score, ds = metric.compute(dataset)
-            result["citation_precision"] = 100 * score
+            self.result["citation_precision"] = 100 * score
 
+        print(self.result)
+        return self.result
+
+    def save_result(self, eval_result_path: str = None):
         date = time.strftime("%Y%m%d", time.localtime())
 
-        if self.name:
-            json.dump(
-                result,
-                open(f"benchmarks/ALCE/ELI5/results/{self.name}-{date}.json", "w"),
-                indent=4
-            )
+        if eval_result_path is None:
+            if self.name:
+                json.dump(
+                    self.result,
+                    open(f"benchmarks/ALCE/ELI5/results/{self.name}-{date}.json", "w"),
+                    indent=4
+                )
+            else:
+                file_name = self.result_path.split("/")[-1].spllit(".")[0]
+                json.dump(
+                    self.result,
+                    open(f"benchmarks/ALCE/ELI5/results/{file_name}-{date}.json", "w"),
+                    indent=4
+                )
         else:
-            gen_result_path = gen_result_path.split("/")[-1].spllit(".")[0]
             json.dump(
-                result,
-                open(f"benchmarks/ALCE/ELI5/results/{gen_result_path}-{date}.json", "w"),
+                self.result,
+                open(eval_result_path, "w"),
                 indent=4
             )
-
-        return result
