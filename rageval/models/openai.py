@@ -68,6 +68,7 @@ class OpenAILLM(ABC):
                  system_role: Optional[str]) -> LLMResult:
         """
         Obtain the LLMResult from the response.
+
         TODO: Add cache to the response.
         """
         messages = []

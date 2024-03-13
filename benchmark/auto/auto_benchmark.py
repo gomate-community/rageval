@@ -67,13 +67,13 @@ def validate_question_with_answer(dataset: Dataset) -> Dataset:
             if phrase in answer.lower():
                 return False
         return True
-    dataset.filter(lambda x: not check_generated_answer(x["answer"])).to_json(f"{args.output_dir}/filtered_dataset.json")
+    # dataset.filter(lambda x: not check_generated_answer(x["answer"])).to_json(f"{args.output_dir}/filtered_dataset.json")
     return dataset.filter(lambda x: check_generated_answer(x["answer"]))
 
 def calculate_api_cost(model_name: str):
     # More detail for api prices: https://openai.com/pricing/
     global usage
-    # The price is per 1k tokens:
+    # $ / 1k tokens:
     mapping = {
         "gpt-3.5-turbo": (0.0005, 0.0015),
         "gpt-3.5-turbo-16k": (0.003, 0.004), # outdated
