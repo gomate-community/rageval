@@ -7,9 +7,7 @@ Auto benchmark aims to generate testsets with synthetic Q&A pairs from raw passa
 1. Prepare your corpus in a JSON file, following the format
 
 ```
-corpus.json: [
-      {"document": "Your document text here"}
-]
+corpus.json: ["Document 1", "Document 2", ...]
 few_shot_cases.json: [
       {"document": "Sample document", 
       "Query": "Sample question"}
