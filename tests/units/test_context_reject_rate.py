@@ -73,7 +73,7 @@ def test_case_on_context_reject_rate(testset):
     metric = ContextRejectRate(model)
     assert metric.name == "context_reject_rate"
     assert metric.homepage == ""
-    assert metric.mtype == 'ContextRejectRate'
+    assert metric.mtype == 'AnswerGroundedness'
     score, results = metric.compute(testset)
     assert score == 0.5
     assert isinstance(results, Dataset)
