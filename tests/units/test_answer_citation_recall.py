@@ -54,8 +54,8 @@ def testset(sample):
 @pytest.mark.slow
 def test_answer_citation_recall(testset):
     nli_model = NLIModel(
-        'text-classification',
-        'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification'
+        'text2text-generation',
+        'hf-internal-testing/tiny-random-T5ForConditionalGeneration'
     )
     metric = AnswerCitationRecall(nli_model=nli_model)
     assert metric.name == "answer_citation_recall"

@@ -1,8 +1,9 @@
 import re
+from dataclasses import dataclass
 from typing import List, Callable
 
 import datasets
-from dataclasses import dataclass
+from tqdm import tqdm
 
 from rageval.metrics import Metric, add_attribute
 from rageval.utils import text_to_sents, remove_citations
@@ -69,8 +70,8 @@ Examples:
     ... }
     >>> dataset = Dataset.from_dict(sample)
     >>> nli_model = rl.models.NLIModel(
-    ...     'text-classification',
-    ...     'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification'
+    ...     'text2text-generation',
+    ...     'hf-internal-testing/tiny-random-T5ForConditionalGeneration'
     ... )
     >>> metric = rl.metrics.AnswerCitationRecall(nli_model=nli_model)
     >>> metric.mtype
@@ -160,13 +161,11 @@ class AnswerCitationRecall(Metric):
             if len(context_ids) > 0:
                 # citation id starts from 1 in sents
                 premise = " ".join([context[context_id - 1] for context_id in context_ids])
-                label = self.nli_model.infer(premise=premise, hypothesis=target_sent)
-                if label == "support":
-                    entail = 1
-                else:
-                    entail = 0
-                total_entail += entail
+                label = self.nli_model.generate_infer(premise=premise, hypothesis=target_sent)
+                total_entail += label
 
+        if len(sents) == 0:
+            return 0
         return total_entail / len(sents)
 
     def _compute_batch(
@@ -190,7 +189,7 @@ class AnswerCitationRecall(Metric):
         )
 
         results = []
-        for answer, context in zip(answers, contexts):
+        for answer, context in tqdm(zip(answers, contexts)):
             r = self._compute_one(answer, context)
             results.append(r)
         return results

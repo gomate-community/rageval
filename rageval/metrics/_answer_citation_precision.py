@@ -1,16 +1,15 @@
 import copy
 import re
+from dataclasses import dataclass
 from typing import List, Callable, Tuple
 
 import datasets
 import numpy as np
 from datasets import Dataset
-from dataclasses import dataclass
 from tqdm import tqdm
 
 from rageval.metrics import Metric, add_attribute
 from rageval.utils import text_to_sents, remove_citations
-from rageval.metrics import AnswerCitationRecall
 
 _DESCRIPTION = """\
 Citation precision evaluation detects citations that are irrelevant to the claim, but it does not require citing \
@@ -75,8 +74,8 @@ Examples:
     ... }
     >>> dataset = Dataset.from_dict(sample)
     >>> nli_model = rl.models.NLIModel(
-    ...     'text-classification',
-    ...     'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification'
+    ...     'text2text-generation',
+    ...     'hf-internal-testing/tiny-random-T5ForConditionalGeneration'
     ... )
     >>> metric = rl.metrics.AnswerCitationPrecision(nli_model=nli_model)
     >>> metric.mtype
@@ -119,7 +118,6 @@ class AnswerCitationPrecision(Metric):
         super().__init__()
         self._required_columns = ['answers', 'contexts']
         self.nli_model = nli_model
-        self.answer_citation_recall = AnswerCitationRecall(nli_model=self.nli_model)
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -168,19 +166,19 @@ class AnswerCitationPrecision(Metric):
             if len(context_ids) > 0:
                 # citation id starts from 1 in sents
                 premise = " ".join([context[context_id - 1] for context_id in context_ids])
-                label_full = self.nli_model.infer(premise=premise, hypothesis=target_sent)
-                if label_full == "support":
+                label_full = self.nli_model.generate_infer(premise=premise, hypothesis=target_sent)
+                if label_full == 1:
                     citation_total += len(context_ids)
                     for context_id in context_ids:
-                        label_single = self.nli_model.infer(premise=context[context_id - 1], hypothesis=target_sent)
-                        if label_single == "support":
+                        label_single = self.nli_model.generate_infer(premise=context[context_id - 1], hypothesis=target_sent)
+                        if label_single == 1:
                             citation_correct += 1
                         else:
                             subset_context_id = copy.deepcopy(context_ids)
                             subset_context_id.remove(context_id)
                             subset_premise = " ".join([context[context_id - 1] for context_id in subset_context_id])
-                            label_exclude = self.nli_model.infer(premise=subset_premise, hypothesis=target_sent)
-                            if label_exclude != "support":
+                            label_exclude = self.nli_model.generate_infer(premise=subset_premise, hypothesis=target_sent)
+                            if label_exclude == 0:
                                 citation_correct += 1
 
         return citation_correct, citation_total
@@ -204,7 +202,7 @@ class AnswerCitationPrecision(Metric):
         )
 
         results = []
-        for answer, context in zip(answers, contexts):
+        for answer, context in tqdm(zip(answers, contexts)):
             citation_correct, citation_total = self._compute_one(answer, context)
             results.append((citation_correct, citation_total))
         return results
@@ -228,7 +226,8 @@ class AnswerCitationPrecision(Metric):
         else:
             scores = self._compute_batch(dataset)
 
-        citation_correct, citation_total = np.sum([correct for correct, total in scores]), np.sum([total for correct, total in scores])
+        citation_correct = np.sum([correct for correct, total in scores])
+        citation_total = np.sum([total for correct, total in scores])
 
         if citation_total == 0:
             return 0.0, dataset.add_column(f"{self.name}", scores)
