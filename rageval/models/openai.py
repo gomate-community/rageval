@@ -54,7 +54,7 @@ class OpenAILLM(ABC):
         self.logprobs = logprobs
         self.top_logprobs = top_logprobs
         self.usage = {
-            "prompt_tokens":0,
+            "prompt_tokens": 0,
             "completion_tokens": 0,
             "total_tokens": 0
         }
@@ -150,11 +150,15 @@ class OpenAILLM(ABC):
         return results
 
     def calculate_api_cost(self):
-        '''Calculate the cost of the api usage. More detail for api prices: https://openai.com/pricing/'''
+        """
+        Calculate the cost of the api usage.
+
+        More detail for api prices: https://openai.com/pricing/
+        """
         # $ / 1k tokens:
         mapping = {
             "gpt-3.5-turbo": (0.0005, 0.0015),
-            "gpt-3.5-turbo-16k": (0.003, 0.004), # outdated
+            "gpt-3.5-turbo-16k": (0.003, 0.004),  # outdated
             "gpt-4": (0.03, 0.06),
             "gpt-4-32k": (0.06, 0.12),
         }
