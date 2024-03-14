@@ -76,7 +76,7 @@ Examples:
     ... )
     >>> metric = rl.metrics.ContextRejectRate(model)
     >>> metric.mtype
-    'ContextRejectRate'
+    'AnswerGroundedness'
     >>> s, ds = metric.compute(dataset, batch_size=1)
     >>> assert 0 <= s <= 1
     >>> type(ds)
