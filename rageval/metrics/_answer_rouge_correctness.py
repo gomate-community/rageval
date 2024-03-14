@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from typing import List, Any, Callable, Optional
-from rouge_score import rouge_scorer
-import datasets
-
-from datasets import Dataset
 from dataclasses import dataclass
+from typing import List, Callable, Optional
+
+import datasets
+from datasets import Dataset
+from rouge_score import rouge_scorer
 
 from rageval.metrics import Metric, add_attribute
 
@@ -55,6 +55,17 @@ Examples:
 """
 
 _CITATION = """\
+@inproceedings{lin-2004-rouge,
+    title = "{ROUGE}: A Package for Automatic Evaluation of Summaries",
+    author = "Lin, Chin-Yew",
+    booktitle = "Text Summarization Branches Out",
+    month = jul,
+    year = "2004",
+    address = "Barcelona, Spain",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/W04-1013",
+    pages = "74--81",
+}
 @article{lewis2020retrieval,
   title={Retrieval-augmented generation for knowledge-intensive nlp tasks},
   author={Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and K{\"u}ttler, Heinrich and Lewis, Mike and Yih, Wen-tau and Rockt{\"a}schel, Tim and others},
@@ -98,8 +109,8 @@ class AnswerRougeCorrectness(Metric):
                     "contexts": datasets.Value("string", id="sequence"),
                 }
             ),
-            codebase_urls=[],
-            reference_urls=[]
+            codebase_urls=["https://github.com/mim-solutions/rouge_score"],
+            reference_urls=["https://aclanthology.org/W04-1013/", "https://arxiv.org/abs/2005.11401"]
         )
 
     def _validate_data(self, dataset: Dataset) -> bool:
