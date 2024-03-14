@@ -96,7 +96,7 @@ _CITATION = """\
 
 
 @dataclass
-@add_attribute('mtype', 'ContextRejectRate')
+@add_attribute('mtype', 'AnswerGroundedness')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class ContextRejectRate(MetricWithLLM):
     """Estimates context reject rate by measuring how many rejected answers in all answers."""
