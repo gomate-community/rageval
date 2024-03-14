@@ -33,7 +33,7 @@ class OpenAILLM(ABC):
         top_logprobs: int, An integer between 0 and 20 specifying the number of most likely tokens to return at each token position, each with an associated log probability. logprobs must be set to true if this parameter is used.
     """
 
-    def __init__(self, model: str = "gpt-3.5-turbo-16k",
+    def __init__(self, model: str = "gpt-3.5-turbo",
                  _api_key_env_var: str = field(default='NO_KEY', repr=False),
                  num_retries: int = 3,
                  timeout: int = 60,
@@ -53,6 +53,11 @@ class OpenAILLM(ABC):
         self.top_p = top_p
         self.logprobs = logprobs
         self.top_logprobs = top_logprobs
+        self.usage = {
+            "prompt_tokens":0,
+            "completion_tokens": 0,
+            "total_tokens": 0
+        }
 
         # api key
         self.api_key = os.getenv(_api_key_env_var, 'NO_KEY')
@@ -109,6 +114,9 @@ class OpenAILLM(ABC):
 
         # token Usage
         token_usage = response.get("usage", {})
+        self.usage["prompt_tokens"] += token_usage.get("prompt_tokens", 0)
+        self.usage["completion_tokens"] += token_usage.get("completion_tokens", 0)
+        self.usage["total_tokens"] += token_usage.get("total_tokens", 0)
         llm_output = {
             "token_usage": token_usage,
             "model_name": self.model,
@@ -140,3 +148,21 @@ class OpenAILLM(ABC):
             result = self.generate(input_str, system_role)
             results.append(result)
         return results
+
+    def calculate_api_cost(self):
+        '''Calculate the cost of the api usage. More detail for api prices: https://openai.com/pricing/'''
+        # $ / 1k tokens:
+        mapping = {
+            "gpt-3.5-turbo": (0.0005, 0.0015),
+            "gpt-3.5-turbo-16k": (0.003, 0.004), # outdated
+            "gpt-4": (0.03, 0.06),
+            "gpt-4-32k": (0.06, 0.12),
+        }
+
+        intokens = self.usage["prompt_tokens"]
+        outtokens = self.usage["completion_tokens"]
+
+        if self.model in mapping.keys():
+            print(f"Total tokens: {self.usage['total_tokens']}")
+            print(f"Input tokens: {intokens}, Output tokens: {outtokens}")
+            print(f"Total cost: {mapping[self.model][0] * intokens / 1000 + mapping[self.model][1] * outtokens / 1000}")
