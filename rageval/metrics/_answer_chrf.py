@@ -136,7 +136,8 @@ class AnswerCHRFCorrectness(Metric):
                     "answers": datasets.Value("string"),
                     "gt_answers": datasets.Value("string")
                 }
-            )
+            ),
+            codebase_urls=["https://github.com/huggingface/datasets/blob/main/metrics/chrf/chrf.py"]
         )
 
     def _validate_data(self, dataset: datasets.Dataset) -> bool:
