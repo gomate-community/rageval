@@ -8,3 +8,6 @@ from ._answer_exact_match import AnswerEMCorrectness
 from ._answer_rouge_correctness import AnswerRougeCorrectness
 from ._context_recall import ContextRecall
 from ._context_reject_rate import ContextRejectRate
+from ._answer_f1 import AnswerF1Correctness
+from ._answer_ter import AnswerTERCorrectness
+from ._answer_chrf import AnswerCHRFCorrectness
