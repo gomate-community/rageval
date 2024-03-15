@@ -127,7 +127,8 @@ class AnswerTERCorrectness(Metric):
                     "gt_answers": datasets.Value("string")
                 }
             ),
-            codebase_urls=["https://github.com/huggingface/datasets/blob/main/metrics/ter/ter.py"]
+            codebase_urls=["https://github.com/huggingface/datasets/blob/main/metrics/ter/ter.py"],
+            reference_urls=["https://aclanthology.org/2006.amta-papers.25", "https://www.aclweb.org/anthology/W18-6319"]
         )
 
     def _validate_data(self, dataset: datasets.Dataset) -> bool:
