@@ -136,7 +136,9 @@ class AnswerCHRFCorrectness(Metric):
                     "answers": datasets.Value("string"),
                     "gt_answers": datasets.Value("string")
                 }
-            )
+            ),
+            codebase_urls=["https://github.com/huggingface/datasets/blob/main/metrics/chrf/chrf.py"],
+            reference_urls=["https://aclanthology.org/W15-3049.pdf", "https://aclanthology.org/W17-4770", "https://www.aclweb.org/anthology/W18-6319"]
         )
 
     def _validate_data(self, dataset: datasets.Dataset) -> bool:
