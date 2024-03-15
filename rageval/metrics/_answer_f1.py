@@ -88,7 +88,9 @@ class AnswerF1Correctness(Metric):
                     "answers": datasets.Value("string"),
                     "gt_answers": datasets.Value("string")
                 }
-            )
+            ),
+            codebase_urls=[],
+            reference_urls=[]
         )
 
     def _normalize_text(self, s: str) -> str:
