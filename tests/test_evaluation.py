@@ -58,8 +58,8 @@ def test_evaluation():
         ]
     )
     ag_model = NLIModel(
-        'text-classification',
-        'hf-internal-testing/tiny-random-RobertaPreLayerNormForSequenceClassification'
+        'text2text-generation',
+        'hf-internal-testing/tiny-random-T5ForConditionalGeneration'
     )
 
     # define metrics

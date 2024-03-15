@@ -1,15 +1,14 @@
-from typing import List, Any, Callable, Tuple
-
 import re
 import string
-import spacy
+from collections import Counter
+from dataclasses import dataclass
+from typing import List
+
 import datasets
 import numpy as np
-from dataclasses import dataclass
-from collections import Counter
+import spacy
 
 from rageval.metrics import Metric, add_attribute
-from rageval.utils.check_utils import text_to_sents
 
 _DESCRIPTION = """\
     The Disambig-F1 is a variant of the F1 score, estimates the similarity between the disambiguation of the answer and the ground truth answer.

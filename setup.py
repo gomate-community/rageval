@@ -27,7 +27,10 @@ install_requires = [
     'transformers == 4.37.2',
     'torch == 2.2.0',
     'pandas == 2.0.0',
-    'nltk == 3.8.1'
+    'nltk == 3.8.1',
+    'spacy == 3.7.4',
+    'en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl',
+    'rouge_score == 0.1.2'
 ]
 
 extras_requires = {
@@ -38,7 +41,13 @@ extras_requires = {
         'pytest-cov >= 2.4.0',
         'flake8 == 7.0.0',
         'pydocstyle == 2.1',
-        'flake8_docstrings >= 1.7.0'],
+        'flake8_docstrings >= 1.7.0'
+    ],
+    'benchmarks': [
+        'accelerate == 0.27.2',
+        'sentencepiece == 0.2.0',
+        'protobuf == 4.25.3'
+    ]
 }
 
 
@@ -47,7 +56,7 @@ setup(
     version=__version__,
     author="Wenshan Wang, Yixing Fan, etc.",
     author_email="wangwenshan@ict.ac.cn",
-    description=(short_description),
+    description=short_description,
     license="Apache 2.0",
     keywords="RAG evaluation tools",
     url="https://github.com/gomate-community/rageval",
