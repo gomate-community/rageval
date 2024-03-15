@@ -22,3 +22,4 @@ rouge_score == 0.1.2
 accelerate == 0.27.2
 sentencepiece == 0.2.0
 protobuf == 4.25.3
+sacrebleu == 2.3.3
