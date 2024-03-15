@@ -8,13 +8,13 @@ from rageval.models import OpenAILLM
 from .prompt import DOC_TO_SENTENCES_PROMPT
 
 logger = logging.getLogger(__name__)
+nltk.download('punkt')
 
 
 def text_to_sents(text: str, model_name="nltk") -> List[str]:
     """Convert the text into a set of sentences."""
     sentences = []
     if model_name == "nltk":
-        nltk.download('punkt')
         sentences = nltk.sent_tokenize(text)
         sentences = [s.strip() for s in sentences if len(s.strip()) >= 3]
 
