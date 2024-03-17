@@ -16,7 +16,7 @@ The generate task is to answer the question based on the contexts provided by re
 
 (1) **Answer Correctness**: this category of metrics is to evaluate the correctness by comparing the generated answer with the groundtruth answer. Here are some commonly used metrics:
 
-* [Answer F1 Correctness](./rageval/metrics/_answer_f1.py)
+* [Answer F1 Correctness](./rageval/metrics/_answer_f1.py): is widely used in [the paper (Jiang et al.)](https://arxiv.org/abs/2305.06983), [the paper (Yu et al.)](https://arxiv.org/abs/2311.09210), [the paper (Xu et al.)](https://arxiv.org/abs/2310.04408), and others.
 * [Answer NLI Correctness](./rageval/metrics/_answer_claim_recall.py): also known as *claim recall* in [the paper (Tianyu et al.)](https://arxiv.org/abs/2305.14627).
 * [Answer EM Correctness](./rageval/metrics/_answer_exact_match.py): also known as *Exact Match* as used in [the paper (Ivan Stelmakh et al.)](https://arxiv.org/abs/2204.06092).
 * [Answer Bleu Score](./rageval/metrics/_answer_bleu.py): also known as *Bleu* as used in [the paper (Kishore Papineni et al.)](https://www.aclweb.org/anthology/P02-1040.pdf).
