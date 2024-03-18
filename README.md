@@ -53,6 +53,7 @@ python setup.py install
 ```
 ## Usage
 
+### 1. Metric
 ```
 import rageval as rl
 
@@ -62,8 +63,30 @@ model = rl.models.OpenAILLM()
 metric.init_model(model)
 
 results = metric._score_batch(teset_set)
-
 ```
+
+### 2. Benchmark
+
+Benchmarks can be run directly using scripts (ALCE-ELI5 as an example).
+```
+bash benchmarks/ALCE/ELI5/run.sh
+```
+
+Benchmarks evaluation support two ways (need to simply modify the `run.py`):
+```
+eli5 = ELI5(args)
+
+# in case we need to predict the result with some pre-defined model.
+eli5.init_model(args.model, args.api_key) # The OpenAI model needs to be passed into the api, but the local model does not need to
+gen_result = eli5.predict()
+eli5.evaluate()
+eli5.save_result(eval_result_path) # Users can specify the save path here. If not specified, it will be saved in the default location.
+
+# in other case where we direct evaluate some existing result
+eli5.evaluate(gen_result_path) # The user needs to specify an existing generated result file.
+eli5.save_result(eval_result_path) # Users can specify the save path here. If not specified, it will be saved in the default location.
+```
+
 
 ## Contribution
 
