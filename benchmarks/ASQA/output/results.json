@@ -1,0 +1,6 @@
+{
+    "answer_disambig_f1": 0.30621136462873416,
+    "answer_rouge_correctness": 0.29831576470848303,
+    "answer_exact_match": 0.31910000000000005,
+    "DR": 0.30223778288236725
+}

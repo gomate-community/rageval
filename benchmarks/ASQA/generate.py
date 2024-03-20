@@ -5,6 +5,7 @@ import os
 from typing import List, Dict, Optional
 import openai
 import logging
+from tqdm import tqdm
 from langchain.schema import Generation, LLMResult
 import argparse
 
@@ -44,7 +45,7 @@ class InstructGPT(OpenAILLM):
     
     def batch_generate(self, prompts: List[str]) -> List[LLMResult]:
         results = []
-        for prompt in prompts:
+        for prompt in tqdm(prompts):
             try: 
                 result = self.generate(prompt)
             except Exception as e:
@@ -82,13 +83,6 @@ class InstructGPT(OpenAILLM):
         ]
         return LLMResult(generations=[generations], llm_output=llm_output)
 
-def generate_responses(engine: InstructGPT, prompts: List[str]) -> List[str]:
-    '''Generate responses from the OpenAILLM model.'''
-    responses = engine.batch_generate(prompts)
-    response_texts = [r.generations[0][0].text for r in responses]
-
-    return response_texts
-
 def extract_key_information(pred: str) -> str:
     '''Extract key information from the response.'''
     prefix_to_remove=['The answers to all interpretations are\: (.*)$',
@@ -112,8 +106,9 @@ def generete_answers(engine: InstructGPT, dataset: Dataset) -> Dataset:
                       question=data['ambiguous_question'])
         for data in dataset
     ]
-    responses = generate_responses(engine, prompts)
-    answers = [extract_key_information(response) for response in responses]
+    responses = engine.batch_generate(prompts)
+    response_texts = [r.generations[0][0].text for r in responses]
+    answers = [extract_key_information(response) for response in response_texts]
     return dataset.add_column("answers", answers)
 
 if __name__ == "__main__":
@@ -139,7 +134,7 @@ if __name__ == "__main__":
     print("Start generate answers...")
     dataset = generete_answers(engine, dataset)
 
-    dataset.to_json(f"{args.output_dir}/dataset.json")
-    print(f"\nFinish generate dataset. Dataset saved as {args.output_dir}/dataset.json")
+    dataset.to_json(f"{args.output_dir}/dataset.jsonl")
+    print(f"\nFinish generate dataset. Dataset saved as {args.output_dir}/dataset.jsonl")
 
     engine.calculate_api_cost()
