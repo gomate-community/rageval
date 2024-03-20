@@ -1,6 +1,4 @@
 from datasets import Dataset, load_dataset
-import pandas as pd
-import json
 import re
 from rageval.models import OpenAILLM
 import os
@@ -11,8 +9,6 @@ from langchain.schema import Generation, LLMResult
 import argparse
 
 from prompts import (FEW_SHOT_EXAMPLES, PROMPT)
-
-from rageval.metrics import (AnswerRougeCorrectness, AnswerEMCorrectness,  AnswerDisambigF1Correctness)
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +103,7 @@ def extract_key_information(pred: str) -> str:
             break
     if find is None:
         logging.warning(f"Cannot extract key information from the response: {pred}")
+    pred = re.sub(r'\(\d+\)\s', '', pred) # remove the index numbers
     return pred
 
 def generete_answers(engine: InstructGPT, dataset: Dataset) -> Dataset:
@@ -116,9 +113,7 @@ def generete_answers(engine: InstructGPT, dataset: Dataset) -> Dataset:
         for data in dataset
     ]
     responses = generate_responses(engine, prompts)
-
     answers = [extract_key_information(response) for response in responses]
-
     return dataset.add_column("answers", answers)
 
 if __name__ == "__main__":
@@ -132,24 +127,19 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    print("\nLoad ASQA dataset...")
     dataset = load_dataset("din0s/asqa")
     dataset = dataset['dev'].select(range(args.max_num_examples))
-    dataset = dataset.map(lambda example: {'gt_answers': [ann['long_answer'] for ann in example['annotations']]})
 
     os.environ['OPENAI_API_KEY'] = args.api_key
     engine = InstructGPT(args.model, 
                          _api_key_env_var = 'OPENAI_API_KEY', 
                          max_tokens=args.max_new_tokens)
 
+    print("Start generate answers...")
     dataset = generete_answers(engine, dataset)
 
     dataset.to_json(f"{args.output_dir}/dataset.json")
+    print(f"\nFinish generate dataset. Dataset saved as {args.output_dir}/dataset.json")
 
-    metric = AnswerDisambigF1Correctness()
-
-    score, results = metric.compute(dataset, 5)
-    
-    print(score,results)
-    pass
-
-
+    engine.calculate_api_cost()
