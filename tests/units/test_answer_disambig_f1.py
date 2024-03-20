@@ -8,17 +8,11 @@ from rageval.metrics import AnswerDisambigF1Correctness
 def sample():
     test_case = {
         "answers": [
-            "Ali Dael has the highest goals in men's world international football with 109 goals. Josef Bican has the \
-            highest goals all-time in men's football and Christine Sinclair has the highest goals in women's world \
-            international football.",
-            "A supercentenarian is someone who has reached the age of 110. Sarah Knauss, whose age is undisputed, was \
-            the oldest person ever from the United States and the second-oldest fully documented person ever. Jeanne \
-            Calment was a French supercentenarian and the oldest human whose age is well-documented, with a lifespan \
-            of 122 years and 164 days, and was the oldest person in the world as of 1997."
+            "Ali Daei holds the record for the most international goals in world football according to FIFA. Josef Bican holds the record for the most total goals in world football according to UEFA.",
         ],
         "gt_answers": [
-            ["Daei", "Ali Daei"],
-            ["Jeanne Calment"]
+            ["Ali Dael has the highest goals in men's world international football with 109 goals. Josef Bican has the highest goals all-time in men's football and Christine Sinclair has the highest goals in women's world international football.",
+            "The players with the highest all-time goals and highest men's and women's international football goals differ. The player with the highest all-time men's football goals is Josef Bican, who in 2020 was recognized by FIFA, the international governing body of football, as the record scorer with an estimated 805 goals. Christine Sinclair has the highest goals in women's international football with 187 and is the all-time leader for international goals scored for men or women. Cristiano Ronaldo and Ali Daei are currently tied for leading goalscorer in the history of men's international football with 109."],
         ]
     }
     return test_case
