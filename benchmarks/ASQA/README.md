@@ -1,6 +1,6 @@
 # ASQA BENCHMARK
 
-This benchmark is design to evaluate the performance on the [ASQA dataset](https://huggingface.co/datasets/din0s/asqa). For `generate.py`, we followed [FLARE](https://github.com/jzbjyb/FLARE), using `gpt-3.5-turbo-instruct` with no retrieval settings.
+This benchmark is designing to evaluate the performance of the [ASQA dataset](https://huggingface.co/datasets/din0s/asqa). For `generate.py`, we followed [FLARE](https://github.com/jzbjyb/FLARE), using `gpt-3.5-turbo-instruct` with no retrieval settings.
 
 ## Usage
 
