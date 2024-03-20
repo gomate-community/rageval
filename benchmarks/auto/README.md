@@ -17,10 +17,14 @@ few_shot_cases.json: [
 2. Place the corpus JSON file(s) in `corpus` directory.
 3. Run `run.sh` to start dataset generation. The result will saved in `output` directory.
 
-Arguments:
+### Arguments:
+
 `--corpus_dir`: Directory containing the corpus and few-shot case JSON files.
+
 `--output_dir`: Directory where the generated dataset JSON will be saved.
+
 `--model`: The OpenAI GPT model to use, e.g., gpt-3.5-turbo-16k.
+
 `--api_key`: Your OpenAI API key.
 
 ## Citations
