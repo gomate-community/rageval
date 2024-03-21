@@ -12,5 +12,5 @@ if [ -z "$(ls -A benchmarks/ASQA/output)" ]; then
         --api_key "YOUR_API_KEY"
 fi
 echo "Running Evaluation"
-python3 $rageval_dir/benchmarks/ASQA/evaluate.py --output_dir $output_dir
+python3 $rageval_dir/benchmarks/ASQA/asqa_benchmark.py --output_dir $output_dir
 echo "ASQA Benchmark Complete"
