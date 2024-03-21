@@ -49,3 +49,11 @@ def test_case_on_answer_exact_match(testset):
     score, results = metric.compute(testset, 1)
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)
+
+    metric = AnswerEMCorrectness(ignore_case=True)
+    assert metric.name == "answer_exact_match"
+    assert metric.homepage == ""
+    assert metric.mtype == 'AnswerCorrectness'
+    score, results = metric.compute(testset, 1)
+    assert 0 <= score <= 1
+    assert isinstance(results, Dataset)
