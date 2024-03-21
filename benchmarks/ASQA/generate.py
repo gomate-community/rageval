@@ -126,6 +126,7 @@ if __name__ == "__main__":
     dataset = load_dataset("din0s/asqa")
     dataset = dataset['dev'].select(range(args.max_num_examples))
 
+    print("Init ASQA dataset...")
     os.environ['OPENAI_API_KEY'] = args.api_key
     engine = InstructGPT(args.model, 
                          _api_key_env_var = 'OPENAI_API_KEY', 

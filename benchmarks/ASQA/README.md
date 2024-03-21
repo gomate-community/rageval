@@ -1,15 +1,15 @@
 # ASQA BENCHMARK
 
-This benchmark is designing to evaluate the performance of the [ASQA dataset](https://huggingface.co/datasets/din0s/asqa). For `generate.py`, we followed [FLARE](https://github.com/jzbjyb/FLARE), using `gpt-3.5-turbo-instruct` with no retrieval settings.
+This benchmark is designed to evaluate the performance of the [ASQA dataset](https://huggingface.co/datasets/din0s/asqa). For `generate.py`, we followed [FLARE](https://github.com/jzbjyb/FLARE), using `gpt-3.5-turbo-instruct` with no retrieval settings.
 
 ## Usage
 
 1. Prepare your model output results in the `output` directory. You can just attatch your `answers` to the end of each example in the origin ASQA dataset as what we did in the `dataset.json` file.
-2. Run `run.sh` to start dataset generation. The result will saved in `output` directory, named `results.json`. And the `result_datasets.json` file is the json dump of dataset with metric scores.
+2. Run `run.sh` to start dataset generation. The result will be saved in `output` directory, named `results.json`. And the `result_datasets.json` file is the json dump of the detailed result.
 
 ### Arguments:
 
-`--max_num_examples`: How many examples are used in generate answers.
+`--max_num_examples`: The maximum number of examples used in generate answers.
 
 `--max_new_tokens`: The maximum number of tokens that can be generated for answering questions.
 
