@@ -10,6 +10,7 @@ if [ -z "$(ls -A benchmarks/ASQA/output)" ]; then
         --output_dir $output_dir \
         --model "gpt-3.5-turbo-instruct" \
         --api_key "YOUR_API_KEY"
+        --dataset_name "asqa"
 fi
 echo "Running Evaluation"
 python3 $rageval_dir/benchmarks/ASQA/asqa_benchmark.py --output_dir $output_dir

@@ -109,6 +109,8 @@ def generete_answers(engine: InstructGPT, dataset: Dataset) -> Dataset:
     responses = engine.batch_generate(prompts)
     response_texts = [r.generations[0][0].text for r in responses]
     answers = [extract_key_information(response) for response in response_texts]
+    dataset = dataset.add_column("responses", response_texts)
+    dataset = dataset.add_column("model", [engine.model]*len(dataset))
     return dataset.add_column("answers", answers)
 
 if __name__ == "__main__":
@@ -119,6 +121,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", type=str, default="benchmarks/ASQA/output")
     parser.add_argument("--model", type=str, default="gpt-3.5-turbo-instruct")
     parser.add_argument("--api_key", type=str, default=None)
+    parser.add_argument("--dataset_name", type=str, default="asqa")
 
     args = parser.parse_args()
 
@@ -135,7 +138,7 @@ if __name__ == "__main__":
     print("Start generate answers...")
     dataset = generete_answers(engine, dataset)
 
-    dataset.to_json(f"{args.output_dir}/dataset.jsonl")
-    print(f"\nFinish generate dataset. Dataset saved as {args.output_dir}/dataset.jsonl")
+    dataset.to_json(f"{args.output_dir}/{args.dataset_name}.jsonl")
+    print(f"\nFinish generate dataset. Dataset saved as {args.output_dir}/{args.dataset_name}.jsonl")
 
     engine.calculate_api_cost()
