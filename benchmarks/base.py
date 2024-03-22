@@ -30,10 +30,10 @@ class BaseBenchmark(ABC):
         """Evaluate the dataset and return the dataset with scores."""
         ...
     
-    @abstractmethod
-    def save_result(self,) -> None:
-        """Save the result to files."""
-        ...
+    # @abstractmethod
+    # def save_result(self,) -> None:
+    #     """Save the result to files."""
+    #     ...
 
     def get_metric(self, name: str, **kwargs) -> Union[Metric, MetricWithLLM]:
         """Get the metric by name."""
