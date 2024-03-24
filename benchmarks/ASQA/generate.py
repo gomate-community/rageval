@@ -100,7 +100,7 @@ def extract_key_information(pred: str) -> str:
     pred = re.sub(r'\(\d+\)\s', '', pred) # remove the index numbers
     return pred
 
-def generete_answers(engine: InstructGPT, dataset: Dataset) -> Dataset:
+def generate_answers(engine: InstructGPT, dataset: Dataset) -> Dataset:
     prompts = [
         PROMPT.format(few_shot_examples=FEW_SHOT_EXAMPLES, 
                       question=data['ambiguous_question'])
@@ -136,7 +136,7 @@ if __name__ == "__main__":
                          max_tokens=args.max_new_tokens)
 
     print("Start generate answers...")
-    dataset = generete_answers(engine, dataset)
+    dataset = generate_answers(engine, dataset)
 
     dataset.to_json(f"{args.output_dir}/{args.dataset_name}.jsonl")
     print(f"\nFinish generate dataset. Dataset saved as {args.output_dir}/{args.dataset_name}.jsonl")
