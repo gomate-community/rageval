@@ -5,6 +5,7 @@ import os
 import logging
 import argparse
 from benchmarks import BaseBenchmark
+from rageval.metrics import (AnswerRougeCorrectness, AnswerEMCorrectness, AnswerDisambigF1Correctness)
 
 
 logger = logging.getLogger(__name__)
@@ -12,25 +13,26 @@ logger = logging.getLogger(__name__)
 class ASQABenchmark(BaseBenchmark):
 
     name = "asqa_benchmark"
-    metrics = ["AnswerRougeCorrectness", "AnswerEMCorrectness", "AnswerDisambigF1Correctness"]
+    metrics = [AnswerRougeCorrectness(rouge_type="rougeL"), 
+               AnswerEMCorrectness(ignore_case=True), 
+               AnswerDisambigF1Correctness()]
 
     def __init__(self, output_dir: str, batch_size: int = 1) -> None:
         self.output_dir = output_dir
         self.batch_size = batch_size
 
-    def load_data(self, **kwargs) -> Dataset:
+    def load_data(self, **kwargs):
         """Load ASQA dataset.
 
         For the ASQA dataset, the `short_answers` and `long_answers` are stored in the "qa_pairs" and "annotations" columns, respectively. We need to extract them and add them to the dataset.
         """
         print("Load ASQA dataset...")
-        self.dataset = load_dataset(**kwargs)
+        super().load_data(**kwargs)
         if "short_answers" not in dataset.features:
             self.dataset = self.dataset.map(lambda example: {"short_answers": [ann["short_answers"] for ann in example["qa_pairs"]]})
         if "long_answers" not in dataset.features:
             self.dataset = self.dataset.map(lambda example: {"long_answers": [ann["long_answer"] for ann in example["annotations"]]})
         print("ASQA dataset loaded.")
-        return self.dataset
 
     def evaluate(self, dataset_name:str = "result_dataset", result_name:str = "results") -> Dataset:
         """Evaluate the dataset and return the dataset with scores.
