@@ -86,7 +86,7 @@ class AnswerF1Correctness(Metric):
             features=datasets.Features(
                 {
                     "answers": datasets.Value("string"),
-                    "gt_answers": datasets.Value("string")
+                    "gt_answers": datasets.Sequence(datasets.Value("string"))
                 }
             ),
             codebase_urls=[],
