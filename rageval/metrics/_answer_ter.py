@@ -124,7 +124,7 @@ class AnswerTERCorrectness(Metric):
             features=datasets.Features(
                 {
                     "answers": datasets.Value("string"),
-                    "gt_answers": datasets.Value("string")
+                    "gt_answers": datasets.Sequence(datasets.Value("string"))
                 }
             ),
             codebase_urls=["https://github.com/huggingface/datasets/blob/main/metrics/ter/ter.py"],
