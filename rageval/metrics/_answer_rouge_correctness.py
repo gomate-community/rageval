@@ -106,7 +106,7 @@ class AnswerRougeCorrectness(Metric):
             features=datasets.Features(
                 {
                     "answers": datasets.Value("string", id="sequence"),
-                    "contexts": datasets.Value("string", id="sequence"),
+                    "gt_answers": datasets.Value("string", id="sequence"),
                 }
             ),
             codebase_urls=["https://github.com/mim-solutions/rouge_score"],

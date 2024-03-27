@@ -2,8 +2,10 @@ from typing import List, Union, Dict, Any, Tuple, Optional
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
 # import importlib
+import json
 from datasets import Dataset, load_dataset
 from rageval.metrics import Metric
+from .utils import save_json
 
 class BaseBenchmark(ABC):
     """Base class for benchmarks."""
@@ -11,9 +13,9 @@ class BaseBenchmark(ABC):
     metrics: List[Metric] = []
     dataset: Dataset
 
-    def __init__() -> None:
+    def __init__(self, batch_size: int = 1) -> None:
         """Initialization."""
-        ...
+        self.batch_size = batch_size
 
     @property
     @abstractmethod
@@ -26,48 +28,23 @@ class BaseBenchmark(ABC):
         """The metric names."""
         return [m.name for m in self.metrics]
 
-    @abstractmethod
     def load_data(self, **kwargs) -> None:
         """Load the dataset with answers to evaluate."""
         self.dataset = load_dataset(**kwargs)
 
     @abstractmethod
-    def _evaluate(self) -> Tuple[Dict[Any], Dataset]:
+    def _evaluate(self) -> Tuple[Dict[Any, Any], Dataset]:
         """Evaluate the dataset and return the results and the detailed dataset with each sample scores."""
         ...
 
-    def prepare_data(self, input_column: str, label_column: Optional[str], **kwargs) -> Dataset:
-        """Prepare the dataset for different metric.
-
-        Args:
-            input_column: The column name of the input text that has already existed in self.dataset, e.g. `long_answer`.
-            label_column: The column name of the label text that the metric requires, e.g. `gt_answer`.
-        """
-        if input_column not in self.dataset.column_names:
-            raise ValueError(f"The input column {input_column} is not in the dataset. Please check the column names.")
-
-        if not label_column:
-            return self.dataset
-        else:
-            return self.dataset.add_column(label_column, self.dataset[input_column])
-
-    def cal(metric: Metric, dataset: Dataset, batch_size: int = None) -> Tuple[float, Dataset]:
-        """Calculate the metric score."""
-        metric= {
-            "name": "AnswerRougeCorrectness",
-            "rouge_type": "rougeL",
-            "column": "long_answer"
-        }
-        
-        score, ds = metric.compute(dataset, batch_size)
-
-    def evaluate(self, **kwargs) -> Dict[Any]:
+    def evaluate(self, **kwargs) -> Dict[Any, Any]:
         """Load datasets and evaluate it, return a result dict."""
-        self.load_data(**kwargs)
+        if not hasattr(self, "dataset"):
+            self.load_data(**kwargs)
         self.results, self.dataset = self._evaluate()
         return self.results
 
-    def set_metric(self, metrics: Union[List[str], List[Metric]]) -> None:
+    def set_metric(self, metrics: List[Metric]) -> None:
         """Reset the metrics."""
         if all(isinstance(m, Metric) for m in metrics):
             self.metrics = metrics
@@ -85,7 +62,7 @@ class BaseBenchmark(ABC):
         """Save the result to files."""
         if not hasattr(self, "results"):
             raise ValueError("Please run evaluation first.")
-        self.results.to_json(file_path, orient="records")
+        save_json(self.results, file_path)
         print(f"Results saved to {file_path}.")
 
     # def get_metric(self, name: str, **kwargs) -> Union[Metric, MetricWithLLM]:
