@@ -17,6 +17,7 @@ _KWARGS_DESCRIPTION = """\
 Args:
     name : str
     batch_size : int, Batch size for openai completion.
+    ignore_case : bool, whether to ignore case when comparing the answer and ground truth answers.
 
 Optional Args:
     None
@@ -84,10 +85,11 @@ class AnswerEMCorrectness(Metric):
 
     ALIAS = ['answer_exact_match']
 
-    def __init__(self):
+    def __init__(self, ignore_case: bool = False):
         """Explicitly initialize the AnswerEMCorrectness to ensure all parent class initialized."""
         super().__init__()
         self._required_columns = ['answers', 'gt_answers']
+        self.ignore_case = ignore_case
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -109,9 +111,12 @@ class AnswerEMCorrectness(Metric):
             reference_urls=["https://arxiv.org/abs/2204.06092"]
         )
 
-    def _compute_one(self, output: str, short_answers: List[List]) -> float:
+    def _compute_one(self, output: str, short_answers: List[List[str]]) -> float:
         """Compute the correctness of a single answer."""
         acc = []
+        if self.ignore_case:
+            output = output.lower()
+            short_answers = [[a.lower() for a in candidate_short_answers] for candidate_short_answers in short_answers]
         for candidate_short_answers in short_answers:
             for candidate_short_answer in candidate_short_answers:
                 if candidate_short_answer in output:
