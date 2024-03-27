@@ -1,15 +1,11 @@
 from typing import Dict, Tuple, Any, Optional
-from datasets import Dataset, load_dataset
-import json
+from datasets import Dataset
 import math
 import os
-import logging
 import argparse
 from benchmarks import BaseBenchmark
 from rageval.metrics import (AnswerRougeCorrectness, AnswerEMCorrectness, AnswerDisambigF1Correctness)
 
-
-logger = logging.getLogger(__name__)
 
 class ASQABenchmark(BaseBenchmark):
     """Benchmark for ASQA dataset.
@@ -25,19 +21,6 @@ class ASQABenchmark(BaseBenchmark):
     def __init__(self) -> None:
         """Initialization."""
         super().__init__()
-
-    def load_data(self, **kwargs):
-        """Load ASQA dataset.
-
-        For the ASQA dataset, the `short_answers` and `long_answers` are stored in the "qa_pairs" and "annotations" columns, respectively. We need to extract them and add them to the dataset.
-        """
-        print("Load ASQA dataset...")
-        super().load_data(**kwargs)
-        if "short_answers" not in self.dataset.features:
-            self.dataset = self.dataset.map(lambda example: {"short_answers": [ann["short_answers"] for ann in example["qa_pairs"]]})
-        if "long_answers" not in self.dataset.features:
-            self.dataset = self.dataset.map(lambda example: {"long_answers": [ann["long_answer"] for ann in example["annotations"]]})
-        print("ASQA dataset loaded.")
 
     def prepare_data(self, label_column: str, input_column: str):
         """Modify self.dataset for different metric.
@@ -56,29 +39,31 @@ class ASQABenchmark(BaseBenchmark):
     def _evaluate(self, ) -> Tuple[Dict[Any, Any], Dataset]:
         """Evaluate the dataset and return the dataset with scores.
 
+        For the ASQA dataset, the `short_answers` and `long_answers` are stored in the "qa_pairs" and "annotations" columns, respectively. We need to extract them and add them to the dataset.
+
         We use the `short_answers` as the `gt_answers` to evaluate the string Exact Match correctness and the `long_answers` to evaluate the RougeL and DisambigF1 score. And then we calculate the `DR score` as the geometric mean of the RougeL and DisambigF1 scores.
         """
-        print("Start evaluate...")
+        if "short_answers" not in self.dataset.column_names:
+            self.dataset = self.dataset.map(lambda example: {"short_answers": [ann["short_answers"] for ann in example["qa_pairs"]]})
+        if "long_answers" not in self.dataset.column_names:
+            self.dataset = self.dataset.map(lambda example: {"long_answers": [ann["long_answer"] for ann in example["annotations"]]})
 
         ground_truths = {
             "answer_disambig_f1": ("gt_answers", "long_answers"),
             "answer_rouge_correctness": ("gt_answers", "long_answers"),
             "answer_exact_match": ("gt_answers", "short_answers")
         }
+
         results = {}
-        scores = {}
         for m in self.metrics:
             if m.name in ground_truths:
                 print(f"Evaluating {m.name}...")
                 self.prepare_data(*ground_truths[m.name])
                 results[m.name], self.dataset = m.compute(self.dataset, self.batch_size)
                 self.dataset = self.dataset.map(lambda example: {f"{m.name}.{ground_truths[m.name][0]}": ground_truths[m.name][1]}) # Add the ground truth column name
-                scores[m.name] = self.dataset[m.name]
 
         if "gt_answers" in self.dataset.column_names:
             self.dataset = self.dataset.remove_columns("gt_answers")
-        # scores = [{k:v[i] for k,v in scores.items()} for i in range(len(self.dataset))]
-        # self.dataset = self.dataset.add_column("scores", scores)
 
         if "answer_rouge_correctness" in self.dataset.column_names and "answer_disambig_f1" in self.dataset.column_names and "DR_score" not in self.dataset.column_names:
             print("Calculating DR score...")
@@ -87,8 +72,6 @@ class ASQABenchmark(BaseBenchmark):
                 return d
             self.dataset = self.dataset.map(dr_score)
             results["DR_score"] = math.sqrt(results["answer_disambig_f1"] * results ["answer_rouge_correctness"])
-
-        print("Evaluation finished.")
 
         return results, self.dataset
 
