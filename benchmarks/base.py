@@ -2,7 +2,6 @@ from typing import List, Union, Dict, Any, Tuple, Optional
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
 # import importlib
-import json
 from datasets import Dataset, load_dataset
 from rageval.metrics import Metric
 from .utils import save_json
@@ -30,7 +29,9 @@ class BaseBenchmark(ABC):
 
     def load_data(self, **kwargs) -> None:
         """Load the dataset with answers to evaluate."""
+        print("Load dataset...")
         self.dataset = load_dataset(**kwargs)
+        print("Dataset loaded.")
 
     @abstractmethod
     def _evaluate(self) -> Tuple[Dict[Any, Any], Dataset]:
@@ -41,7 +42,9 @@ class BaseBenchmark(ABC):
         """Load datasets and evaluate it, return a result dict."""
         if not hasattr(self, "dataset"):
             self.load_data(**kwargs)
+        print("Start evaluating...")
         self.results, self.dataset = self._evaluate()
+        print("Evaluation finished.")
         return self.results
 
     def set_metric(self, metrics: List[Metric]) -> None:
