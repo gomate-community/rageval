@@ -86,11 +86,8 @@ class InstructGPT(OpenAILLM):
 
 def extract_key_information(pred: str) -> str:
     '''Extract key information from the response.'''
-    prefix_to_remove=['The answers to all interpretations are\: (.*)$',
-                    'The answer to this interpretation is\: (.*)$',
-                    'The answer to this interpretation is (.*)$',
-                    'The answer to the first interpretation is: (.*)$',
-                    'this question has 2 interpretations: (.*)$']
+    prefix_to_remove=['interpretations: (.*)$',
+                      'interpretation: (.*)$']
     for pattern in prefix_to_remove:
         pred = pred.strip().split('\n\n', 1)[0].strip()
         find = re.compile(pattern).search(pred)

@@ -96,6 +96,7 @@ Here are results of different models.
 | Model | STR-EM | Rouge-L | Disambig F1 | D-R Score|
 |:---:|:---:|:---:|:---:|:---:|
 | gpt-3.5-turbo-instruct | 33.8 | 30.2 | 30.7 | 30.5 |
+| mistral-7b | 20.6 | 31.1 | 26.6 | 28.7 |
 | text-davinci-003 ([Jiang et al.](http://arxiv.org/abs/2305.06983)) | 33.8 | 33.3 | 24.2 | 28.4 |
 | PALM-540B ([Amplayo et al.](https://aclanthology.org/2023.acl-long.444))| - | 34.5 | 25.3 | 29.6 |
 
