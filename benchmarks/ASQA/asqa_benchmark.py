@@ -57,7 +57,7 @@ class ASQABenchmark(BaseBenchmark):
         results = {}
         for m in self.metrics:
             if m.name in ground_truths:
-                print(f"Evaluating {m.name}...")
+                print(f"Calculating {m.name}...")
                 self.prepare_data(*ground_truths[m.name])
                 results[m.name], self.dataset = m.compute(self.dataset, self.batch_size)
                 self.dataset = self.dataset.map(lambda example: {f"{m.name}.{ground_truths[m.name][0]}": ground_truths[m.name][1]}) # Add the ground truth column name
@@ -78,11 +78,12 @@ class ASQABenchmark(BaseBenchmark):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output_dir", type=str, default="benchmarks/ASQA/output")
+    parser.add_argument("--dataset_path", type=str, default="benchmarks/ASQA/data/gpt-3.5-turbo-instruct.jsonl")
     args = parser.parse_args()
 
     benchmark = ASQABenchmark()
 
-    results = benchmark.evaluate(path="json", data_files=os.path.join(args.output_dir, "dataset.jsonl"), split="train")
+    results = benchmark.evaluate(path="json", data_files=args.dataset_path, split="train")
     print(f"Results:\n {results}")
 
     benchmark.save_results(os.path.join(args.output_dir, "results.jsonl"))

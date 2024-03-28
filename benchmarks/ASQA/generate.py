@@ -14,6 +14,7 @@ from prompts import (FEW_SHOT_EXAMPLES, PROMPT)
 logger = logging.getLogger(__name__)
 
 class InstructGPT(OpenAILLM):
+    #TODO: move this to the openai.py file and refactor the OpenAILLM base class
     def __init__(self, model: str = "gpt-3.5-turbo-instruct", *args, **kwargs):
         super().__init__(model, *args, **kwargs)
         
@@ -88,7 +89,8 @@ def extract_key_information(pred: str) -> str:
     prefix_to_remove=['The answers to all interpretations are\: (.*)$',
                     'The answer to this interpretation is\: (.*)$',
                     'The answer to this interpretation is (.*)$',
-                    'The answer to the first interpretation is: (.*)$']
+                    'The answer to the first interpretation is: (.*)$',
+                    'this question has 2 interpretations: (.*)$']
     for pattern in prefix_to_remove:
         pred = pred.strip().split('\n\n', 1)[0].strip()
         find = re.compile(pattern).search(pred)
@@ -110,18 +112,15 @@ def generate_answers(engine: InstructGPT, dataset: Dataset) -> Dataset:
     response_texts = [r.generations[0][0].text for r in responses]
     answers = [extract_key_information(response) for response in response_texts]
     dataset = dataset.add_column("responses", response_texts)
-    dataset = dataset.add_column("model", [engine.model]*len(dataset))
     return dataset.add_column("answers", answers)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--max_num_examples", type=int, default=5)
-    # parser.add_argument("--max_num_fewshots", type=int, default=8)
     parser.add_argument("--max_new_tokens", type=int, default=256)
-    parser.add_argument("--output_dir", type=str, default="benchmarks/ASQA/output")
+    parser.add_argument("--output_path", type=str, default="benchmarks/ASQA/output")
     parser.add_argument("--model", type=str, default="gpt-3.5-turbo-instruct")
     parser.add_argument("--api_key", type=str, default=None)
-    parser.add_argument("--dataset_name", type=str, default="asqa")
 
     args = parser.parse_args()
 
@@ -138,7 +137,8 @@ if __name__ == "__main__":
     print("Start generate answers...")
     dataset = generate_answers(engine, dataset)
 
-    dataset.to_json(f"{args.output_dir}/{args.dataset_name}.jsonl")
-    print(f"\nFinish generate dataset. Dataset saved as {args.output_dir}/{args.dataset_name}.jsonl")
+    file_path = os.path.join(args.output_path, f"{args.model}.jsonl")
+    dataset.to_json(file_path)
+    print(f"\nFinish generate dataset. Dataset saved as {file_path}")
 
     engine.calculate_api_cost()
