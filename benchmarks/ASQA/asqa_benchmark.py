@@ -78,7 +78,7 @@ class ASQABenchmark(BaseBenchmark):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output_dir", type=str, default="benchmarks/ASQA/output")
-    parser.add_argument("--dataset_path", type=str, default="benchmarks/ASQA/data/gpt-3.5-turbo-instruct.jsonl")
+    parser.add_argument("--dataset_path", type=str, default="benchmarks/ASQA/data/mistral-7b.jsonl")
     args = parser.parse_args()
 
     benchmark = ASQABenchmark()
@@ -86,8 +86,9 @@ if __name__ == "__main__":
     results = benchmark.evaluate(path="json", data_files=args.dataset_path, split="train")
     print(f"Results:\n {results}")
 
-    benchmark.save_results(os.path.join(args.output_dir, "results.jsonl"))
-    benchmark.save_dataset(os.path.join(args.output_dir, "result_dataset.jsonl"))
+    dataset_name = os.path.basename(args.dataset_path).split(".")[0]
+    benchmark.save_results(os.path.join(args.output_dir, f"{dataset_name}_results.jsonl"))
+    benchmark.save_dataset(os.path.join(args.output_dir, f"{dataset_name}_result_dataset.jsonl"))
 
     benchmark.dataset = benchmark.dataset.remove_columns("answer_exact_match")
     benchmark.set_metric([AnswerEMCorrectness(ignore_case=False)])
