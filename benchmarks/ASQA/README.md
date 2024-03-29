@@ -2,7 +2,9 @@
 
 ## 1. Description
 
-This benchmark is designed to evaluate the performance of the [ASQA dataset](https://huggingface.co/datasets/din0s/asqa). For `generate.py`, we followed [FLARE](https://github.com/jzbjyb/FLARE), using `gpt-3.5-turbo-instruct` with no retrieval settings.
+This benchmark is designed to evaluate the performance of the [ASQA dataset](https://huggingface.co/datasets/din0s/asqa). 
+
+To generate RAG results, we followed [FLARE](https://github.com/jzbjyb/FLARE), using `gpt-3.5-turbo-instruct` with no retrieval settings, as implemented in [generate.py](generate.py).
 
 ## 2. Dataset
 
@@ -11,29 +13,33 @@ The ASQA dataset is a question-answering dataset that contains factoid questions
 The sturcture of the dataset is as follows:
 ```json
 {
-  "ambiguous_question": Value(dtype="string", id=None),
-  "qa_pairs": [{
-      "context": Value(dtype="string", id=None),
-      "question": Value(dtype="string", id=None),
-      "short_answers": Sequence(feature=Value(dtype="string", id=None), length=-1, id=None),
-      "wikipage": Value(dtype="string", id=None)
-  }],
-  "wikipages": [{
-      "title": Value(dtype="string", id=None),
-      "url": Value(dtype="string", id=None)
-  }],
-  "annotations": [{
-      "knowledge": [{
-          "content": Value(dtype="string", id=None),
-          "wikipage": Value(dtype="string", id=None)
-      }],
-      "long_answer": Value(dtype="string", id=None)
-  }],
-  "sample_id": Value(dtype="string", id=None)
+    "ambiguous_question":"Who is the original artist of sound of silence?",
+    "qa_pairs":[{
+        "context":"Sounds of Silence is the second studio album by Simon & Garfunkel, released on January 17...",
+        "question":"Who is the original artist of sound of silence, the song, released in 1964?",
+        "short_answers":[
+            "Simon & Garfunkel",
+            "Paul Simon and Art Garfunkel",
+            "Art Garfunkel",
+            "Paul Simon"
+        ],
+        "wikipage":"Sounds of Silence"
+    },...],
+    "wikipages":[{
+        "title":"The Sound of Silence",
+        "url":"https:\/\/en.wikipedia.org\/wiki\/The%20Sound%20of%20Silence"
+    },...],
+    "annotations":[{
+        "knowledge":[{
+            "content":"Wednesday Morning, 3 A.M. was re-released in January 1966...","wikipage":"Wednesday Morning, 3 A.M."
+        },...],
+        "long_answer":"The original artist of the song sound of silence released in 1966 is Paul Simon and Art Garfunkel..."
+    },...],
+    "sample_id":7089015503030534144
 }
 ```
 
-For each "ambiguous_question" in the dataset, there is a list of disambiguations named "qa_pairs", each pair consisting of a disambiguated "question", a "short_answer" that indicates the "question", and a "context" that provides evidence for the "short_answer". 
+For each "ambiguous_question" in the dataset, there is a list of disambiguations named "qa_pairs", each pair consisting of a disambiguated "question", a "short_answer" that indicates the "question", and a "context" that provides evidence for the "short_answer".
 
 Additionally, the "annotations" contain 2 human annotators' comments, each comment including a "long_answer" that can answer the original "ambiguous_question" and all the disambiguations within it, along with a "knowledge" set supporting the "long_answer".
 
@@ -41,9 +47,9 @@ Additionally, the "annotations" contain 2 human annotators' comments, each comme
 
 We adopt the default metrics used in the [ASQA paper](https://aclanthology.org/2022.emnlp-main.566) as follows:
 
-1. RougeL: compare predictions against all `long_answer` provided by human annotators.
-2. String Exact Match: for each `short_answer`, check whether it is present in the predictions.
-3. DisambigF1: use a RoBERTa-based model to extract entities in the `long_answer` and predictions, then compute the F1 score between two set of entities.
+1. [RougeL](../../rageval/metrics/_answer_rouge_correctness.py): compare predictions against all `long_answer` provided by human annotators.
+2. [String Exact Match](../../rageval/metrics/_answer_exact_match.py): for each `short_answer`, check whether it is present in the predictions.
+3. [DisambigF1](../../rageval/metrics/_answer_disambig_f1.py): use a RoBERTa-based model to extract entities in the `long_answer` and predictions, then compute the F1 score between two set of entities.
 4. DR (Disambiguation-Rouge) Score: the geometric mean of DisambigF1 and RougeL.
 
 If there are multiple ground truth answers in one example, we compute the score between the prediction and every ground truth, and take the *maximum* score as the score of the predictions.
@@ -73,7 +79,7 @@ Arguements:
 
 ### 4.2 Evaluation
 
-1. Prepare RAG responses. By default, `asqa_benchmark.py` will download the results of the `gpt-3.5-turbo-instruct` model from [our huggingface dataset](https://huggingface.co/datasets/golaxy/rag-bench) and evaluate them. If you wish to evaluate your own results, you can simply attach your predictions as `answers` to the end of each example in the original ASQA dataset, similar to what we did in [the file](data\gpt-3.5-turbo-instruct.jsonl).
+1. Prepare RAG responses. By default, `asqa_benchmark.py` will download the results of the `gpt-3.5-turbo-instruct` model from [our huggingface dataset](https://huggingface.co/datasets/golaxy/rag-bench) and evaluate them. If you wish to evaluate your own results, you can simply attach your predictions as `answers` to the end of each example in the original ASQA dataset, similar to what we did in [the file](https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/gpt-3.5-turbo-instruct).
 
 2. Evaluate the responses. Run `run.sh` to start dataset evaluation. The results will be saved in the output directory, named `results.jsonl`. Additionally, the `result_datasets.jsonl` file is a JSON dump of the detailed results, including scores for every example in the dataset.The command is as follows:
 
@@ -88,17 +94,20 @@ Arguements:
 - `--output_dir`: Output directory to save results.
 - `dataset_path`: The dataset including model predictions and ground truths to evaluate.
 
-
 ## 5. Performance
 
 Here are results of different models.
 
 | Model | STR-EM | Rouge-L | Disambig F1 | D-R Score|
 |:---:|:---:|:---:|:---:|:---:|
-| gpt-3.5-turbo-instruct | 33.8 | 30.2 | 30.7 | 30.5 |
-| mistral-7b | 20.6 | 31.1 | 26.6 | 28.7 |
-| text-davinci-003 ([Jiang et al.](http://arxiv.org/abs/2305.06983)) | 33.8 | 33.3 | 24.2 | 28.4 |
-| PALM-540B ([Amplayo et al.](https://aclanthology.org/2023.acl-long.444))| - | 34.5 | 25.3 | 29.6 |
+| [gpt-3.5-turbo-instruct](https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/gpt-3.5-turbo-instruct) | 33.8 | 30.2 | 30.7 | 30.5 |
+| [mistral-7b](https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/mistral_7b) | 20.6 | 31.1 | 26.6 | 28.7 |
+| text-davinci-003<sup>[1]</sup> | 33.8 | 33.3 | 24.2 | 28.4 |
+| PALM-540B<sup>[2]</sup> | - | 34.5 | 25.3 | 29.6 |
+
+[1] from [Jiang et al. 2023](http://arxiv.org/abs/2305.06983)
+
+[2] from [Amplayo et al. 2023](https://aclanthology.org/2023.acl-long.444)
 
 ## 6. Citations
 

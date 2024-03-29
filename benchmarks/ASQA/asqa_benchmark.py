@@ -77,7 +77,7 @@ class ASQABenchmark(BaseBenchmark):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output_dir", type=str, default="benchmarks/ASQA/output")
+    parser.add_argument("--output_dir", type=str, default=".rageval/results")
     parser.add_argument("--dataset_path", type=str, default="benchmarks/ASQA/data/mistral-7b.jsonl")
     args = parser.parse_args()
 
