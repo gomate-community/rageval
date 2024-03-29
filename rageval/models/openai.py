@@ -29,7 +29,7 @@ class OpenAILLM(ABC):
         n: int, How many chat completion choices to generate for each input message. Default to 1.
         temperature: float, What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.We generally recommend altering this or `top_p` but not both.
         top_p: float, An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with `top_p` probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. Default to 1.0.
-        logprobs: bool or integer. 
+        logprobs: bool or integer.
             For chat models, `logprobs` determines whether to return logprobs. Default to False. If true, returns the log probabilities of each output token returned in the content of message. This option is currently not available on the `gpt-4-vision-preview` model.
             For instruct models, `logprobs` is the number of the log probabilities of most likely output tokens, as well the chosen tokens. For example, if logprobs is 5, the API will return a list of the 5 most likely tokens. The maximum value for logprobs is 5.
         top_logprobs: int, only used in chat model. An integer between 0 and 20 specifying the number of most likely tokens to return at each token position, each with an associated log probability. logprobs must be set to true if this parameter is used.
