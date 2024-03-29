@@ -7,6 +7,8 @@ from langchain.llms.fake import FakeListLLM
 
 from rageval.models import OpenAILLM
 
+from langchain.schema import Generation, LLMResult
+
 
 @pytest.fixture(scope='module')
 def test_case():
@@ -37,11 +39,23 @@ def test_case():
 @pytest.mark.skip
 def test_openai_api(test_case):
     os.environ["OPENAI_API_KEY"] = "NOKEY"
-    client = OpenAILLM("gpt-3.5-turbo-16k", "OPENAI_API_KEY")
+    client = OpenAILLM("gpt-3.5-turbo", "OPENAI_API_KEY")
 
     # test request
     results = client.generate(test_case['questions'])
     assert results is not None
+    assert all(isinstance(results, LLMResult) for results in results)
+    results = client.batch_generate([test_case['questions']])
+    assert results is not None
+    assert all(isinstance(results, LLMResult) for results in results)
+
+    client = OpenAILLM("gpt-3.5-turbo-instruct", "OPENAI_API_KEY")
+    results = client.generate(test_case['questions'][0])
+    assert results is not None
+    assert all(isinstance(results, LLMResult) for results in results)
+    results = client.batch_generate(test_case['questions'])
+    assert results is not None
+    assert all(isinstance(results, LLMResult) for results in results)
 
 
 def test_fakelistllm_api(test_case):
