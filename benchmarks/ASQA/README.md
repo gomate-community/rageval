@@ -81,18 +81,16 @@ Arguements:
 
 1. Prepare RAG responses. By default, `asqa_benchmark.py` will download the results of the `gpt-3.5-turbo-instruct` model from [our huggingface dataset](https://huggingface.co/datasets/golaxy/rag-bench) and evaluate them. If you wish to evaluate your own results, you can simply attach your predictions as `answers` to the end of each example in the original ASQA dataset, similar to what we did in [the file](https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/gpt-3.5-turbo-instruct).
 
-2. Evaluate the responses. Run `run.sh` to start dataset evaluation. The results will be saved in the output directory, named `results.jsonl`. Additionally, the `result_datasets.jsonl` file is a JSON dump of the detailed results, including scores for every example in the dataset.The command is as follows:
+2. Evaluate the responses by running `run.sh`. This script initiates dataset evaluation, with all output files being saved in the output directory. The results will be stored in the `result/` path, which contains scores for all metrics. And the detailed results will be saved in JSON format in the `dataset/` path, including scores for every example in the dataset. The command is as follows:
 
 ```bash
-python3 benchmarks/ASQA/asqa_benchmark.py \
-    --output_dir "benchmarks/ASQA/output" \
-    --dataset_path "benchmarks/ASQA/data/gpt-3.5-turbo-instruct.jsonl"
+python3 benchmarks/ASQA/asqa_benchmark.py --output_dir ".rageval/benchmark" --split "gpt_3.5_turbo_instruct"
 ```
 
 Arguements:
 
 - `--output_dir`: Output directory to save results.
-- `dataset_path`: The dataset including model predictions and ground truths to evaluate.
+- `--split`: Split dataset from [our huggingface dataset](https://huggingface.co/datasets/golaxy/rag-bench) to evaluate.
 
 ## 5. Performance
 

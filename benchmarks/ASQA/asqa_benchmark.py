@@ -22,19 +22,20 @@ class ASQABenchmark(BaseBenchmark):
         """Initialization."""
         super().__init__()
 
-    def prepare_data(self, label_column: str, input_column: str):
-        """Modify self.dataset for different metric.
+    def prepare_data(self, metric: str, label_column: str, input_column: str):
+        """Modify self.dataset for different metric. Remove the existing metric column for metric to be evaluated and add the label column will be uesd.
 
         Args:
             input_column: The column name of the input text that has already existed in self.dataset, e.g. `long_answer`.
             label_column: The column name of the label text that the metric requires, e.g. `gt_answer`.
         """
+        if metric in self.dataset.column_names:
+            self.dataset = self.dataset.remove_columns(metric)
+
         if input_column not in self.dataset.column_names:
             raise ValueError(f"The input column {input_column} is not in the dataset. Please check the column names.")
 
-        if label_column in self.dataset.column_names:
-            self.dataset = self.dataset.remove_columns(label_column)
-        self.dataset = self.dataset.add_column(label_column, self.dataset[input_column])
+        self.dataset = self.dataset.map(lambda example: {label_column: example[input_column]}, batched=True)
 
     def _evaluate(self, ) -> Tuple[Dict[Any, Any], Dataset]:
         """Evaluate the dataset and return the dataset with scores.
@@ -58,7 +59,7 @@ class ASQABenchmark(BaseBenchmark):
         for m in self.metrics:
             if m.name in ground_truths:
                 print(f"Calculating {m.name}...")
-                self.prepare_data(*ground_truths[m.name])
+                self.prepare_data(m.name, *ground_truths[m.name])
                 results[m.name], self.dataset = m.compute(self.dataset, self.batch_size)
                 self.dataset = self.dataset.map(lambda example: {f"{m.name}.{ground_truths[m.name][0]}": ground_truths[m.name][1]}) # Add the ground truth column name
 
@@ -77,20 +78,18 @@ class ASQABenchmark(BaseBenchmark):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output_dir", type=str, default=".rageval/results")
-    parser.add_argument("--dataset_path", type=str, default="benchmarks/ASQA/data/mistral-7b.jsonl")
+    parser.add_argument("--output_dir", type=str, default=".rageval/benchmark")
+    parser.add_argument("--split", type=str, default="mistral_7b")
     args = parser.parse_args()
 
     benchmark = ASQABenchmark()
 
-    results = benchmark.evaluate(path="json", data_files=args.dataset_path, split="train")
+    results = benchmark.evaluate(path="golaxy/rag-bench", name="asqa", split=args.split)
     print(f"Results:\n {results}")
 
-    dataset_name = os.path.basename(args.dataset_path).split(".")[0]
-    benchmark.save_results(os.path.join(args.output_dir, f"{dataset_name}_results.jsonl"))
-    benchmark.save_dataset(os.path.join(args.output_dir, f"{dataset_name}_result_dataset.jsonl"))
+    benchmark.save_results(os.path.join(args.output_dir,"results", f"{args.split}.jsonl"))
+    benchmark.save_dataset(os.path.join(args.output_dir,"dataset", f"{args.split}.jsonl"))
 
-    benchmark.dataset = benchmark.dataset.remove_columns("answer_exact_match")
     benchmark.set_metric([AnswerEMCorrectness(ignore_case=False)])
     results = benchmark.evaluate()
     print(f"Results:\n {results}")
