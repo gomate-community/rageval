@@ -3,6 +3,7 @@
 import os
 import pytest
 
+from openai import OpenAI
 from langchain.llms.fake import FakeListLLM
 
 from rageval.models import OpenAILLM
@@ -39,23 +40,35 @@ def test_case():
 @pytest.mark.skip
 def test_openai_api(test_case):
     os.environ["OPENAI_API_KEY"] = "NOKEY"
+    # test chat model
     client = OpenAILLM("gpt-3.5-turbo", "OPENAI_API_KEY")
+    assert client._is_chat_model_engine() == True
+    assert isinstance(client.llm, OpenAI)
+    assert isinstance(client.build_request(), dict)
 
-    # test request
+    # test generate
     results = client.generate(test_case['questions'])
     assert results is not None
-    assert all(isinstance(results, LLMResult) for results in results)
-    results = client.batch_generate([test_case['questions']])
+    assert isinstance(results, LLMResult)
+    # test batch generate
+    results = client.batch_generate(inputs=[test_case['questions']])
     assert results is not None
     assert all(isinstance(results, LLMResult) for results in results)
 
+    # test instruct model
     client = OpenAILLM("gpt-3.5-turbo-instruct", "OPENAI_API_KEY")
-    results = client.generate(test_case['questions'][0])
+    assert client._is_chat_model_engine() == False
+    assert isinstance(client.llm, OpenAI)
+    assert isinstance(client.build_request(), dict)
+
+    # test generate
+    results = client.generate(prompt=test_case['questions'][0])
     assert results is not None
-    assert all(isinstance(results, LLMResult) for results in results)
+    assert isinstance(results, LLMResult)
+    # test batch generate
     results = client.batch_generate(test_case['questions'])
     assert results is not None
-    assert all(isinstance(results, LLMResult) for results in results)
+    assert all(isinstance(result, LLMResult) for result in results)
 
 
 def test_fakelistllm_api(test_case):

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Union
 import logging
 import os
 from abc import ABC
@@ -29,8 +29,10 @@ class OpenAILLM(ABC):
         n: int, How many chat completion choices to generate for each input message. Default to 1.
         temperature: float, What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.We generally recommend altering this or `top_p` but not both.
         top_p: float, An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with `top_p` probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. Default to 1.0.
-        logprobs: bool, Whether to return logprobs. Default to False. If true, returns the log probabilities of each output token returned in the content of message. This option is currently not available on the `gpt-4-vision-preview` model.
-        top_logprobs: int, An integer between 0 and 20 specifying the number of most likely tokens to return at each token position, each with an associated log probability. logprobs must be set to true if this parameter is used.
+        logprobs: bool or integer. 
+            For chat models, `logprobs` determines whether to return logprobs. Default to False. If true, returns the log probabilities of each output token returned in the content of message. This option is currently not available on the `gpt-4-vision-preview` model.
+            For instruct models, `logprobs` is the number of the log probabilities of most likely output tokens, as well the chosen tokens. For example, if logprobs is 5, the API will return a list of the 5 most likely tokens. The maximum value for logprobs is 5.
+        top_logprobs: int, only used in chat model. An integer between 0 and 20 specifying the number of most likely tokens to return at each token position, each with an associated log probability. logprobs must be set to true if this parameter is used.
     """
 
     def __init__(self, model: str = "gpt-3.5-turbo",
@@ -41,7 +43,7 @@ class OpenAILLM(ABC):
                  n: Optional[int] = None,
                  temperature: Optional[float] = None,
                  top_p: Optional[float] = None,
-                 logprobs: bool = False,
+                 logprobs: Optional[Union[bool, int]] = None,
                  top_logprobs: Optional[int] = None) -> None:
         """Init the OpenAI Model."""
         self.model = model
@@ -78,13 +80,12 @@ class OpenAILLM(ABC):
             "temperature": self.temperature,
             "top_p": self.top_p,
             "logprobs": self.logprobs,
-            "top_logprobs": self.top_logprobs
         }
 
-    def _is_chat_model_engine(self, model_engine: str) -> bool:
-        if model_engine == "gpt-3.5-turbo-instruct":
+    def _is_chat_model_engine(self, ) -> bool:
+        if self.model == "gpt-3.5-turbo-instruct":
             return False
-        elif model_engine.startswith("gpt-3.5") or model_engine.startswith("gpt-4"):
+        elif self.model.startswith("gpt-3.5") or self.model.startswith("gpt-4"):
             return True
         return False
 
@@ -96,6 +97,7 @@ class OpenAILLM(ABC):
 
         request = self.build_request()
         request["messages"] = messages
+        request["top_logprobs"] = self.top_logprobs
         response = self.llm.chat.completions.create(**request)
         return response
 
@@ -113,7 +115,7 @@ class OpenAILLM(ABC):
         TODO: Add cache to the response.
         """
         try:
-            if self._is_chat_model_engine(self.model):
+            if self._is_chat_model_engine():
                 response = self._get_chat_model_response(**kwargs)
             else:
                 response = self._get_instruct_model_response(**kwargs)
@@ -155,7 +157,7 @@ class OpenAILLM(ABC):
         choices = response["choices"]
         generations = [
             Generation(
-                text=choice["message"]["content"] if self._is_chat_model_engine(self.model) else choice["text"],
+                text=choice["message"]["content"] if self._is_chat_model_engine() else choice["text"],
                 generation_info=dict(
                     finish_reason=choice.get("finish_reason"),
                     logprobs=choice.get("logprobs"),
@@ -214,7 +216,7 @@ class OpenAILLM(ABC):
 
     def batch_generate(self, **kwargs) -> List[LLMResult]:
         """Batch generate the LLMResult from the response."""
-        if self._is_chat_model_engine(self.model):
+        if self._is_chat_model_engine():
             return self._chat_model_batch_generate(**kwargs)
         else:
             return self._instruct_model_batch_generate(**kwargs)
