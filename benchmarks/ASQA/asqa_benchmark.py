@@ -22,19 +22,9 @@ class ASQABenchmark(BaseBenchmark):
         """Initialization."""
         super().__init__()
 
-    def prepare_data(self, label_column: str, input_column: str):
-        """Modify self.dataset for different metric.
-
-        Args:
-            input_column: The column name of the input text that has already existed in self.dataset, e.g. `long_answer`.
-            label_column: The column name of the label text that the metric requires, e.g. `gt_answer`.
-        """
-        if input_column not in self.dataset.column_names:
-            raise ValueError(f"The input column {input_column} is not in the dataset. Please check the column names.")
-
-        if label_column in self.dataset.column_names:
-            self.dataset = self.dataset.remove_columns(label_column)
-        self.dataset = self.dataset.add_column(label_column, self.dataset[input_column])
+    def is_existed(self, column_name: str) -> bool:
+        """Check if the column exists in the dataset."""
+        return column_name in self.dataset.column_names
 
     def _evaluate(self, ) -> Tuple[Dict[Any, Any], Dataset]:
         """Evaluate the dataset and return the dataset with scores.
@@ -43,52 +33,62 @@ class ASQABenchmark(BaseBenchmark):
 
         We use the `short_answers` as the `gt_answers` to evaluate the string Exact Match correctness and the `long_answers` to evaluate the RougeL and DisambigF1 score. And then we calculate the `DR score` as the geometric mean of the RougeL and DisambigF1 scores.
         """
-        if "short_answers" not in self.dataset.column_names:
+        if not self.is_existed("short_answers"):
             self.dataset = self.dataset.map(lambda example: {"short_answers": [ann["short_answers"] for ann in example["qa_pairs"]]})
-        if "long_answers" not in self.dataset.column_names:
+        if not self.is_existed("long_answers"):
             self.dataset = self.dataset.map(lambda example: {"long_answers": [ann["long_answer"] for ann in example["annotations"]]})
 
         ground_truths = {
-            "answer_disambig_f1": ("gt_answers", "long_answers"),
-            "answer_rouge_correctness": ("gt_answers", "long_answers"),
-            "answer_exact_match": ("gt_answers", "short_answers")
+            "answer_disambig_f1": ("long_answers", "gt_answers"),
+            "answer_rouge_correctness": ("long_answers", "gt_answers"),
+            "answer_exact_match": ("short_answers", "gt_answers")
         }
 
         results = {}
         for m in self.metrics:
             if m.name in ground_truths:
-                print(f"Evaluating {m.name}...")
-                self.prepare_data(*ground_truths[m.name])
+                print(f"Calculating {m.name}...")
+
+                if self.is_existed(m.name):
+                    # Remove the metric column if it already exists
+                    self.dataset = self.dataset.remove_columns(m.name)
+                if not self.is_existed(ground_truths[m.name][0]):
+                    # Check if the ground truth column exists
+                    raise ValueError(f"The column {ground_truths[m.name][0]} is not in the dataset. Please check the column names.")
+
+                # Rename the ground truth column for metric calculation
+                self.dataset = self.dataset.rename_column(*ground_truths[m.name])
+                # Compute the metric
                 results[m.name], self.dataset = m.compute(self.dataset, self.batch_size)
-                self.dataset = self.dataset.map(lambda example: {f"{m.name}.{ground_truths[m.name][0]}": ground_truths[m.name][1]}) # Add the ground truth column name
+                # Rename the column back
+                self.dataset = self.dataset.rename_column(*ground_truths[m.name][::-1])
+                # Add the ground truth column name
+                self.dataset = self.dataset.map(lambda example: {f"{m.name}.{ground_truths[m.name][1]}": ground_truths[m.name][0]})
 
-        if "gt_answers" in self.dataset.column_names:
-            self.dataset = self.dataset.remove_columns("gt_answers")
-
-        if "answer_rouge_correctness" in self.dataset.column_names and "answer_disambig_f1" in self.dataset.column_names and "DR_score" not in self.dataset.column_names:
+        if self.is_existed("answer_rouge_correctness") and self.is_existed("answer_disambig_f1") and not self.is_existed("DR_score"):
             print("Calculating DR score...")
             def dr_score(d:dict):
-                d['DR_score'] = math.sqrt(d["answer_disambig_f1"] * d   ["answer_rouge_correctness"])
+                d['DR_score'] = math.sqrt(d["answer_disambig_f1"] * d["answer_rouge_correctness"])
                 return d
             self.dataset = self.dataset.map(dr_score)
-            results["DR_score"] = math.sqrt(results["answer_disambig_f1"] * results ["answer_rouge_correctness"])
+            results["DR_score"] = math.sqrt(results["answer_disambig_f1"] * results["answer_rouge_correctness"])
 
         return results, self.dataset
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output_dir", type=str, default="benchmarks/ASQA/output")
+    parser.add_argument("--output_dir", type=str, default=".rageval/benchmark")
+    parser.add_argument("--split", type=str, default="mistral_7b")
     args = parser.parse_args()
 
     benchmark = ASQABenchmark()
 
-    results = benchmark.evaluate(path="json", data_files=os.path.join(args.output_dir, "dataset.jsonl"), split="train")
+    results = benchmark.evaluate(path="golaxy/rag-bench", name="asqa", split=args.split)
     print(f"Results:\n {results}")
 
-    benchmark.save_results(os.path.join(args.output_dir, "results.jsonl"))
-    benchmark.save_dataset(os.path.join(args.output_dir, "result_dataset.jsonl"))
+    benchmark.save_results(os.path.join(args.output_dir,"results", f"{args.split}.jsonl"))
+    benchmark.save_dataset(os.path.join(args.output_dir,"dataset", f"{args.split}.jsonl"))
 
-    benchmark.dataset = benchmark.dataset.remove_columns("answer_exact_match")
     benchmark.set_metric([AnswerEMCorrectness(ignore_case=False)])
     results = benchmark.evaluate()
     print(f"Results:\n {results}")
