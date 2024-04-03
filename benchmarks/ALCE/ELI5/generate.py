@@ -84,7 +84,7 @@ if __name__ == "__main__":
         raise ValueError("Don't support such dataset.")
 
     print("-" * 10 + "Finish loading dataset" + "-" * 10)
-    eval_data = eval_data[:3]
+
     print("-" * 10 + "Generating prompts" + "-" * 10)
 
     eval_prompt = json.load(
