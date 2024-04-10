@@ -68,7 +68,7 @@ class Metric(MetricInfoMixin):
         """Validate the of the input dataset."""
         if not all(c in dataset.column_names for c in self._required_columns):
             raise ValueError(
-                "The input dataset of f{self.name} metric should include f{self._required_columns} columns."
+                f"The input dataset of {self.name} metric should include {self._required_columns} columns."
             )
 
     def compute(
