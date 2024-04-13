@@ -28,7 +28,7 @@ def testset(sample):
 
 
 @pytest.mark.slow
-def test_case_on_answer_lcs_ratio(testset):
+def test_case_on_answer_accuracy(testset):
     metric = AnswerAccuracy()
     assert metric.name == "answer_accuracy"
     assert metric.homepage == ""
