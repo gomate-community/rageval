@@ -76,6 +76,10 @@ if __name__ == "__main__":
         eval_data = json.load(
             open(args.cache_path + "/datasets/ALCE-data/asqa_eval_gtr_top100.json", "r")
         )
+    elif args.dataset == "dpr":
+        eval_data = json.load(
+            open(args.cache_path + "/datasets/ALCE-data/asqa_eval_dpr_top100.json", "r")
+        )
     elif args.dataset == "oracle":
         eval_data = json.load(
             open(args.cache_path + "/datasets/ALCE-data/asqa_eval_gtr_top100_reranked_oracle.json", "r")
