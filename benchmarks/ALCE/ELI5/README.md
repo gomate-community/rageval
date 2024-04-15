@@ -100,7 +100,7 @@ Arguements:
 - `--api_key`: When using OpenAI's API, the `api_key` parameter is required, otherwise, please ignore this parameter.
 - `--max_length`: The maximum token count supported by the model.
 - `--temperature/top_p`: The inference hyperparameters for LLM.
-- `--dataset`: Version of the dataset: `BM25` or `Oracle`.
+- `--dataset`: Version of the dataset: `bm25` or `oracle`.
 - `--method`: Supports three generation methods: `vanilla`, `summary`, and `snippet`. The difference lies in the processing of the input documents.
 - `--ndoc`: The number of documents provided to LLM during the generation process.
 - `--shot`: The number of examples provided to LLM during the generation process.
