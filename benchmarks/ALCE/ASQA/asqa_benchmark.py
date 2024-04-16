@@ -27,16 +27,12 @@ class ASQABenchmark(BaseBenchmark):
 
     def _evaluate(self) -> Tuple[Dict[Any, Any], Dataset]:
         self.dataset = self.dataset.rename_column("output", "answers")
-
-        gt_short_answers = [
-            [
+        self.dataset = self.dataset.map(lambda data: {
+            "gt_answers": [
                 pair["short_answers"]
                 for pair in data["qa_pairs"]
             ]
-            for data in self.dataset
-        ]
-        self.dataset = self.dataset.add_column("gt_answers", gt_short_answers)
-
+        })
         print(self.dataset)
 
         results = {}
