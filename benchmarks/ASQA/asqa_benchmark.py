@@ -65,7 +65,9 @@ class ASQABenchmark(BaseBenchmark):
                 # Add the ground truth column name
                 self.dataset = self.dataset.map(lambda example: {f"{m.name}.{ground_truths[m.name][1]}": ground_truths[m.name][0]})
 
-        if self.is_existed("answer_rouge_correctness") and self.is_existed("answer_disambig_f1") and not self.is_existed("DR_score"):
+        if self.is_existed("answer_rouge_correctness") and self.is_existed("answer_disambig_f1"):
+            if self.is_existed("DR_score"):
+                self.dataset = self.dataset.remove_columns("DR_score")
             print("Calculating DR score...")
             def dr_score(d:dict):
                 d['DR_score'] = math.sqrt(d["answer_disambig_f1"] * d["answer_rouge_correctness"])
