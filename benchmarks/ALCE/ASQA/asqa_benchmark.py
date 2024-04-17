@@ -6,12 +6,12 @@ from datasets import Dataset
 
 import rageval as rl
 from benchmarks import BaseBenchmark
-from rageval.metrics import AnswerNLICorrectness, AnswerCitationRecall, AnswerCitationPrecision
+from rageval.metrics import AnswerEMCorrectness, AnswerCitationRecall, AnswerCitationPrecision
 
 
-class ELI5Benchmark(BaseBenchmark):
+class ASQABenchmark(BaseBenchmark):
 
-    name = "eli5_benchmark"
+    name = "asqa_benchmark"
 
     def __init__(self, cache_path) -> None:
         super().__init__()
@@ -20,14 +20,19 @@ class ELI5Benchmark(BaseBenchmark):
             cache_path + "/models/t5_xxl_true_nli_mixture",
         )
         self.metrics = [
-            AnswerNLICorrectness(nli_model=nli_model, decompose_model="nltk"),
+            AnswerEMCorrectness(),
             AnswerCitationRecall(nli_model=nli_model),
             AnswerCitationPrecision(nli_model=nli_model)
         ]
 
     def _evaluate(self) -> Tuple[Dict[Any, Any], Dataset]:
         self.dataset = self.dataset.rename_column("output", "answers")
-        self.dataset = self.dataset.rename_column("claims", "gt_answers")
+        self.dataset = self.dataset.map(lambda data: {
+            "gt_answers": [
+                pair["short_answers"]
+                for pair in data["qa_pairs"]
+            ]
+        })
 
         results = {}
         for metric in self.metrics:
@@ -43,7 +48,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     date = time.strftime("%Y%m%d", time.localtime())
 
-    benchmark = ELI5Benchmark(cache_path=args.cache_path)
+    benchmark = ASQABenchmark(cache_path=args.cache_path)
     if args.local_file:
         results = benchmark.evaluate(
             path="json",
@@ -52,7 +57,7 @@ if __name__ == "__main__":
             },
             split="test"
         )
-        benchmark.save_results(f"benchmarks/ALCE/ELI5/results/{args.local_file[:-5]}_{date}.json")
+        benchmark.save_results(f"benchmarks/ALCE/ASQA/results/{args.local_file[:-5]}_{date}.json")
     else:
-        results = benchmark.evaluate(path="golaxy/rag-bench", name="alce_eli5_bm25", split=args.remote_split)
-        benchmark.save_results(f"benchmarks/ALCE/ELI5/results/{args.remote_split}_{date}.json")
+        results = benchmark.evaluate(path="golaxy/rag-bench", name="alce_asqa_gtr", split=args.remote_split)
+        benchmark.save_results(f"benchmarks/ALCE/ASQA/results/{args.remote_split}_{date}.json")
