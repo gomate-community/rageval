@@ -28,7 +28,7 @@ class ELI5Benchmark(BaseBenchmark):
     def _evaluate(self) -> Tuple[Dict[Any, Any], Dataset]:
         self.dataset = self.dataset.rename_column("output", "answers")
         self.dataset = self.dataset.rename_column("claims", "gt_answers")
-        print(self.dataset)
+
         results = {}
         for metric in self.metrics:
             results[metric.name], self.dataset = metric.compute(self.dataset, self.batch_size)
@@ -45,7 +45,6 @@ if __name__ == "__main__":
 
     benchmark = ELI5Benchmark(cache_path=args.cache_path)
     if args.local_file:
-        print(args.cache_path+"/results/"+args.local_file)
         results = benchmark.evaluate(
             path="json",
             data_files={

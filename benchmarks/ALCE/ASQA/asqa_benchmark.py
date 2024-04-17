@@ -33,7 +33,6 @@ class ASQABenchmark(BaseBenchmark):
                 for pair in data["qa_pairs"]
             ]
         })
-        print(self.dataset)
 
         results = {}
         for metric in self.metrics:
@@ -51,7 +50,6 @@ if __name__ == "__main__":
 
     benchmark = ASQABenchmark(cache_path=args.cache_path)
     if args.local_file:
-        print(args.cache_path+"/results/"+args.local_file)
         results = benchmark.evaluate(
             path="json",
             data_files={
