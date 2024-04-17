@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -7,23 +8,29 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from rageval.models import OpenAILLM
 from prompts import (FEW_SHOT_EXAMPLES, PROMPT)
 
+from typing import Tuple
 
-def process_response(response):
-    response = response.strip().replace('[', "").replace(']', "").split('\n')
-    answers, supporting_facts = None, None
+
+def process_response(response: str) -> Tuple[str, str]:
+    answer, supporting = "", []
+    response = response.strip()[1:-1].split('\n')
     if response:
-        if isinstance(response, list):
-            answers = response[0]
-            if len(response) != 1:
-                supporting_facts = response[1:]
-                supporting_facts = "".join(supporting_facts)
-
-    if not isinstance(answers,str):
-        answers=""
-    if not isinstance(supporting_facts,str):
-        supporting_facts=""
-
-    return answers, supporting_facts
+        answer = response[0]
+        if len(response) != 1:
+            len_support = [len(s) for s in data['context']['sentences']]
+            for sup in response[1:]:
+                t = sup.split(':')
+                if t and len(t) != 1:
+                    title = t[0]
+                    if title in data['context']['title']:
+                        idx = data['context']['title'].index(title)
+                        supporting += [str(1 + sum(len_support[:idx]) + int(re.sub(r'\D', '', v))) for v in
+                                       t[1].replace('[',"").replace(']',"").split(',') if re.sub(r'\D', '', v)]
+    if supporting:
+        supporting = " ".join(supporting)
+    else:
+        supporting = ""
+    return answer, supporting
 
 
 if __name__ == "__main__":
@@ -31,19 +38,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--subset", type=str, default="distractor")
-    parser.add_argument("--max_num_examples", type=int, default=5)
+    parser.add_argument("--max_num_examples", type=int, default=500)
 
     parser.add_argument("--max_length", type=int, default=4096)
     parser.add_argument("--temperature", type=float, default=0.5)
     parser.add_argument("--top_p", type=float, default=1.0)
-
 
     parser.add_argument("--output_path", type=str,
                         default="benchmarks/HOTPOTQA/output")
 
     parser.add_argument("--cache_path", type=str, default=None)
     parser.add_argument("--model", type=str, default="gpt-3.5-turbo")
-    
+
     parser.add_argument("--api_key", type=str, default=None)
 
     args = parser.parse_args()
@@ -77,16 +83,12 @@ if __name__ == "__main__":
     model_name = args.model.split("/")[-1]
 
     outputs, answers, supporting_facts = [], [], []
-    supporting_facts_gt_answers = []
     for data in eval_data:
-        supporting_facts_gt_answer = [data["context"]["sentences"][data["context"]["title"].index(title)][sent_id] for
-                                      title, sent_id in \
-                                      zip(data["supporting_facts"]["title"], data["supporting_facts"]["sent_id"]) \
-                                      if title in data["context"]["title"]]
-        supporting_facts_gt_answers.append(supporting_facts_gt_answer)
+
+        re_context = [{t: s} for t, s in zip(data['context']['title'], data['context']['sentences'])]
 
         prompt = PROMPT.format(few_shot_examples=FEW_SHOT_EXAMPLES,
-                               Q=data['question'], Tp=data['type'], C=data['context'])
+                               Q=data['question'], Tp=data['type'], C=re_context)
 
         if "gpt" in model_name:
             output = model.generate(
@@ -121,12 +123,10 @@ if __name__ == "__main__":
             outputs.append(output.generations[0][0].text)
             answer, supporting = process_response(output.generations[0][0].text)
             answers.append(answer)
-            supporting_facts.append(supporting)
     eval_data = eval_data.add_column("response", outputs)
     eval_data = eval_data.add_column("short_answer", answers)
     eval_data = eval_data.add_column("supporting_answer", supporting_facts)
-    eval_data = eval_data.add_column("gt_supporting_facts", supporting_facts_gt_answers)
 
-    file_path = os.path.join(args.output_path, f"{args.model.replace('-','_')}.jsonl")
+    file_path = os.path.join(args.output_path, f"{args.model.replace('-', '_')}.jsonl")
     eval_data.to_json(file_path)
     print(f"\nFinish generate dataset. Dataset saved as {file_path}")

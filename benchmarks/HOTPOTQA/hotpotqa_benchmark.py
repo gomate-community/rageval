@@ -22,19 +22,32 @@ class HOTPOTQABenchmark(BaseBenchmark):
         """Initialization."""
         super().__init__()
 
-    def _evaluate(self, ) -> Tuple[Dict[Any, Any], Dataset]:
+    def _recode_gt_supporting_facts(self, data: object) -> object:
+        """To calculate f1 recode gt_sent_ids from 1 to the length of all sentences in contexts """
+        recode_answers = []
+        len_support = [len(i) for i in data['context']['sentences']]
+        for title, sent_id in zip(data['supporting_facts']['title'], data['supporting_facts']['sent_id']):
+            idx = data['context']['title'].index(title)
+            recode = sum(len_support[:idx]) + 1 + sent_id
+            recode_answers.append(str(recode))
+        recode_answers=[' '.join(recode_answers)]
+        data["gt_sent_ids"] = recode_answers
+        return data
+
+    def _evaluate(self) -> Tuple[Dict[Any, Any], Dataset]:
         """Evaluate the dataset and return the dataset with scores.
 
-        For the HotPotQA dataset, the `short_answers` and `long_answers` which we need to extract.
-
-
-        We use the `answer` as the `gt_answers` to evaluate the string Exact Match correctness and the `gt_supporting_facts` to evaluate the F1.
+        For the HotPotQA dataset, the `short_answer` and `supporting_answer` which we need to extract
+        
+        We use the `answer` as the `gt_answers` to evaluate the string Exact Match correctness and the `supporting_facts` to make "gt_sent_ids" to evaluate the F1.
         """
+
         self.metrics = [AnswerEMCorrectness(ignore_case=False),
                         AnswerF1Correctness()
                         ]
+        self.dataset = self.dataset.map(self._recode_gt_supporting_facts)
         ground_truths = {
-            "answer_f1": ("supporting_answer", "gt_supporting_facts"),
+            "answer_f1": ("supporting_answer", "gt_sent_ids"),
             "answer_exact_match": ("short_answer", "answer")
         }
 
@@ -48,7 +61,6 @@ class HOTPOTQABenchmark(BaseBenchmark):
                 self.dataset = self.dataset.rename_column(gtan, "gt_answers")
 
                 results[metric.name], self.dataset = metric.compute(self.dataset, self.batch_size)
-
 
                 self.dataset = self.dataset.rename_column("answers", an)
                 self.dataset = self.dataset.rename_column("gt_answers", gtan)
@@ -68,8 +80,6 @@ if __name__ == "__main__":
     benchmark = HOTPOTQABenchmark()
     if args.local_file:
         data_file = os.path.join(args.output_dir, 'output', args.local_file)
-        print(data_file)
-        print(data_file)
         results = benchmark.evaluate(
             path='json',
             data_files={"test": data_file},
