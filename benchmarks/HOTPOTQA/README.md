@@ -85,7 +85,7 @@ Here are results of different models.
 
 | Model | STR-EM | F1 |
 |:---:|:---:|:---:|
-| [gpt-3.5-turbo](https://huggingface.co/datasets/golaxy/rag-bench/viewer/hotpot_qa/gpt_3.5-_turbo) | 54.8 | 39.2 |
+| [gpt-3.5-turbo](https://huggingface.co/datasets/golaxy/rag-bench/viewer/hotpot_qa/gpt_3.5-_turbo) | 51.8 | 42.4 |
 
 
 ## 6. Citations
