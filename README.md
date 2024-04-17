@@ -87,7 +87,9 @@ The search task is to retrieve relevant documents from the knowledge base.
 	white-space:nowrap;}
 </style>
 
-ASQA benchmark:
+### 1. [ASQA benchmark](benchmarks/ASQA/README.md)
+
+[ASQA dataset](https://huggingface.co/datasets/din0s/asqa) is a question-answering dataset that contains factoid questions and long-form answers. The benchmark evaluates the correctness of the answers in the dataset.
 
 <table border=0 cellpadding=0 cellspacing=0 width=100% style='border-collapse:
  collapse;table-layout:fixed;width:763pt'>
@@ -100,95 +102,185 @@ ASQA benchmark:
   <td colspan=4 class=xl6522070 style='font-weight:600'>Metric</td>
  </tr>
  <tr height=18 style='height:13.8pt'>
-  <td height=18 class=xl6522070 style='height:13.8pt'>String EM</td>
-  <td class=xl6522070>Rouge L</td>
-  <td class=xl6522070>Disambig F1</td>
-  <td class=xl6522070>D-R Score</td>
+  <td height=18 class=xl6522070 style='height:13.8pt'><a href="rageval\metrics\_answer_exact_match.py">String EM</a></td>
+  <td class=xl6522070><a href="rageval\metrics\_answer_rouge_correctness.py">Rouge L</a></td>
+  <td class=xl6522070><a href="rageval\metrics\_answer_disambig_f1.py">Disambig F1</a></td>
+  <td class=xl6522070><a href="benchmarks\ASQA\asqa_benchmark.py">D-R Score</a></td>
  </tr>
  <tr height=18 style='height:13.8pt'>
-  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/gpt_3.5_turbo_instruct">gpt-3.5-turbo-instruct</a></td>
-  <td class=xl6522070>no-retrieval</td>
+  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>gpt-3.5-turbo-instruct</td>
+  <td class=xl6522070><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/gpt_3.5_turbo_instruct">no-retrieval</a></td>
   <td class=xl6622070>33.8</td>
   <td class=xl6622070>30.2</td>
   <td class=xl6622070>30.7</td>
   <td class=xl6622070>30.5</td>
  </tr>
  <tr height=18 style='height:13.8pt'>
-  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/mistral_7b">mistral-7b</a></td>
-  <td class=xl6522070>no-retrieval</td>
+  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>mistral-7b</td>
+  <td class=xl6522070><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/mistral_7b">no-retrieval</a></td>
   <td class=xl6622070>20.6</td>
   <td class=xl6622070>31.1</td>
   <td class=xl6622070>26.6</td>
   <td class=xl6622070>28.7</td>
  </tr>
  <tr height=18 style='height:13.8pt'>
-  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/llama2_7b_chat">llama2-7b-chat</a></td>
-  <td class=xl6522070>no-retrieval</td>
+  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>llama2-7b-chat</td>
+  <td class=xl6522070><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/llama2_7b_chat">no-retrieval</a></td>
   <td class=xl6622070>21.7</td>
   <td class=xl6622070>30.7</td>
   <td class=xl6622070>28.0</td>
   <td class=xl6622070>29.3</td>
  </tr>
  <tr height=18 style='height:13.8pt'>
-  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/solar_10.7b_instruct">solar-10.7b-instruct</a></td>
-  <td class=xl6522070>no-retrieval</td>
+  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>solar-10.7b-instruct</td>
+  <td class=xl6522070><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/solar_10.7b_instruct">no-retrieval</a></td>
   <td class=xl6622070>23.0</td>
   <td class=xl6622070>24.9</td>
   <td class=xl6622070>28.1</td>
   <td class=xl6622070>26.5</td>
+ </tr>
 </table>
 
-ELI5(ALCE) Benchmark:
+### 2. [ALCE Benchmark](benchmarks/ALCE)
+
+[ALCE](https://github.com/princeton-nlp/ALCE) is a benchmark for Automatic LLMs' Citation Evaluation. ALCE contains three datasets: ASQA, QAMPARI, and ELI5. 
+
 <table border=0 cellpadding=0 cellspacing=0 width=100% style='border-collapse:
  collapse;table-layout:fixed;width:763pt'>
- <col width=166>
+ <col width=75>
  <col width=125>
- <col width=125 span=4>
+ <col width=85>
+ <col width=145>
+ <col width=125 span=5>
  <tr height=18 style='height:13.8pt'>
-  <td rowspan=2 height=36 class=xl6522070 style='height:27.6pt;font-weight:600'>Model</td>
-  <td rowspan=2 class=xl6522070 style='font-weight:600'>Method</td>
-  <td colspan=4 class=xl6522070 style='font-weight:600'>Metric</td>
+  <td rowspan=2 height=36 class=xl6522070 style='font-weight:600'>Dataset</td>
+  <td rowspan=2 height=36 class=xl6522070 style='font-weight:600'>Model</td>
+  <td colspan=2 class=xl6522070 style='font-weight:600'>Method</td>
+  <td colspan=5 class=xl6522070 style='font-weight:600'>Metric</td>
  </tr>
  <tr height=18 style='height:13.8pt'>
-  <td height=18 class=xl6522070 style='height:13.8pt'>String EM</td>
-  <td class=xl6522070>Rouge L</td>
-  <td class=xl6522070>Disambig F1</td>
-  <td class=xl6522070>D-R Score</td>
+  <td class=xl6522070>retriever</td>
+  <td class=xl6522070>prompt</td>
+  <td height=18 class=xl6522070 style='height:13.8pt'>MAUVE</td>
+  <td class=xl6522070><a href="rageval\metrics\_answer_exact_match.py">EM Recall</a></td>
+  <td class=xl6522070><a href="rageval\metrics\_answer_claim_recall.py">Claim Recall</a></td>
+  <td class=xl6522070><a href="rageval\metrics\_answer_citation_recall.py">Citation Recall</a></td>
+  <td class=xl6522070><a href="rageval\metrics\_answer_citation_precision.py">Citation Precision</a></td>
+ </tr>
+ <tr>
+  <td rowspan=7 height=252 class=xl6522070><a href="benchmarks/ALCE/ASQA/README.md">ASQA</a></td>
+  <td rowspan=7 height=252 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>llama2-7b-chat</td>
+  <td rowspan=5 class=xl6522070>GTR</td>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_asqa_gtr">vanilla(5-psg)</a></td>
+  <td class=xl6622070>-</td>
+  <td class=xl6522070>33.3</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>55.9</td>
+  <td class=xl6622070>80.0</td>
  </tr>
  <tr height=18 style='height:13.8pt'>
-  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/gpt_3.5_turbo_instruct">gpt-3.5-turbo-instruct</a></td>
-  <td class=xl6522070>no-retrieval</td>
-  <td class=xl6622070>33.8</td>
-  <td class=xl6622070>30.2</td>
-  <td class=xl6622070>30.7</td>
-  <td class=xl6622070>30.5</td>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>summary(5-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+ </tr>
+  <tr height=18 style='height:13.8pt'>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>summary(10-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+ </tr>
+  <tr height=18 style='height:13.8pt'>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>snippet(5-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+ </tr>
+  <tr height=18 style='height:13.8pt'>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>snippet(10-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
  </tr>
  <tr height=18 style='height:13.8pt'>
-  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/mistral_7b">mistral-7b</a></td>
-  <td class=xl6522070>no-retrieval</td>
-  <td class=xl6622070>20.6</td>
-  <td class=xl6622070>31.1</td>
+  <td class=xl6522070 style='height:13.8pt'>DPR</td>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>snippet(10-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+ </tr>
+ <tr height=18 style='height:13.8pt'>
+  <td class=xl6522070 style='height:13.8pt'>Oracle</td>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>vanilla(5-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+ </tr>
+ <tr>
+  <td rowspan=6 height=216 class=xl6522070><a href="benchmarks/ALCE/ELI5/README.md">ELI5</a></td>
+  <td rowspan=6 height=216 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>llama2-7b-chat</td>
+  <td rowspan=5 class=xl6522070>BM25</td>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_eli5_bm25">vanilla(5-psg)</a></td>
+  <td class=xl6622070>-</td>
+  <td class=xl6522070>-</td>
+  <td class=xl6622070>11.5</td>
   <td class=xl6622070>26.6</td>
-  <td class=xl6622070>28.7</td>
+  <td class=xl6622070>74.5</td>
  </tr>
  <tr height=18 style='height:13.8pt'>
-  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/llama2_7b_chat">llama2-7b-chat</a></td>
-  <td class=xl6522070>no-retrieval</td>
-  <td class=xl6622070>21.7</td>
-  <td class=xl6622070>30.7</td>
-  <td class=xl6622070>28.0</td>
-  <td class=xl6622070>29.3</td>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>summary(5-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+ </tr>
+  <tr height=18 style='height:13.8pt'>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>summary(10-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+ </tr>
+  <tr height=18 style='height:13.8pt'>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>snippet(5-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+ </tr>
+  <tr height=18 style='height:13.8pt'>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>snippet(10-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
  </tr>
  <tr height=18 style='height:13.8pt'>
-  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/solar_10.7b_instruct">solar-10.7b-instruct</a></td>
-  <td class=xl6522070>no-retrieval</td>
-  <td class=xl6622070>23.0</td>
-  <td class=xl6622070>24.9</td>
-  <td class=xl6622070>28.1</td>
-  <td class=xl6622070>26.5</td>
+  <td class=xl6522070 style='height:13.8pt'>Oracle</td>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>vanilla(5-psg)</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+  <td class=xl6622070>-</td>
+ </tr>
 </table>
-
-
 
 
 ## Installation
