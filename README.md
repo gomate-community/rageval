@@ -168,9 +168,12 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td class=xl6522070><a href="rageval\metrics\_answer_citation_precision.py">Citation Precision</a></td>
  </tr>
  <tr>
-  <td rowspan=7 height=252 class=xl6522070><a href="benchmarks/ALCE/ASQA/README.md">ASQA</a></td>
-  <td rowspan=7 height=252 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>llama2-7b-chat</td>
-  <td rowspan=5 class=xl6522070>GTR</td>
+  <!-- <td rowspan=7 class=xl6522070><a href="benchmarks/ALCE/ASQA/README.md">ASQA</a></td>
+  <td rowspan=7 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>llama2-7b-chat</td>
+  <td rowspan=5 class=xl6522070>GTR</td>   -->
+  <td rowspan=3 class=xl6522070><a href="benchmarks/ALCE/ASQA/README.md">ASQA</a></td>
+  <td rowspan=3 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>llama2-7b-chat</td>
+  <td rowspan=1 class=xl6522070>GTR</td>
   <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_asqa_gtr">vanilla(5-psg)</a></td>
   <td class=xl6622070>-</td>
   <td class=xl6522070>33.3</td>
@@ -178,7 +181,7 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td class=xl6622070>55.9</td>
   <td class=xl6622070>80.0</td>
  </tr>
- <tr height=18 style='height:13.8pt'>
+ <!-- <tr height=18 style='height:13.8pt'>
   <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>summary(5-psg)</td>
   <td class=xl6622070>-</td>
   <td class=xl6622070>-</td>
@@ -209,10 +212,10 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td class=xl6622070>-</td>
   <td class=xl6622070>-</td>
   <td class=xl6622070>-</td>
- </tr>
+ </tr> -->
  <tr height=18 style='height:13.8pt'>
   <td class=xl6522070 style='height:13.8pt'>DPR</td>
-  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>snippet(10-psg)</td>
+  <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>vanilla(5-psg)</td>
   <td class=xl6622070>-</td>
   <td class=xl6622070>-</td>
   <td class=xl6622070>-</td>
@@ -229,9 +232,12 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td class=xl6622070>-</td>
  </tr>
  <tr>
-  <td rowspan=6 height=216 class=xl6522070><a href="benchmarks/ALCE/ELI5/README.md">ELI5</a></td>
-  <td rowspan=6 height=216 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>llama2-7b-chat</td>
-  <td rowspan=5 class=xl6522070>BM25</td>
+  <!-- <td rowspan=6 class=xl6522070><a href="benchmarks/ALCE/ELI5/README.md">ELI5</a></td>
+  <td rowspan=6 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>llama2-7b-chat</td>
+  <td rowspan=5 class=xl6522070>BM25</td> -->
+  <td rowspan=3 class=xl6522070><a href="benchmarks/ALCE/ELI5/README.md">ELI5</a></td>
+  <td rowspan=3 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>llama2-7b-chat</td>
+  <td rowspan=1 class=xl6522070>BM25</td>
   <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_eli5_bm25">vanilla(5-psg)</a></td>
   <td class=xl6622070>-</td>
   <td class=xl6522070>-</td>
@@ -239,7 +245,7 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td class=xl6622070>26.6</td>
   <td class=xl6622070>74.5</td>
  </tr>
- <tr height=18 style='height:13.8pt'>
+ <!-- <tr height=18 style='height:13.8pt'>
   <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>summary(5-psg)</td>
   <td class=xl6622070>-</td>
   <td class=xl6622070>-</td>
@@ -270,7 +276,7 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td class=xl6622070>-</td>
   <td class=xl6622070>-</td>
   <td class=xl6622070>-</td>
- </tr>
+ </tr> -->
  <tr height=18 style='height:13.8pt'>
   <td class=xl6522070 style='height:13.8pt'>Oracle</td>
   <td class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>vanilla(5-psg)</td>
