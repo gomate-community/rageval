@@ -52,13 +52,12 @@ The search task is to retrieve relevant documents from the knowledge base.
 
 [ASQA dataset](https://huggingface.co/datasets/din0s/asqa) is a question-answering dataset that contains factoid questions and long-form answers. The benchmark evaluates the correctness of the answers in the dataset.
 
-<table border=0 cellpadding=0 cellspacing=0 width=100% style='border-collapse:
- collapse;table-layout:fixed;width:763pt'>
+<table>
  <col width=166>
  <col width=125>
  <col width=125 span=4>
  <tr height=18>
-  <td rowspan=2 height=36 style='height:27.6pt;font-weight:600;text-align:center'>Model</td>
+  <td rowspan=2 height=36 align="center">Model</td>
   <td rowspan=2 style='font-weight:600;text-align:center'>Method</td>
   <td colspan=4 style='font-weight:600;text-align:center'>Metric</td>
  </tr>
@@ -68,37 +67,37 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td style='text-align:center'><a href="rageval\metrics\_answer_disambig_f1.py">Disambig F1</a></td>
   <td style='text-align:center'><a href="benchmarks\ASQA\asqa_benchmark.py">D-R Score</a></td>
  </tr>
- <tr height=18 >
-  <td height=18 style='text-align:left;padding-left:10px;'>gpt-3.5-turbo-instruct</td>
-  <td class=xl6522070><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/gpt_3.5_turbo_instruct">no-retrieval</a></td>
-  <td class=xl6622070 style='text-align:center'>33.8</td>
-  <td class=xl6622070 style='text-align:center'>30.2</td>
-  <td class=xl6622070 style='text-align:center'>30.7</td>
-  <td class=xl6622070 style='text-align:center'>30.5</td>
+ <tr height=18>
+  <td height=18 style='text-align:left;padding-left:10px'>gpt-3.5-turbo-instruct</td>
+  <td style='text-align:left;padding-left:10px'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/gpt_3.5_turbo_instruct">no-retrieval</a></td>
+  <td style='text-align:center'>33.8</td>
+  <td style='text-align:center'>30.2</td>
+  <td style='text-align:center'>30.7</td>
+  <td style='text-align:center'>30.5</td>
+ </tr>
+ <tr height=18>
+  <td height=18 style='text-align:left;padding-left:10px'>mistral-7b</td>
+  <td style='text-align:left;padding-left:10px'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/mistral_7b">no-retrieval</a></td>
+  <td style='text-align:center'>20.6</td>
+  <td style='text-align:center'>31.1</td>
+  <td style='text-align:center'>26.6</td>
+  <td style='text-align:center'>28.7</td>
  </tr>
  <tr height=18 >
-  <td height=18 style='text-align:left;padding-left:10px;'>mistral-7b</td>
-  <td class=xl6522070><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/mistral_7b">no-retrieval</a></td>
-  <td class=xl6622070 style='text-align:center'>20.6</td>
-  <td class=xl6622070 style='text-align:center'>31.1</td>
-  <td class=xl6622070 style='text-align:center'>26.6</td>
-  <td class=xl6622070 style='text-align:center'>28.7</td>
+  <td height=18 style='text-align:left;padding-left:10px'>llama2-7b-chat</td>
+  <td style='text-align:left;padding-left:10px'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/llama2_7b_chat">no-retrieval</a></td>
+  <td style='text-align:center'>21.7</td>
+  <td style='text-align:center'>30.7</td>
+  <td style='text-align:center'>28.0</td>
+  <td style='text-align:center'>29.3</td>
  </tr>
  <tr height=18 >
-  <td height=18 style='text-align:left;padding-left:10px;'>llama2-7b-chat</td>
-  <td class=xl6522070><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/llama2_7b_chat">no-retrieval</a></td>
-  <td class=xl6622070 style='text-align:center'>21.7</td>
-  <td class=xl6622070 style='text-align:center'>30.7</td>
-  <td class=xl6622070 style='text-align:center'>28.0</td>
-  <td class=xl6622070 style='text-align:center'>29.3</td>
- </tr>
- <tr height=18 >
-  <td height=18 style='text-align:left;padding-left:10px;'>solar-10.7b-instruct</td>
-  <td class=xl6522070><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/solar_10.7b_instruct">no-retrieval</a></td>
-  <td class=xl6622070 style='text-align:center'>23.0</td>
-  <td class=xl6622070 style='text-align:center'>24.9</td>
-  <td class=xl6622070 style='text-align:center'>28.1</td>
-  <td class=xl6622070 style='text-align:center'>26.5</td>
+  <td height=18 style='text-align:left;padding-left:10px'>solar-10.7b-instruct</td>
+  <td style='text-align:left;padding-left:10px'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/solar_10.7b_instruct">no-retrieval</a></td>
+  <td style='text-align:center'>23.0</td>
+  <td style='text-align:center'>24.9</td>
+  <td style='text-align:center'>28.1</td>
+  <td style='text-align:center'>26.5</td>
  </tr>
 </table>
 
@@ -106,8 +105,7 @@ The search task is to retrieve relevant documents from the knowledge base.
 
 [ALCE](https://github.com/princeton-nlp/ALCE) is a benchmark for Automatic LLMs' Citation Evaluation. ALCE contains three datasets: ASQA, QAMPARI, and ELI5. 
 
-<table border=0 cellpadding=0 cellspacing=0 width=100% style='border-collapse:
- collapse;table-layout:fixed;width:763pt'>
+<table>
  <col width=75>
  <col width=125>
  <col width=85>
@@ -129,123 +127,123 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td style='text-align:center'><a href="rageval\metrics\_answer_citation_precision.py">Citation Precision</a></td>
  </tr>
  <tr>
-  <!-- <td rowspan=7 class=xl6522070><a href="benchmarks/ALCE/ASQA/README.md">ASQA</a></td>
-  <td rowspan=7 style='text-align:left;padding-left:10px;'>llama2-7b-chat</td>
-  <td rowspan=5 class=xl6522070>GTR</td>   -->
+  <!-- <td rowspan=7><a href="benchmarks/ALCE/ASQA/README.md">ASQA</a></td>
+  <td rowspan=7 style='text-align:left;padding-left:10px'>llama2-7b-chat</td>
+  <td rowspan=5>GTR</td>   -->
   <td rowspan=3 style="text-align:left;padding-left:10px"><a href="benchmarks/ALCE/ASQA/README.md">ASQA</a></td>
   <td rowspan=3 style='text-align:left;padding-left:10px'>llama2-7b-chat</td>
   <td rowspan=1 style='text-align:left;padding-left:10px'>GTR</td>
   <td style='text-align:left;padding-left:10px'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_asqa_gtr">vanilla(5-psg)</a></td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
   <td style="text-align:center">33.3</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">55.9</td>
-  <td class=xl6622070 style="text-align:center">80.0</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">55.9</td>
+  <td style="text-align:center">80.0</td>
  </tr>
  <!-- <tr height=18>
   <td style='text-align:left;padding-left:10px'>summary(5-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr>
   <tr height=18>
   <td style='text-align:left;padding-left:10px'>summary(10-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr>
   <tr height=18>
   <td style='text-align:left;padding-left:10px'>snippet(5-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr>
   <tr height=18>
   <td style='text-align:left;padding-left:10px'>snippet(10-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr> -->
  <tr height=18>
   <td style='text-align:left;padding-left:10px'>DPR</td>
   <td style='text-align:left;padding-left:10px'>vanilla(5-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr>
  <tr height=18>
   <td style='text-align:left;padding-left:10px'>Oracle</td>
   <td style='text-align:left;padding-left:10px'>vanilla(5-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr>
  <tr>
-  <!-- <td rowspan=6 class=xl6522070><a href="benchmarks/ALCE/ELI5/README.md">ELI5</a></td>
-  <td rowspan=6 style='text-align:left;padding-left:10px;'>llama2-7b-chat</td>
-  <td rowspan=5 class=xl6522070>BM25</td> -->
+  <!-- <td rowspan=6><a href="benchmarks/ALCE/ELI5/README.md">ELI5</a></td>
+  <td rowspan=6 style='text-align:left;padding-left:10px'>llama2-7b-chat</td>
+  <td rowspan=5>BM25</td> -->
   <td rowspan=3 style='text-align:left;padding-left:10px'><a href="benchmarks/ALCE/ELI5/README.md">ELI5</a></td>
   <td rowspan=3 style='text-align:left;padding-left:10px'>llama2-7b-chat</td>
   <td rowspan=1 style='text-align:left;padding-left:10px'>BM25</td>
   <td style='text-align:left;padding-left:10px'><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_eli5_bm25">vanilla(5-psg)</a></td>
-  <td class=xl6622070 style="text-align:center">-</td>
   <td style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">11.5</td>
-  <td class=xl6622070 style="text-align:center">26.6</td>
-  <td class=xl6622070 style="text-align:center">74.5</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">11.5</td>
+  <td style="text-align:center">26.6</td>
+  <td style="text-align:center">74.5</td>
  </tr>
  <!-- <tr height=18>
   <td style='text-align:left;padding-left:10px'>summary(5-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr>
   <tr height=18>
   <td style='text-align:left;padding-left:10px'>summary(10-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr>
   <tr height=18>
   <td style='text-align:left;padding-left:10px'>snippet(5-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr>
   <tr height=18>
   <td style='text-align:left;padding-left:10px'>snippet(10-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr> -->
  <tr height=18>
   <td style='text-align:left;padding-left:10px'>Oracle</td>
   <td style='text-align:left;padding-left:10px'>vanilla(5-psg)</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
-  <td class=xl6622070 style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
+  <td style="text-align:center">-</td>
  </tr>
 </table>
 
