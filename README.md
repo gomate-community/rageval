@@ -57,9 +57,9 @@ The search task is to retrieve relevant documents from the knowledge base.
  <col width=125>
  <col width=125 span=4>
  <tr>
-  <td rowspan=2 align="center">Model</td>
-  <td rowspan=2 align="center">Method</td>
-  <td colspan=4 align="center">Metric</td>
+  <td rowspan=2 align="center"><b>Model</b></td>
+  <td rowspan=2 align="center"><b>Method</b></td>
+  <td colspan=4 align="center"><b>Metric</b></td>
  </tr>
  <tr>
   <td align="center"><a href="rageval\metrics\_answer_exact_match.py">String EM</a></td>
@@ -112,10 +112,10 @@ The search task is to retrieve relevant documents from the knowledge base.
  <col width=145>
  <col width=125 span=5>
  <tr>
-  <td rowspan=2 height=36 align="center">Dataset</td>
-  <td rowspan=2 height=36 align="center">Model</td>
-  <td colspan=2 align="center">Method</td>
-  <td colspan=5 align="center">Metric</td>
+  <td rowspan=2 align="center"><b>Dataset</b></td>
+  <td rowspan=2 align="center"><b>Model</b></td>
+  <td colspan=2 align="center"><b>Method</b></td>
+  <td colspan=5 align="center"><b>Metric</b></td>
  </tr>
  <tr>
   <td align="center">retriever</td>
@@ -134,61 +134,61 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td rowspan=3>llama2-7b-chat</td>
   <td rowspan=1>GTR</td>
   <td><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_asqa_gtr">vanilla(5-psg)</a></td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">33.3</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">55.9</td>
-  <td style="text-align:center">80.0</td>
+  <td align="center">-</td>
+  <td align="center">33.3</td>
+  <td align="center">-</td>
+  <td align="center">55.9</td>
+  <td align="center">80.0</td>
  </tr>
  <!-- <tr>
   <td>summary(5-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr>
   <tr>
   <td>summary(10-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr>
   <tr>
   <td>snippet(5-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr>
   <tr>
   <td>snippet(10-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr> -->
  <tr>
   <td>DPR</td>
   <td>vanilla(5-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr>
  <tr>
   <td>Oracle</td>
   <td>vanilla(5-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr>
  <tr>
   <!-- <td rowspan=6><a href="benchmarks/ALCE/ELI5/README.md">ELI5</a></td>
@@ -198,52 +198,52 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td rowspan=3>llama2-7b-chat</td>
   <td rowspan=1>BM25</td>
   <td><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_eli5_bm25">vanilla(5-psg)</a></td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">11.5</td>
-  <td style="text-align:center">26.6</td>
-  <td style="text-align:center">74.5</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">11.5</td>
+  <td align="center">26.6</td>
+  <td align="center">74.5</td>
  </tr>
  <!-- <tr>
   <td>summary(5-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr>
   <tr>
   <td>summary(10-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr>
   <tr>
   <td>snippet(5-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr>
   <tr>
   <td>snippet(10-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr> -->
  <tr>
   <td>Oracle</td>
   <td>vanilla(5-psg)</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
-  <td style="text-align:center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
+  <td align="center">-</td>
  </tr>
 </table>
 
