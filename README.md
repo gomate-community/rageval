@@ -46,11 +46,12 @@ The search task is to retrieve relevant documents from the knowledge base.
 
 * [Context Recall](./rageval/metrics/_context_recall.py): also known as *Context Recall* in [RAGAS framework](https://github.com/explodinggradients/ragas).
 
-## Benchmark
+## Benchmark Results
 
 ### 1. [ASQA benchmark](benchmarks/ASQA/README.md)
 
-[ASQA dataset](https://huggingface.co/datasets/din0s/asqa) is a question-answering dataset that contains factoid questions and long-form answers. The benchmark evaluates the correctness of the answers in the dataset.
+[ASQA dataset](https://huggingface.co/datasets/din0s/asqa) is a question-answering dataset that contains factoid questions and long-form answers. The benchmark evaluates the correctness of the answer in the dataset. All detailed results can be download from [this repo](https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa). Besides, these results can be reproduced based on [the script](./benchmarks/ASQA/run.sh) in this repo.
+
 
 <table>
  <col width=166>
@@ -58,7 +59,7 @@ The search task is to retrieve relevant documents from the knowledge base.
  <col width=125 span=4>
  <tr>
   <td rowspan=2 align="center"><b>Model</b></td>
-  <td rowspan=2 align="center"><b>Method</b></td>
+  <td rowspan=2 align="center"><b>Retriever</b></td>
   <td colspan=4 align="center"><b>Metric</b></td>
  </tr>
  <tr>
@@ -103,7 +104,7 @@ The search task is to retrieve relevant documents from the knowledge base.
 
 ### 2. [ALCE Benchmark](benchmarks/ALCE)
 
-[ALCE](https://github.com/princeton-nlp/ALCE) is a benchmark for Automatic LLMs' Citation Evaluation. ALCE contains three datasets: ASQA, QAMPARI, and ELI5. 
+[ALCE](https://github.com/princeton-nlp/ALCE) is a benchmark for Automatic LLMs' Citation Evaluation. ALCE contains three datasets: ASQA, QAMPARI, and ELI5. All detailed results can be download from [this repo](https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_eli5_bm25). Besides, these results can be reproduced based on [the script](./benchmarks/ALCE/ASQA/run.sh) in this repo.
 
 <table>
  <col width=75>
