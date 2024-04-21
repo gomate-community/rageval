@@ -96,12 +96,12 @@ Arguements:
 
 Here are results of different models.
 
-| Model | STR-EM | Rouge-L | Disambig F1 | D-R Score|
-|:---:|:---:|:---:|:---:|:---:|
-| [gpt-3.5-turbo-instruct](https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/gpt-3.5-turbo-instruct) | 33.8 | 30.2 | 30.7 | 30.5 |
+| Model | Sring-EM | Rouge-L | Disambig F1 | D-R Score|
+|:---|:---:|:---:|:---:|:---:|
+| [gpt-3.5-turbo-instruct](https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/gpt_3.5_turbo_instruct) | 33.8 | 30.2 | 30.7 | 30.5 |
 | [mistral-7b](https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/mistral_7b) | 20.6 | 31.1 | 26.6 | 28.7 |
-| llama2-7b-chat | 21.7 | 30.7 | 28.0 | 29.3 |
-| solar-10.7b-instruct | 23.0 | 24.9 | 28.1 | 26.5 |
+| [llama2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/llama2_7b_chat) | 21.7 | 30.7 | 28.0 | 29.3 |
+| [solar-10.7b-instruct](https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/solar_10.7b_instruct) | 23.0 | 24.9 | 28.1 | 26.5 |
 | text-davinci-003<sup>[1]</sup> | 33.8 | 33.3 | 24.2 | 28.4 |
 | PALM-540B<sup>[2]</sup> | - | 34.5 | 25.3 | 29.6 |
 
