@@ -132,6 +132,14 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td class=xl6622070>29.3</td>
  </tr>
  <tr height=18 style='height:13.8pt'>
+  <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>llama3-8b-base</td>
+  <td class=xl6522070><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/llama3_8b_base">no-retrieval</a></td>
+  <td class=xl6622070>25.6</td>
+  <td class=xl6622070>31.0</td>
+  <td class=xl6622070>28.3</td>
+  <td class=xl6622070>29.7</td>
+ </tr>
+ <tr height=18 style='height:13.8pt'>
   <td height=18 class=xl6522070 style='height:13.8pt;text-align:left;padding-left:10px;'>solar-10.7b-instruct</td>
   <td class=xl6522070><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/solar_10.7b_instruct">no-retrieval</a></td>
   <td class=xl6622070>23.0</td>
