@@ -93,6 +93,22 @@ The search task is to retrieve relevant documents from the knowledge base.
   <td align="center">29.3</td>
  </tr>
  <tr>
+  <td>llama3-8b-base</td>
+  <td><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/llama3_8b_base">no-retrieval</a></td>
+  <td align="center">25.7</td>
+  <td align="center">31.0</td>
+  <td align="center">28.4</td>
+  <td align="center">29.7</td>
+ </tr>
+ <tr>
+  <td>llama3-8b-instruct</td>
+  <td><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/llama3_8b_instruct">no-retrieval</a></td>
+  <td align="center">27.1</td>
+  <td align="center">30.9</td>
+  <td align="center">29.4</td>
+  <td align="center">30.1</td>
+ </tr>
+ <tr>
   <td>solar-10.7b-instruct</td>
   <td><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/asqa/solar_10.7b_instruct">no-retrieval</a></td>
   <td align="center">23.0</td>
