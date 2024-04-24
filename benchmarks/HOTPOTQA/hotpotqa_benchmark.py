@@ -56,6 +56,10 @@ class HOTPOTQABenchmark(BaseBenchmark):
         for metric in self.metrics:
             if metric.name in ground_truths:
                 print(f"Calculating {metric.name}...")
+                             
+                if metric.name in  self.dataset.column_names:
+                    self.dataset.remove_columns(metric.name)
+                    
                 an, gtan = ground_truths[metric.name]
                 self.dataset = self.dataset.rename_column(an, "answers")
                 self.dataset = self.dataset.rename_column(gtan, "gt_answers")
@@ -87,7 +91,9 @@ if __name__ == "__main__":
         )
         print(f"Results:\n {results}")
         benchmark.save_results(os.path.join(args.output_dir, 'results', f"{args.local_file[:-5]}_{date}.jsonl"))
+        benchmark.save_dataset(os.path.join(args.output_dir,'output',f"{args.local_file[:-5]}_{date}.jsonl"))
     else:
         results = benchmark.evaluate(path='golaxy/rag-bench', name='hotpot_qa', split=args.remote_split)
         print(f"Results:\n {results}")
         benchmark.save_results(os.path.join(args.output_dir, 'results', f"{args.remote_split}_{date}.jsonl"))
+        benchmark.save_dataset(os.path.join(args.output_dir,'output',f"{args.remote_split}_{date}.jsonl"))
