@@ -37,7 +37,7 @@ class HOTPOTQABenchmark(BaseBenchmark):
     def _evaluate(self) -> Tuple[Dict[Any, Any], Dataset]:
         """Evaluate the dataset and return the dataset with scores.
 
-        For the HotPotQA dataset, the `short_answer` and `supporting_answer` which we need to extract
+        For the HotPotQA dataset, the `short_answer` and `supporting_answer`.
         
         We use the `answer` as the `gt_answers` to evaluate the string Exact Match correctness and the `supporting_facts` to make "gt_sent_ids" to evaluate the F1.
         """

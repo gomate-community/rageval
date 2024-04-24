@@ -37,7 +37,7 @@ For each "question" in the dataset, there is a brief and precise answer in the "
 We adopt the default metrics used in the [HotPotQA paper](https://arxiv.org/abs/1809.09600) as follows:
 
 1. [String Exact Match](../../rageval/metrics/_answer_exact_match.py): for each `answer`, check whether it is present in the predictions.
-2. [F1](../../rageval/metrics/_answer_f1.py): utilize the model's predictions to extract supporting facts, which are identified by the model. Subsequently, we compute the F1 score by comparing these extracted supporting facts with the 'supporting_facts' provided in the dataset。
+2. [F1](../../rageval/metrics/_answer_f1.py): utilize the model's predictions to extract supporting facts, which are identified by the model. Subsequently, we compute the F1 score by comparing these extracted supporting facts with the 'supporting_facts' provided in the dataset.
 
 
 ## 4. Usage
