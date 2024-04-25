@@ -38,7 +38,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--subset", type=str, default="distractor")
-    parser.add_argument("--max_num_examples", type=int, default=500)
+    parser.add_argument("--max_num_examples", type=int, default=5)
 
     parser.add_argument("--max_length", type=int, default=4096)
     parser.add_argument("--temperature", type=float, default=0.5)
