@@ -42,10 +42,11 @@ class HOTPOTQABenchmark(BaseBenchmark):
         We use the `answer` as the `gt_answers` to evaluate the string Exact Match correctness and the `supporting_facts` to make "gt_sent_ids" to evaluate the F1.
         """
 
-        self.metrics = [AnswerEMCorrectness(ignore_case=False),
+        self.metrics = [AnswerEMCorrectness(ignore_case=True),
                         AnswerF1Correctness()
                         ]
         self.dataset = self.dataset.map(self._recode_gt_supporting_facts)
+        self.dataset = self.dataset.map(lambda exmaple:{"answer":[[ exmaple['answer']]]})
         ground_truths = {
             "answer_f1": ("supporting_answer", "gt_sent_ids"),
             "answer_exact_match": ("short_answer", "answer")
@@ -58,7 +59,7 @@ class HOTPOTQABenchmark(BaseBenchmark):
                 print(f"Calculating {metric.name}...")
                              
                 if metric.name in  self.dataset.column_names:
-                    self.dataset.remove_columns(metric.name)
+                    self.dataset=self.dataset.remove_columns(metric.name)
                     
                 an, gtan = ground_truths[metric.name]
                 self.dataset = self.dataset.rename_column(an, "answers")
