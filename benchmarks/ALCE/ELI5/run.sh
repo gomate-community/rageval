@@ -8,6 +8,7 @@ python3 setup.py install
 #  --cache_path $cache_dir\
 #  --model Llama-2-7b-chat-hf\
 #  --dataset bm25\
+#  --method vanilla\
 #  --ndoc 5\
 #  --shot 2
 
