@@ -204,23 +204,23 @@ Arguements:
 ## 5. Performance
 
 ### 5.1 GTR
-| Model           | Method          | MAUVE | EM Recall | Citation Recall | Citation Precision |
-|-----------------|-----------------|-------|-----------|-----------------|--------------------|
-| Llama-2-7b-chat | vanilla(5-psg)  | --    | 33.3474   | 55.9004         | 80.0420            |
-| Llama-2-7b-chat | summary(5-psg)  | --    | --        | --              | --                 |
-| Llama-2-7b-chat | summary(10-psg) | --    | --        | --              | --                 |
-| Llama-2-7b-chat | snippet(5-psg)  | --    | --        | --              | --                 |
-| Llama-2-7b-chat | snippet(10-psg) | --    | --        | --              | --                 |
+| Model                                                                                                                                               | Method          | MAUVE | EM Recall | Citation Recall | Citation Precision |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-------|-----------|-----------------|--------------------|
+| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_asqa_gtr/asqa_gtr_Llama_2_7b_chat_hf_vanilla_shot2_ndoc5.json)    | vanilla(5-psg)  | --    | 33.35     | 55.90           | 80.04              |
+| Llama-2-7b-chat                                                                                                                                     | summary(5-psg)  | --    | --        | --              | --                 |
+| Llama-2-7b-chat                                                                                                                                     | summary(10-psg) | --    | --        | --              | --                 |
+| Llama-2-7b-chat                                                                                                                                     | snippet(5-psg)  | --    | --        | --              | --                 |
+| Llama-2-7b-chat                                                                                                                                     | snippet(10-psg) | --    | --        | --              | --                 |
 
 ### 5.2 DPR
-| Model           | Method          | MAUVE | EM Recall | Citation Recall | Citation Precision |
-|-----------------|-----------------|-------|-----------|-----------------|--------------------|
-| Llama-2-7b-chat | vanilla(5-psg)  | --    | --        | --              | --                 |
+| Model                                                                                                                                            | Method          | MAUVE | EM Recall | Citation Recall | Citation Precision |
+|--------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-------|-----------|-----------------|--------------------|
+| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_asqa_dpr/asqa_dpr_Llama_2_7b_chat_hf_vanilla_shot2_ndoc5.json) | vanilla(5-psg)  | --    | 29.22     | 49.22           | 81.01              |
 
 ### 5.2 Oracle
-| Model           | Method          | MAUVE | EM Recall | Citation Recall | Citation Precision |
-|-----------------|-----------------|-------|-----------|-----------------|--------------------|
-| Llama-2-7b-chat | vanilla(5-psg)  | --    | --        | --              | --                 |
+| Model                                                                                                                                                  | Method          | MAUVE | EM Recall | Citation Recall | Citation Precision |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-------|-----------|-----------------|--------------------|
+| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_asqa_oracle/asqa_oracle_Llama_2_7b_chat_hf_vanilla_shot2_ndoc5.json) | vanilla(5-psg)  | --    | 41.71     | 58.09           | 78.87              |
 
 
 ## 6 References

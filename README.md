@@ -191,21 +191,21 @@ The search task is to retrieve relevant documents from the knowledge base.
  </tr> -->
  <tr>
   <td>DPR</td>
-  <td>vanilla(5-psg)</td>
+  <td><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_asqa_dpr">vanilla(5-psg)</a></td>
   <td align="center">-</td>
+  <td align="center">29.2</td>
   <td align="center">-</td>
-  <td align="center">-</td>
-  <td align="center">-</td>
-  <td align="center">-</td>
+  <td align="center">49.2</td>
+  <td align="center">81.0</td>
  </tr>
  <tr>
   <td>Oracle</td>
-  <td>vanilla(5-psg)</td>
+  <td><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_asqa_oracle">vanilla(5-psg)</a></td>
   <td align="center">-</td>
+  <td align="center">41.7</td>
   <td align="center">-</td>
-  <td align="center">-</td>
-  <td align="center">-</td>
-  <td align="center">-</td>
+  <td align="center">58.1</td>
+  <td align="center">78.9</td>
  </tr>
  <tr>
   <!-- <td rowspan=6><a href="benchmarks/ALCE/ELI5/README.md">ELI5</a></td>
