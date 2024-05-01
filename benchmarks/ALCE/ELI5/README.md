@@ -131,18 +131,18 @@ Arguements:
 ## 5. Performance
 
 ### 5.1 BM25
-| Model           | Method          | MAUVE | Claim Recall | Citation Recall | Citation Precision |
-|-----------------|-----------------|-------|--------------|-----------------|--------------------|
-| Llama-2-7b-chat | vanilla(5-psg)  | --    | 11.5         | 26.6238         | 74.5455            |
-| Llama-2-7b-chat | summary(5-psg)  | --    | --           | --              | --                 |
-| Llama-2-7b-chat | summary(10-psg) | --    | --           | --              | --                 |
-| Llama-2-7b-chat | snippet(5-psg)  | --    | --           | --              | --                 |
-| Llama-2-7b-chat | snippet(10-psg) | --    | --           | --              | --                 |
+| Model                                                                                                                                              | Method          | MAUVE | Claim Recall | Citation Recall | Citation Precision |
+|----------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-------|--------------|-----------------|--------------------|
+| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_eli5_bm25/eli5_bm25_Llama_2_7b_chat_hf_vanilla_shot2_ndoc5.json) | vanilla(5-psg)  | --    | 11.50        | 26.62           | 74.55              |
+| Llama-2-7b-chat                                                                                                                                    | summary(5-psg)  | --    | --           | --              | --                 |
+| Llama-2-7b-chat                                                                                                                                    | summary(10-psg) | --    | --           | --              | --                 |
+| Llama-2-7b-chat                                                                                                                                    | snippet(5-psg)  | --    | --           | --              | --                 |
+| Llama-2-7b-chat                                                                                                                                    | snippet(10-psg) | --    | --           | --              | --                 |
 
 ### 5.2 Oracle
-| Model           | Method          | MAUVE | Claim Recall | Citation Recall | Citation Precision |
-|-----------------|-----------------|-------|--------------|-----------------|--------------------|
-| Llama-2-7b-chat | vanilla(5-psg)  | --    | --           | --              | --                 |
+| Model                                                                                                                                                  | Method          | MAUVE | Claim Recall | Citation Recall | Citation Precision |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-------|--------------|-----------------|--------------------|
+| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_eli5_oracle/eli5_oracle_Llama_2_7b_chat_hf_vanilla_shot2_ndoc5.json) | vanilla(5-psg)  | --    | 17.76        | 34.01           | 75.64              |
 
 
 ## 6 References
