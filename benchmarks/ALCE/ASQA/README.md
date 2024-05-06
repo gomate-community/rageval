@@ -204,13 +204,13 @@ Arguements:
 ## 5. Performance
 
 ### 5.1 GTR
-| Model                                                                                                                                               | Method          | MAUVE | EM Recall | Citation Recall | Citation Precision |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-------|-----------|-----------------|--------------------|
-| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_asqa_gtr/asqa_gtr_Llama_2_7b_chat_hf_vanilla_shot2_ndoc5.json)    | vanilla(5-psg)  | --    | 33.35     | 55.90           | 80.04              |
-| Llama-2-7b-chat                                                                                                                                     | summary(5-psg)  | --    | --        | --              | --                 |
-| Llama-2-7b-chat                                                                                                                                     | summary(10-psg) | --    | --        | --              | --                 |
-| Llama-2-7b-chat                                                                                                                                     | snippet(5-psg)  | --    | --        | --              | --                 |
-| Llama-2-7b-chat                                                                                                                                     | snippet(10-psg) | --    | --        | --              | --                 |
+| Model                                                                                                                                             | Method          | MAUVE | EM Recall | Citation Recall | Citation Precision |
+|---------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-------|-----------|-----------------|--------------------|
+| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_asqa_gtr/asqa_gtr_Llama_2_7b_chat_hf_vanilla_shot2_ndoc5.json)  | vanilla(5-psg)  | --    | 33.35     | 55.90           | 80.04              |
+| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_asqa_gtr/asqa_gtr_Llama_2_7b_chat_hf_summary_shot2_ndoc5.json)  | summary(5-psg)  | --    | 37.00     | 63.28           | 82.82              |
+| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_asqa_gtr/asqa_gtr_Llama_2_7b_chat_hf_summary_shot2_ndoc10.json) | summary(10-psg) | --    | 37.20     | 60.47           | 74.45              |
+| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_asqa_gtr/asqa_gtr_Llama_2_7b_chat_hf_snippet_shot2_ndoc5.json)  | snippet(5-psg)  | --    | 34.29     | 56.69           | 83.83              |
+| [Llama-2-7b-chat](https://huggingface.co/datasets/golaxy/rag-bench/blob/main/alce_asqa_gtr/asqa_gtr_Llama_2_7b_chat_hf_snippet_shot2_ndoc10.json) | snippet(10-psg) | --    | 34.50     | 55.94           | 72.49              |
 
 ### 5.2 DPR
 | Model                                                                                                                                            | Method          | MAUVE | EM Recall | Citation Recall | Citation Precision |

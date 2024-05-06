@@ -122,6 +122,8 @@ The search task is to retrieve relevant documents from the knowledge base.
 
 [ALCE](https://github.com/princeton-nlp/ALCE) is a benchmark for Automatic LLMs' Citation Evaluation. ALCE contains three datasets: ASQA, QAMPARI, and ELI5. All detailed results can be download from [this repo](https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_eli5_bm25). Besides, these results can be reproduced based on [the script](./benchmarks/ALCE/ASQA/run.sh) in this repo.
 
+For more evaluation results, please view the benchmark's README: [ALCE-ASQA](benchmarks/ALCE/ASQA/README.md) and [ALCE-ELI5](benchmarks/ALCE/ELI5/README.md).
+
 <table>
  <col width=75>
  <col width=125>
@@ -255,12 +257,12 @@ The search task is to retrieve relevant documents from the knowledge base.
  </tr> -->
  <tr>
   <td>Oracle</td>
-  <td>vanilla(5-psg)</td>
+  <td><a href="https://huggingface.co/datasets/golaxy/rag-bench/viewer/alce_eli5_oracle">vanilla(5-psg)</a></td>
   <td align="center">-</td>
   <td align="center">-</td>
-  <td align="center">-</td>
-  <td align="center">-</td>
-  <td align="center">-</td>
+  <td align="center">17.8</td>
+  <td align="center">34.0</td>
+  <td align="center">75.6</td>
  </tr>
 </table>
 
@@ -274,16 +276,34 @@ python setup.py install
 ```
 ## Usage
 
+### 1. Metric
+
+Take F1 as an example.
 ```
+from datasets import Dataset
 import rageval as rl
 
-test_set = rl.datasets.load_data('ALCE', task='')
-metric = rl.metrics.ContextRecall()
-model = rl.models.OpenAILLM()
-metric.init_model(model)
+sample = {
+    "answers": [
+        "Democrat rick kriseman won the 2016 mayoral election, while re- publican former mayor rick baker did so in the 2017 mayoral election."
+    ],
+    "gt_answers": [
+        [
+            "Kriseman",
+            "Rick Kriseman"
+        ]
+    ]
+}
+dataset = Dataset.from_dict(sample)
+metric = rl.metrics.AnswerF1Correctness()
+score, dataset = metric.compute(dataset)
+```
 
-results = metric._score_batch(teset_set)
+### 2. Benchmark
 
+Benchmarks can be run directly using scripts (Take ALCE-ELI5 as an example).
+```
+bash benchmarks/ALCE/ELI5/run.sh
 ```
 
 ## Contribution
