@@ -1,4 +1,4 @@
-from typing import List, Tuple, Callable, Optional
+from typing import List, Tuple, Callable, Optional, Iterable
 from abc import abstractmethod
 from dataclasses import dataclass
 
@@ -64,35 +64,48 @@ class Metric(MetricInfoMixin):
         """
         raise NotImplementedError
 
-    def _validate_data(self, dataset: Dataset):
+    def _validate_data(
+            self,
+            predictions: Optional[Iterable] = None,
+            references: Optional[Iterable] = None,
+            *args: Optional[Iterable]
+        ) -> None:
         """Validate the of the input dataset."""
-        if not all(c in dataset.column_names for c in self._required_columns):
-            raise ValueError(
-                f"The input dataset of {self.name} metric should include {self._required_columns} columns."
-            )
+        pass
 
     def compute(
         self,
-        dataset: Dataset,
         batch_size: int = None,
-    ) -> Tuple[float, Dataset]:
+        predictions: Optional[Iterable] = None,
+        references: Optional[Iterable] = None,
+        *args: Optional[Iterable],
+    ) -> Tuple[float, List[float]]:
         """Evaluate the dataset."""
-        self._validate_data(dataset)
+        self._validate_data(predictions, references, *args)
         scores = []
-        length = len(dataset)
+        length = len(predictions)
         if batch_size:
             for start in tqdm(range(0, length, batch_size)):
                 end = start + batch_size
                 end = end if end < length else length
-                score = self._compute_batch(dataset.select(range(start, end)))
+                score = self._compute_batch(
+                    predictions[start:end],
+                    references[start:end],
+                    *[arg[start:end] for arg in args],
+                )
                 scores.extend(score)
         else:
-            scores = self._compute_batch(dataset)
+            scores = self._compute_batch(predictions, references, *args)
 
-        return np.average(scores), dataset.add_column(f"{self.name}", scores)
+        return np.average(scores), scores
 
     @abstractmethod
-    def _compute_batch(self, dataset: Dataset) -> list:
+    def _compute_batch(
+        self,
+        predictions: Optional[Iterable] = None,
+        references: Optional[Iterable] = None,
+        *args: Optional[Iterable]
+    ) -> List[float]:
         ...
 
 
