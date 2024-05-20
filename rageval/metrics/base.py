@@ -65,11 +65,11 @@ class Metric(MetricInfoMixin):
         raise NotImplementedError
 
     def _validate_data(
-            self,
-            predictions: Optional[Iterable] = None,
-            references: Optional[Iterable] = None,
-            *args: Optional[Iterable]
-        ) -> None:
+        self,
+        predictions: Optional[Iterable] = None,
+        references: Optional[Iterable] = None,
+        *args: Optional[Iterable]
+    ) -> None:
         """Validate the of the input dataset."""
         if len(predictions) != len(references) or any(len(predictions) != len(arg) for arg in args):
             raise ValueError("The length of predictions and references should be the same.")
