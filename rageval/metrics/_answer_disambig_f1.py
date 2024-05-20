@@ -190,8 +190,9 @@ class AnswerDisambigF1Correctness(Metric):
 
     def _compute_batch(
         self,
-        dataset: datasets.Dataset
-    ) -> list:
+        predictions: List[str],
+        references: List[List[str]]
+    ) -> List[float]:
         """Evaluate the disambig f1 score of a batch of answers."""
-        return [self._compute_one(answer, gt_answers)
-                for answer, gt_answers in zip(dataset["answers"], dataset["gt_answers"])]
+        return [self._compute_one(prediction, gt_answers)
+            for prediction, gt_answers in zip(predictions, references)]

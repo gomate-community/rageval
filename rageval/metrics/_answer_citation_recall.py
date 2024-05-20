@@ -170,8 +170,9 @@ class AnswerCitationRecall(Metric):
 
     def _compute_batch(
         self,
-        dataset: datasets.Dataset
-    ) -> list:
+        predictions: List[str],
+        references: List[List[str]]
+    ) -> List[float]:
         """
         Evaluate the citation recall of a batch of answers.
 
@@ -183,13 +184,8 @@ class AnswerCitationRecall(Metric):
         Finally, average over all scores of each answer.
         """
 
-        answers, contexts = (
-            dataset["answers"],
-            dataset["contexts"]
-        )
-
         results = []
-        for answer, context in tqdm(zip(answers, contexts)):
+        for answer, context in tqdm(zip(predictions, references)):
             r = self._compute_one(answer, context)
             results.append(r)
         return results

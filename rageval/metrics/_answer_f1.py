@@ -108,13 +108,24 @@ class AnswerF1Correctness(Metric):
             return text.lower()
         return white_space_fix(remove_articles(remove_punc(lower(s))))
 
-    def _validate_data(self, dataset: datasets.Dataset) -> bool:
-        """Validate the of the input dataset."""
-        super()._validate_data(dataset)
-        if not all(isinstance(answer, str) for answer in dataset["answers"]):
-            raise ValueError("The type of answers should be a string.")
-        if not all(isinstance(a, List) or not all(isinstance(item, str) for item in a) for a in dataset["gt_answers"]):
-            raise ValueError("The type of gt_answers should be a list of strings.")
+    def _validate_data(
+        self, 
+        predictions: List[str],
+        references: List[List[str]]
+    ) -> None:
+        """
+        Validate the of the input dataset.
+        Args:
+            predictions (List[str]): A list of predicted answers.
+            references (List[List[str]]): A list of lists, each containing reference answers.
+
+        Raises:
+            ValueError: If the predictions or references are not in the correct format.
+        """
+        if not all(isinstance(prediction, str) for prediction in predictions):
+            raise ValueError("The type of predictions should be a list of strings.")
+        if not all(isinstance(ref, list) and all(isinstance(item, str) for item in ref) for ref in references):
+            raise ValueError("The type of references should be a list of lists of strings.")
 
     def _f1_score(self, pred: str, ref: str) -> float:
         """Compute the f1 score between pred and ref."""
@@ -153,8 +164,8 @@ class AnswerF1Correctness(Metric):
 
     def _compute_batch(
         self,
-        dataset: datasets.Dataset
-    ) -> list:
+        predictions: List[str],
+        references: List[List[str]]
+    ) -> List[float]:
         """Evaluate the f1 score of a batch of answers."""
-        return [self._compute_one(answer, gt_answers)
-                for answer, gt_answers in zip(dataset["answers"], dataset["gt_answers"])]
+        return [self._compute_one(prediction, ref) for prediction, ref in zip(predictions, references)]
