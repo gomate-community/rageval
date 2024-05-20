@@ -71,7 +71,8 @@ class Metric(MetricInfoMixin):
             *args: Optional[Iterable]
         ) -> None:
         """Validate the of the input dataset."""
-        pass
+        if len(predictions) != len(references) or any(len(predictions) != len(arg) for arg in args):
+            raise ValueError("The length of predictions and references should be the same.")
 
     def compute(
         self,

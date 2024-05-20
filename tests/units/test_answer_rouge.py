@@ -40,14 +40,14 @@ def test_case_on_answer_exact_match(testset):
     # Test with Chinese tokenizer
     chinese_tokenizer = CharTokenizer()
     metric = AnswerRougeCorrectness('rouge1', chinese_tokenizer)
-    score, results = metric.compute(testset, 1)
+    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
     assert metric.mtype == 'AnswerCorrectness'
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)
     
     # Test with English tokenizer
     metric = AnswerRougeCorrectness('rouge1')
-    score, results = metric.compute(testset, 1)
+    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
     assert metric.mtype == 'AnswerCorrectness'
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)
