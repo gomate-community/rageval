@@ -32,5 +32,5 @@ def test_case_on_answer_ter(testset):
     metric = AnswerTERCorrectness()
     assert metric.name == "answer_ter"
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset)
+    score, results = metric.compute(testset['answers'], testset['gt_answers'])
     assert isinstance(results, Dataset)

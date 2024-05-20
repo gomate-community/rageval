@@ -46,7 +46,7 @@ def test_case_on_answer_exact_match(testset):
     assert metric.name == "answer_exact_match"
     assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset, 1)
+    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)
 
@@ -54,6 +54,6 @@ def test_case_on_answer_exact_match(testset):
     assert metric.name == "answer_exact_match"
     assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset, 1)
+    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)

@@ -35,6 +35,6 @@ def test_case_on_answer_f1(testset):
     metric = AnswerF1Correctness()
     assert metric.name == "answer_f1"
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset, 1)
+    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
     assert 0 <= score <= 1
     assert isinstance(results, Dataset)
