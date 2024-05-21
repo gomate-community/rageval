@@ -141,41 +141,40 @@ class AnswerCHRFCorrectness(Metric):
             reference_urls=["https://aclanthology.org/W15-3049.pdf", "https://aclanthology.org/W17-4770", "https://www.aclweb.org/anthology/W18-6319"]
         )
 
-    def _validate_data(self, dataset: datasets.Dataset) -> bool:
+    def _validate_data(self, predictions: List[str], references: List[List[str]]) -> None:
         """Validate the of the input dataset."""
-        super()._validate_data(dataset)
-        if not all(isinstance(answer, str) for answer in dataset["answers"]):
+        # super()._validate_data(dataset) 
+        if not all(isinstance(answer, str) for answer in predictions):
             raise ValueError("The type of answers should be a string.")
-        if not all(isinstance(a, List) or not all(isinstance(item, str) for item in a) for a in dataset["gt_answers"]):
+        if not all(isinstance(a, List) or not all(isinstance(item, str) for item in a) for a in references):
             raise ValueError("The type of gt_answers should be a list of strings.")
 
     def compute(
         self,
-        dataset: Dataset,
+        predictions: List[str],
+        references: List[List[str]],
         batch_size: int = None,
-    ) -> Tuple[float, Dataset]:
-        """Evaluate the dataset."""
+    ) -> Tuple[float, List[float]]:
+        """Evaluate the predictions against references."""
         chrf = datasets.load_metric("chrf")
-        predictions = list(dataset["answers"])
-        references = list(dataset["gt_answers"])
         result = chrf.compute(predictions=predictions,
-                              references=references,
-                              char_order=self.char_order,
-                              word_order=self.word_order,
-                              beta=self.beta,
-                              lowercase=self.lowercase,
-                              whitespace=self.whitespace,
-                              eps_smoothing=self.eps_smoothing)
+                          references=references,
+                          char_order=self.char_order,
+                          word_order=self.word_order,
+                          beta=self.beta,
+                          lowercase=self.lowercase,
+                          whitespace=self.whitespace,
+                          eps_smoothing=self.eps_smoothing)
         scores = [chrf.compute(predictions=[predictions[i]],
-                               references=[references[i]],
-                               char_order=self.char_order,
-                               word_order=self.word_order,
-                               beta=self.beta,
-                               lowercase=self.lowercase,
-                               whitespace=self.whitespace,
-                               eps_smoothing=self.eps_smoothing)['score'] for i in range(len(predictions))]
+                           references=[references[i]],
+                           char_order=self.char_order,
+                           word_order=self.word_order,
+                           beta=self.beta,
+                           lowercase=self.lowercase,
+                           whitespace=self.whitespace,
+                           eps_smoothing=self.eps_smoothing)['score'] for i in range(len(predictions))]
 
-        return result['score'], dataset.add_column(f"{self.name}", scores)
+        return result['score'], scores
 
-    def _compute_batch(self, dataset: Dataset) -> list:
+    def _compute_batch(self, predictions: List[str], references: List[List[str]]) -> List[float]:
         pass

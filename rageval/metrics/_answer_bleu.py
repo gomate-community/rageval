@@ -142,27 +142,24 @@ class AnswerBleuScore(Metric):
 
     def compute(
         self,
-        dataset: Dataset,
+        predictions: List[str],
+        references: List[List[str]],
         batch_size: int = None,
     ) -> Tuple[float, Dataset]:
         """Evaluate the dataset."""
 
         bleu = datasets.load_metric("bleu")
-        predictions = []
-        references = []
-        reference = []
-        for output, gt_answers in zip(dataset["answers"], dataset["gt_answers"]):
-            output_clean = self._clean_special_tokens(output, None)
-            predictions.append(list(output_clean.split(' ')))
-            for gt_answer in gt_answers:
-                gt_answer_clean = self._clean_special_tokens(gt_answer, None)
-                reference.append(list(gt_answer_clean.split(' ')))
-            references.append(reference)
-        bleu_result = bleu.compute(predictions=predictions, references=references)
+        pred_tokens = [self._clean_special_tokens(pred).split(' ') for pred in predictions]
+        references_tokens = [[self._clean_special_tokens(gt).split(' ') for gt in ref] for ref in references]
+        bleu_result = bleu.compute(predictions=pred_tokens, references=references_tokens)
         bleu_score = bleu_result['bleu']
-        scores = self._compute_single(dataset)
+        scores = self._compute_single(predictions, references)
 
-        return bleu_score, dataset.add_column(f"{self.name}", scores)
+        dataset = Dataset.from_dict({
+            "predictions": predictions,
+            "references": references,
+            f"{self.name}_scores": scores
+        })
 
-    def _compute_batch(self, dataset: Dataset) -> list:
-        pass
+    def _compute_batch(self, predictions: List[str], references: List[List[str]]) -> List[float]:
+        passs
