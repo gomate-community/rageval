@@ -109,23 +109,23 @@ class AnswerF1Correctness(Metric):
         return white_space_fix(remove_articles(remove_punc(lower(s))))
 
     def _validate_data(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
+        self, 
+        predictions: List[str],
+        references: List[List[str]]
     ) -> None:
         """
         Validate the of the input dataset.
         Args:
-            pred_answers (List[str]): A list of predicted answers.
-            ref_answers (List[List[str]]): A list of lists, each containing reference answers.
+            predictions (List[str]): A list of predicted answers.
+            references (List[List[str]]): A list of lists, each containing reference answers.
 
         Raises:
-            ValueError: If the pred_answers or ref_answers are not in the correct format.
+            ValueError: If the predictions or references are not in the correct format.
         """
-        if not all(isinstance(pred_answer, str) for pred_answer in pred_answers):
-            raise ValueError("The type of pred_answers should be a list of strings.")
-        if not all(isinstance(ref, list) and all(isinstance(item, str) for item in ref) for ref in ref_answers):
-            raise ValueError("The type of ref_answers should be a list of lists of strings.")
+        if not all(isinstance(prediction, str) for prediction in predictions):
+            raise ValueError("The type of predictions should be a list of strings.")
+        if not all(isinstance(ref, list) and all(isinstance(item, str) for item in ref) for ref in references):
+            raise ValueError("The type of references should be a list of lists of strings.")
 
     def _f1_score(self, pred: str, ref: str) -> float:
         """Compute the f1 score between pred and ref."""
@@ -164,9 +164,8 @@ class AnswerF1Correctness(Metric):
 
     def _compute_batch(
         self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
+        predictions: List[str],
+        references: List[List[str]]
     ) -> List[float]:
         """Evaluate the f1 score of a batch of answers."""
-        return [self._compute_one(prediction, ref)
-                for prediction, ref in zip(pred_answers, ref_answers)]
+        return [self._compute_one(prediction, ref) for prediction, ref in zip(predictions, references)]

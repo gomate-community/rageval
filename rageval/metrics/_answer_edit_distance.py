@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from typing import List
 import datasets
 
 from rageval.metrics import Metric, add_attribute
@@ -129,10 +129,9 @@ class AnswerEditDistance(Metric):
 
     def _compute_batch(
         self,
-        dataset: datasets.Dataset
-    ) -> list:
+        pred_answers: List[str],
+        ref_answers: List[str]
+    ) -> List[float]:
         """Evaluate the similarity of a batch of answers."""
-        return [
-            self._compute_one(answer, gt_answer)
-            for answer, gt_answer in zip(dataset["answers"], dataset["gt_answers"])
-        ]
+        return [self._compute_one(pred_answer, reference)
+                for pred_answer, reference in zip(pred_answers, ref_answers)]

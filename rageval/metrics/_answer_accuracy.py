@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from typing import List
 import datasets
 
 from rageval.metrics import Metric, add_attribute
@@ -112,10 +112,11 @@ class AnswerAccuracy(Metric):
 
     def _compute_batch(
         self,
-        dataset: datasets.Dataset
-    ) -> list:
+        pred_answers,
+        ref_answers
+    ) -> List[float]:
         """Evaluate the correctness of a batch of answers."""
         return [
             self._compute_one(answer, gt_answer)
-            for answer, gt_answer in zip(dataset["answers"], dataset["gt_answers"])
+            for answer, gt_answer in zip(pred_answers, ref_answers)
         ]

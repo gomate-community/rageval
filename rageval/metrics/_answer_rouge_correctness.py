@@ -113,11 +113,11 @@ class AnswerRougeCorrectness(Metric):
             reference_urls=["https://aclanthology.org/W04-1013/", "https://arxiv.org/abs/2005.11401"]
         )
 
-    def _validate_data(self, predictions, references) -> bool:
-        super()._validate_data(predictions, references)
-        if not all(isinstance(answer, str) for answer in predictions):
+    def _validate_data(self, pred_answers, ref_answers) -> bool:
+        super()._validate_data(pred_answers, ref_answers)
+        if not all(isinstance(answer, str) for answer in pred_answers):
             raise ValueError("The type of answers should be a string.")
-        if not all(isinstance(a, List) or not all(isinstance(item, str) for item in a) for a in references):
+        if not all(isinstance(a, list) and all(isinstance(item, str) for item in a) for a in ref_answers):
             raise ValueError("The type of gt_answers should be a list of strings.")
 
     def _compute_one(self, answer: str, gt_answers: List[str]) -> float:
@@ -125,7 +125,7 @@ class AnswerRougeCorrectness(Metric):
         score = self.scorer.score_multi(gt_answers, answer)
         return score[self.rouge_type].fmeasure
 
-    def _compute_batch(self, predictions, references) -> List[float]:
+    def _compute_batch(self, pred_answers, ref_answers) -> List[float]:
         """Evaluate the ROUGE of a batch of answers."""
-        results = [self._compute_one(answer, gt_answer) for answer, gt_answer in zip(predictions, references)]
+        results = [self._compute_one(answer, gt_answer) for answer, gt_answer in zip(pred_answers, ref_answers)]
         return results

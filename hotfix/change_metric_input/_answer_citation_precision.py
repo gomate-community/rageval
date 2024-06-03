@@ -1,15 +1,19 @@
+import copy
 import re
 from dataclasses import dataclass
-from typing import List, Callable
+from typing import List, Callable, Tuple
 
 import datasets
+import numpy as np
+from datasets import Dataset
 from tqdm import tqdm
 
 from rageval.metrics import Metric, add_attribute
 from rageval.utils import text_to_sents, remove_citations
 
 _DESCRIPTION = """\
-Citation recall determines if the result from LLM is entirely supported by cited passages.
+Citation precision evaluation detects citations that are irrelevant to the claim, but it does not require citing \
+a minimal set and it permits citing redundant passages entailing similar claims.
 
 In different RAG evaluation tasks, both ‘contexts’ and ‘gt_contexts’ may be used as part of the input of LLM.
 This metric doesn't care whether the ‘contexts’ come from real-time retrieval or annotated datasets.
@@ -27,7 +31,7 @@ Optional Args:
     None
 
 Functions:
-    _compute_one: compute the citation recall of an answer.
+    _compute_one: compute the citation precision of an answer.
 
 Examples:
     >>> from datasets import Dataset
@@ -73,7 +77,7 @@ Examples:
     ...     'text2text-generation',
     ...     'hf-internal-testing/tiny-random-T5ForConditionalGeneration'
     ... )
-    >>> metric = rl.metrics.AnswerCitationRecall(nli_model=nli_model)
+    >>> metric = rl.metrics.AnswerCitationPrecision(nli_model=nli_model)
     >>> metric.mtype
     'AnswerGroundedness'
     >>> s, ds = metric.compute(dataset, batch_size=1)
@@ -97,16 +101,16 @@ _CITATION = """\
 @dataclass
 @add_attribute('mtype', 'AnswerGroundedness')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
-class AnswerCitationRecall(Metric):
-    """Estimates the citation recall of the generated answer based on the NLI model."""
+class AnswerCitationPrecision(Metric):
+    """Estimates the citation precision of the generated answer based on the NLI model."""
 
-    name = "answer_citation_recall"
+    name = "answer_citation_precision"
 
-    ALIAS = ['answer_citation_recall']
+    ALIAS = ['answer_citation_precision']
 
     def __init__(self, nli_model: Callable):
         """
-        Explicitly initialize AnswerCitationRecall.
+        Explicitly initialize AnswerCitationPrecision.
 
         Ensure all parent classes are initialized.
         Ensure nli_model is initialized.
@@ -139,9 +143,10 @@ class AnswerCitationRecall(Metric):
         self,
         answer: str,
         context: List[str]
-    ) -> float:
-        """Evaluate the citation recall of an answer."""
-        total_entail = 0
+    ) -> Tuple[float, float]:
+        """Evaluate the citation precision of an answer."""
+        citation_correct = 0
+        citation_total = 0
 
         sents = text_to_sents(answer)
         target_sents = [remove_citations(sent).strip() for sent in sents]
@@ -161,31 +166,73 @@ class AnswerCitationRecall(Metric):
             if len(context_ids) > 0:
                 # citation id starts from 1 in sents
                 premise = " ".join([context[context_id - 1] for context_id in context_ids])
-                label = self.nli_model.generate_infer(premise=premise, hypothesis=target_sent)
-                total_entail += label
+                label_full = self.nli_model.generate_infer(premise=premise, hypothesis=target_sent)
+                if label_full == 1:
+                    citation_total += len(context_ids)
+                    for context_id in context_ids:
+                        label_single = self.nli_model.generate_infer(premise=context[context_id - 1], hypothesis=target_sent)
+                        if label_single == 1:
+                            citation_correct += 1
+                        else:
+                            subset_context_id = copy.deepcopy(context_ids)
+                            subset_context_id.remove(context_id)
+                            subset_premise = " ".join([context[context_id - 1] for context_id in subset_context_id])
+                            label_exclude = self.nli_model.generate_infer(premise=subset_premise, hypothesis=target_sent)
+                            if label_exclude == 0:
+                                citation_correct += 1
 
-        if len(sents) == 0:
-            return 0
-        return total_entail / len(sents)
+        return citation_correct, citation_total
 
     def _compute_batch(
         self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> List[float]:
+        predictions: List[str],
+        references: List[List[str]]
+    ) -> List[Tuple[float, float]]:
         """
-        Evaluate the citation recall of a batch of answers.
+        Evaluate the citation precision of a batch of answers.
 
-        Firstly, calculate the citation recall of each statement (0 or 1).
-        For each statement, its citation recall is 1 if and only if there is at least one citation and connects all
-        paragraphs cited by this statement as premise, statement as hypothesis, and the NLI model outputs 1
-        when it determines that premise entails the hypothesis, otherwise it is 0.
+        Firstly, calculate the citation precision of each statement (0 or 1).
+        Precision check: did the model cite any unnecessary documents?
         Then, average over all statements in the LLM answer.
         Finally, average over all scores of each answer.
         """
 
         results = []
-        for answer, context in tqdm(zip(pred_answers, ref_answers)):
-            r = self._compute_one(answer, context)
-            results.append(r)
+        for answer, context in tqdm(zip(predictions, references)):
+            citation_correct, citation_total = self._compute_one(answer, context)
+            results.append((citation_correct, citation_total))
         return results
+
+    def compute(
+            self,
+            predictions: List[str],
+            references: List[List[str]],
+            batch_size: int = None,
+    ) -> Tuple[float, datasets.Dataset]:
+        """Evaluate the dataset."""
+        self._validate_data(predictions, references)
+        scores = []
+
+        length = len(predictions)
+        if batch_size:
+            for start in tqdm(range(0, length, batch_size)):
+                end = start + batch_size
+                end = end if end < length else length
+                score = self._compute_batch(predictions[start:end], references[start:end])
+                scores.extend(score)
+        else:
+            scores = self._compute_batch(predictions, references)
+
+        citation_correct = np.sum([correct for correct, total in scores])
+        citation_total = np.sum([total for correct, total in scores])
+
+        dataset = datasets.Dataset.from_dict({
+            "predictions": predictions,
+            "references": references,
+            f"{self.name}_scores": scores
+        })
+
+        if citation_total == 0:
+            return 0.0, dataset
+        else:
+            return citation_correct / citation_total, dataset

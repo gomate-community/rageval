@@ -5,8 +5,7 @@ import datasets
 from rageval.metrics import Metric, add_attribute
 
 _DESCRIPTION = """\
-The AnswerLCSRatio is to measure the similarity between answer and gt_answer by calculating the longest common \
-subsequence.
+The AnswerEditDistance is to measure the similarity between answer and gt_answer by calculating the edit distance.
 
 This is a very traditional method, but to this day, some work is still being carried out using it, such as \
 https://ieeexplore.ieee.org/abstract/document/10172590.
@@ -21,7 +20,7 @@ Optional Args:
     None
 
 Functions:
-    _compute_one: evaluating the similarity between answer and gt_answer by calculating the longest common subsequence.
+    _compute_one: evaluating the similarity between answer and gt_answer by calculating the edit distance.
 
 Examples:
     >>> from datasets import Dataset
@@ -29,7 +28,7 @@ Examples:
     >>> sample = {
     ...     "answers": [
     ...         "Language models trained on massive code corpora can generalize to tasks without the need "
-    ...         "for task-specific fine-tuning."
+    ...         "for task-specific fine tuning."
     ...     ],
     ...     "gt_answers": [
     ...         "Large language models trained on massive code corpora can generalize to new tasks without the need "
@@ -37,11 +36,11 @@ Examples:
     ...     ]
     ... }
     >>> dataset = Dataset.from_dict(sample)
-    >>> metric = rl.metrics.AnswerLCSRatio()
+    >>> metric = rl.metrics.AnswerEditDistance()
     >>> metric.mtype
     'AnswerCorrectness'
     >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert s == 16 / 17
+    >>> assert s == 5 / 18
     >>> type(ds)
     <class 'datasets.arrow_dataset.Dataset'>
 """
@@ -63,16 +62,16 @@ _CITATION = """\
 @dataclass
 @add_attribute('mtype', 'AnswerCorrectness')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
-class AnswerLCSRatio(Metric):
+class AnswerEditDistance(Metric):
     """Estimates the similarity between answers and gt_answers."""
 
-    name = "answer_lcs_ratio"
+    name = "answer_edit_distance"
 
-    ALIAS = ['answer_lcs_ratio']
+    ALIAS = ['answer_edit_distance']
 
     def __init__(self):
         """
-        Explicitly initialize AnswerLCSRatio.
+        Explicitly initialize AnswerEditDistance.
 
         Ensure all parent classes are initialized.
         """
@@ -104,7 +103,7 @@ class AnswerLCSRatio(Metric):
         answer: str,
         gt_answer: str
     ) -> float:
-        """Evaluating the similarity between answer and gt_answer by calculating the longest common subsequence."""
+        """Evaluating the similarity between answer and gt_answer by calculating the edit distance."""
         answer = answer.split()
         gt_answer = gt_answer.split()
         m, n = len(answer), len(gt_answer)
@@ -112,21 +111,27 @@ class AnswerLCSRatio(Metric):
         if m == 0 or n == 0:
             return 0
 
-        dp = [0] * (n + 1)
-        for i in range(m):
-            pre = 0
-            for j in range(n):
-                tmp = dp[j + 1]
-                dp[j + 1] = pre + 1 if answer[i] == gt_answer[j] else max(dp[j + 1], dp[j])
-                pre = tmp
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+        for i in range(m + 1):
+            dp[i][0] = i
+        for j in range(n + 1):
+            dp[0][j] = j
 
-        return dp[-1] / m
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1)
+                if answer[i - 1] != gt_answer[j - 1]:
+                    dp[i][j] = min(dp[i][j], dp[i - 1][j - 1] + 1)
+                else:
+                    dp[i][j] = min(dp[i][j], dp[i - 1][j - 1])
+
+        return dp[m][n] / m
 
     def _compute_batch(
         self,
-        pred_answers: List[str],
-        ref_answers: List[str]
+        predictions: List[str],
+        references: List[str]
     ) -> List[float]:
         """Evaluate the similarity of a batch of answers."""
-        return [self._compute_one(prediction, ref)
-                for prediction, ref in zip(pred_answers, ref_answers)]
+        return [self._compute_one(prediction, reference)
+            for prediction, reference in zip(predictions, references)]

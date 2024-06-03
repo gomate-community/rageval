@@ -127,12 +127,12 @@ class AnswerEMCorrectness(Metric):
         return np.average(acc)
 
     def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
+        self, 
+        predictions: List[str],
+        references: List[List[str]]
     ) -> List[float]:
-
+        
         """Compute the correctness of a batch of answers."""
-
+        
         return [self._compute_one(prediction, short_answers)
-                for prediction, short_answers in zip(pred_answers, ref_answers)]
+            for prediction, short_answers in zip(predictions, references)]

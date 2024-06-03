@@ -124,9 +124,8 @@ class AnswerLCSRatio(Metric):
 
     def _compute_batch(
         self,
-        pred_answers: List[str],
-        ref_answers: List[str]
+        predictions: List[str],
+        references: List[str]
     ) -> List[float]:
         """Evaluate the similarity of a batch of answers."""
-        return [self._compute_one(prediction, ref)
-                for prediction, ref in zip(pred_answers, ref_answers)]
+        return [self._compute_one(prediction, ref) for prediction, ref in zip(predictions, references)]

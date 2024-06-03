@@ -148,8 +148,8 @@ class AnswerNLICorrectness(Metric):
 
     def _compute_batch(
         self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
+        predictions: List[str],
+        references: List[List[str]]
     ) -> List[float]:
         """
         Evaluate the correctness of a batch of answers.
@@ -159,20 +159,20 @@ class AnswerNLICorrectness(Metric):
         Finally, aggregate all faithfulness score of each claim.
         """
 
-        if isinstance(ref_answers, list):
-            if isinstance(ref_answers[0], list):
+        if isinstance(references, list):
+            if isinstance(references[0], list):
                 # gt_answers has been decomposed into claims list
-                claims = ref_answers
-            elif isinstance(ref_answers[0], str):
+                claims = references
+            elif isinstance(references[0], str):
                 # use decompose_model to decompose the gt_answers into claims list
-                claims = [text_to_sents(gt_answer, self.decompose_model) for gt_answer in ref_answers]
+                claims = [text_to_sents(gt_answer, self.decompose_model) for gt_answer in dataset["gt_answers"]]
             else:
                 raise ValueError("The type of gt_answers element should be list or string.")
         else:
             raise ValueError("The type of gt_answers should be list.")
 
         results = []
-        for i, answer in tqdm(enumerate(pred_answers)):
+        for i, answer in tqdm(enumerate(predictions)):
             r = self._compute_one(answer, claims[i])
             results.append(r)
         return results

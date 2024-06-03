@@ -69,7 +69,7 @@ def test_case_on_answer_claim_recall_metric(testset):
     assert metric.name == "answer_claim_recall"
     assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset, 1)
+    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
     assert score == 0 or score == 1
     assert isinstance(results, Dataset)
 
@@ -84,6 +84,6 @@ def test_case_on_answer_claim_recall_metric_with_decompose(testset_with_decompos
     assert metric.name == "answer_claim_recall"
     assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset_with_decompose, 1)
+    score, results = metric.compute(1, testset_with_decompose['answers'], testset_with_decompose['gt_answers'])
     assert score == 0 or score == 1
     assert isinstance(results, Dataset)
