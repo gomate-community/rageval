@@ -65,10 +65,10 @@ class Metric(MetricInfoMixin):
         raise NotImplementedError
 
     def _validate_data(
-            self,
-            pred_answers: Optional[Iterable] = None,
-            ref_answers: Optional[Iterable] = None,
-            *args: Optional[Iterable]
+        self,
+        pred_answers: Optional[Iterable] = None,
+        ref_answers: Optional[Iterable] = None,
+        *args: Optional[Iterable]
     ) -> None:
         """Validate the of the input dataset."""
         if len(pred_answers) != len(ref_answers) or any(len(pred_answers) != len(arg) for arg in args):
@@ -76,9 +76,9 @@ class Metric(MetricInfoMixin):
 
     def compute(
         self,
-        batch_size: int = None,
         pred_answers: Optional[Iterable] = None,
         ref_answers: Optional[Iterable] = None,
+        batch_size: int = None,
         *args: Optional[Iterable],
     ) -> Tuple[float, List[float]]:
         """Evaluate the dataset."""

@@ -48,9 +48,7 @@ Examples:
     >>> metric = rl.metrics.AnswerTERCorrectness()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset)
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
 """
 
 _CITATION = """\
@@ -94,11 +92,11 @@ class AnswerTERCorrectness(Metric):
     ALIAS = ['answer_ter']
 
     def __init__(
-            self,
-            normalized: bool = False,
-            ignore_punct: bool = False,
-            support_zh_ja_chars: bool = False,
-            case_sensitive: bool = False
+        self,
+        normalized: bool = False,
+        ignore_punct: bool = False,
+        support_zh_ja_chars: bool = False,
+        case_sensitive: bool = False
     ):
         """
         Explicitly initialize AnswerTERCorrectness.
@@ -146,23 +144,30 @@ class AnswerTERCorrectness(Metric):
         self,
         pred_answers: List[str],
         ref_answers: List[List[str]],
-        batch_size: int = None,
+        batch_size: int,
     ) -> Tuple[float, Dataset]:
         """Evaluate the dataset."""
         ter = datasets.load_metric("ter")
-        result = ter.compute(predictions=pred_answers,
-                             references=ref_answers,
-                             normalized=self.normalized,
-                             ignore_punct=self.ignore_punct,
-                             support_zh_ja_chars=self.support_zh_ja_chars,
-                             case_sensitive=self.case_sensitive)
-        scores = result['score']
-        dataset = Dataset.from_dict({
-            "predictions": pred_answers,
-            "references": ref_answers,
-            f"{self.name}_scores": scores
-        })
-        return scores, dataset
+        result = ter.compute(
+            predictions=pred_answers,
+            references=ref_answers,
+            normalized=self.normalized,
+            ignore_punct=self.ignore_punct,
+            support_zh_ja_chars=self.support_zh_ja_chars,
+            case_sensitive=self.case_sensitive
+        )
+        scores = [
+            ter.compute(
+                predictions=[pred_answers[i]],
+                references=[ref_answers[i]],
+                normalized=self.normalized,
+                ignore_punct=self.ignore_punct,
+                support_zh_ja_chars=self.support_zh_ja_chars,
+                case_sensitive=self.case_sensitive
+            )['score']
+            for i in range(len(pred_answers))
+        ]
+        return result, scores
 
     def _compute_batch(
         self,

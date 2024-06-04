@@ -44,10 +44,8 @@ Examples:
     >>> metric = rl.metrics.AnswerF1Correctness()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+    >>> assert 0 <= score <= 1
 """
 
 _CITATION = """\
@@ -108,25 +106,6 @@ class AnswerF1Correctness(Metric):
             return text.lower()
         return white_space_fix(remove_articles(remove_punc(lower(s))))
 
-    def _validate_data(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> None:
-        """
-        Validate the of the input dataset.
-        Args:
-            pred_answers (List[str]): A list of predicted answers.
-            ref_answers (List[List[str]]): A list of lists, each containing reference answers.
-
-        Raises:
-            ValueError: If the pred_answers or ref_answers are not in the correct format.
-        """
-        if not all(isinstance(pred_answer, str) for pred_answer in pred_answers):
-            raise ValueError("The type of pred_answers should be a list of strings.")
-        if not all(isinstance(ref, list) and all(isinstance(item, str) for item in ref) for ref in ref_answers):
-            raise ValueError("The type of ref_answers should be a list of lists of strings.")
-
     def _f1_score(self, pred: str, ref: str) -> float:
         """Compute the f1 score between pred and ref."""
         normalized_prediction = self._normalize_text(pred)
@@ -151,13 +130,13 @@ class AnswerF1Correctness(Metric):
 
     def _compute_one(
         self,
-        answer: str,
-        gt_answers: List[str]
+        pred_answer: str,
+        ref_answers: List[str]
     ) -> float:
         """Evaluate the f1 score of an answer."""
         scores = []
-        for gt_answer in gt_answers:
-            score = self._f1_score(answer, gt_answer)
+        for ref_answer in ref_answers:
+            score = self._f1_score(pred_answer, ref_answer)
             scores.append(score)
 
         return np.max(scores)
@@ -168,5 +147,7 @@ class AnswerF1Correctness(Metric):
         ref_answers: List[List[str]]
     ) -> List[float]:
         """Evaluate the f1 score of a batch of answers."""
-        return [self._compute_one(prediction, ref)
-                for prediction, ref in zip(pred_answers, ref_answers)]
+        return [
+            self._compute_one(pred_answer, ref_answer)
+            for pred_answer, ref_answer in zip(pred_answers, ref_answers)
+        ]

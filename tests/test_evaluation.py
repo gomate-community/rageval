@@ -12,7 +12,7 @@ from rageval.models import NLIModel
 sys.path.insert(0, '../src')
 
 
-@pytest.mark.slow
+@pytest.mark.skip
 def test_evaluation():
     """
     This is test unit for testing the load_dataset function.

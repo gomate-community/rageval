@@ -80,10 +80,7 @@ Examples:
     >>> metric = rl.metrics.AnswerCitationPrecision(nli_model=nli_model)
     >>> metric.mtype
     'AnswerGroundedness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['contexts'], 1)
 """
 
 _CITATION = """\
@@ -185,8 +182,8 @@ class AnswerCitationPrecision(Metric):
 
     def _compute_batch(
         self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
+        answers: List[str],
+        contexts: List[List[str]]
     ) -> List[Tuple[float, float]]:
         """
         Evaluate the citation precision of a batch of answers.
@@ -198,41 +195,34 @@ class AnswerCitationPrecision(Metric):
         """
 
         results = []
-        for answer, context in tqdm(zip(pred_answers, ref_answers)):
+        for answer, context in tqdm(zip(answers, contexts)):
             citation_correct, citation_total = self._compute_one(answer, context)
             results.append((citation_correct, citation_total))
         return results
 
     def compute(
         self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]],
+        answers: List[str],
+        contexts: List[List[str]],
         batch_size: int = None,
-    ) -> Tuple[float, datasets.Dataset]:
+    ) -> Tuple[float, List[Tuple[float, float]]]:
         """Evaluate the dataset."""
-        self._validate_data(pred_answers, ref_answers)
         scores = []
 
-        length = len(pred_answers)
+        length = len(answers)
         if batch_size:
             for start in tqdm(range(0, length, batch_size)):
                 end = start + batch_size
                 end = end if end < length else length
-                score = self._compute_batch(pred_answers[start:end], ref_answers[start:end])
+                score = self._compute_batch(answers[start:end], contexts[start:end])
                 scores.extend(score)
         else:
-            scores = self._compute_batch(pred_answers, ref_answers)
+            scores = self._compute_batch(answers, contexts)
 
         citation_correct = np.sum([correct for correct, total in scores])
         citation_total = np.sum([total for correct, total in scores])
 
-        dataset = datasets.Dataset.from_dict({
-            "predictions": pred_answers,
-            "references": ref_answers,
-            f"{self.name}_scores": scores
-        })
-
         if citation_total == 0:
-            return 0.0, dataset
+            return 0.0, scores
         else:
-            return citation_correct / citation_total, dataset
+            return citation_correct / citation_total, scores

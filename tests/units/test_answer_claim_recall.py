@@ -67,11 +67,9 @@ def test_case_on_answer_claim_recall_metric(testset):
     )
     metric = AnswerNLICorrectness(nli_model=nli_model)
     assert metric.name == "answer_claim_recall"
-    assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
+    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
     assert score == 0 or score == 1
-    assert isinstance(results, Dataset)
 
 
 @pytest.mark.slow
@@ -82,8 +80,6 @@ def test_case_on_answer_claim_recall_metric_with_decompose(testset_with_decompos
     )
     metric = AnswerNLICorrectness(nli_model=nli_model, decompose_model="nltk")
     assert metric.name == "answer_claim_recall"
-    assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(1, testset_with_decompose['answers'], testset_with_decompose['gt_answers'])
+    score, results = metric.compute(testset_with_decompose['answers'], testset_with_decompose['gt_answers'], 1)
     assert score == 0 or score == 1
-    assert isinstance(results, Dataset)

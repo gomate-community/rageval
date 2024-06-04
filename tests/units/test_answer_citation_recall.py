@@ -2,7 +2,7 @@ import pytest
 from datasets import Dataset
 
 from rageval.models import NLIModel
-from rageval.metrics import AnswerCitationPrecision
+from rageval.metrics import AnswerCitationRecall
 
 
 @pytest.fixture(scope='module')
@@ -57,9 +57,8 @@ def test_answer_citation_recall(testset):
         'text2text-generation',
         'hf-internal-testing/tiny-random-T5ForConditionalGeneration'
     )
-    metric = AnswerCitationPrecision(nli_model=nli_model)
-    assert metric.name == "answer_citation_precision"
+    metric = AnswerCitationRecall(nli_model=nli_model)
+    assert metric.name == "answer_citation_recall"
     assert metric.mtype == 'AnswerGroundedness'
-    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
+    score, results = metric.compute(testset['answers'], testset['contexts'], 1)
     assert 0 <= score <= 1
-    assert isinstance(results, Dataset)

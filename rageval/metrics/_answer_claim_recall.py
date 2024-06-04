@@ -56,10 +56,8 @@ Examples:
     >>> metric = rl.metrics.AnswerNLICorrectness(nli_model=nli_model, decompose_model="nltk")
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert s == 0 or s == 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+    >>> assert score == 0 or score == 1
 """
 
 _CITATION = """\
@@ -148,8 +146,8 @@ class AnswerNLICorrectness(Metric):
 
     def _compute_batch(
         self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
+        pred_answers,
+        ref_answers
     ) -> List[float]:
         """
         Evaluate the correctness of a batch of answers.

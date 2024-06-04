@@ -40,10 +40,8 @@ Examples:
     >>> metric = rl.metrics.AnswerLCSRatio()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert s == 16 / 17
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+    >>> assert score == 16 / 17
 """
 
 _CITATION = """\
@@ -101,13 +99,13 @@ class AnswerLCSRatio(Metric):
 
     def _compute_one(
         self,
-        answer: str,
-        gt_answer: str
+        pred_answer: str,
+        ref_answer: str
     ) -> float:
         """Evaluating the similarity between answer and gt_answer by calculating the longest common subsequence."""
-        answer = answer.split()
-        gt_answer = gt_answer.split()
-        m, n = len(answer), len(gt_answer)
+        pred_answer = pred_answer.split()
+        ref_answer = ref_answer.split()
+        m, n = len(pred_answer), len(ref_answer)
 
         if m == 0 or n == 0:
             return 0
@@ -117,7 +115,7 @@ class AnswerLCSRatio(Metric):
             pre = 0
             for j in range(n):
                 tmp = dp[j + 1]
-                dp[j + 1] = pre + 1 if answer[i] == gt_answer[j] else max(dp[j + 1], dp[j])
+                dp[j + 1] = pre + 1 if pred_answer[i] == ref_answer[j] else max(dp[j + 1], dp[j])
                 pre = tmp
 
         return dp[-1] / m
@@ -128,5 +126,7 @@ class AnswerLCSRatio(Metric):
         ref_answers: List[str]
     ) -> List[float]:
         """Evaluate the similarity of a batch of answers."""
-        return [self._compute_one(prediction, ref)
-                for prediction, ref in zip(pred_answers, ref_answers)]
+        return [
+            self._compute_one(pred_answer, ref_answer)
+            for pred_answer, ref_answer in zip(pred_answers, ref_answers)
+        ]

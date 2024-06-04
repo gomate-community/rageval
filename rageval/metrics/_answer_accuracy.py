@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 from typing import List
+
 import datasets
 
 from rageval.metrics import Metric, add_attribute
+
 
 _DESCRIPTION = """\
 The AnswerAccuracy is to measure the correctness of answers.
@@ -45,10 +47,9 @@ Examples:
     >>> metric = rl.metrics.AnswerAccuracy()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert s == 2 / 3
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset["answers"], dataset["gt_answers"], 1)
+    >>> assert score == 2 / 3
+    >>> assert results[0] is True
 """
 
 _CITATION = """\

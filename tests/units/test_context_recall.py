@@ -44,9 +44,8 @@ def testset(sample):
 def test_batch_on_context_recall_metric(testset):
     model = OpenAILLM('gpt-3.5-turbo-16k', 'OPENAI_API_KEY')
     metric = ContextRecall(model)
-    score, results = metric.compute(testset['answers'], testset['gt_answers'])
+    score, results = metric.compute(testset['questions'], testset['gt_answers'], testset['contexts'], 1)
     assert score == 0 or score == 1
-    assert isinstance(results, Dataset)
 
 
 @pytest.mark.slow
@@ -60,17 +59,15 @@ def test_batch_on_context_recall_metric_fakellm1(testset):
         ]
     )
     metric = ContextRecall(model)
-    score, results = metric.compute(testset)
+    score, results = metric.compute(testset['questions'], testset['gt_answers'], testset['contexts'], 1)
     assert metric.mtype == 'ContextRelevancy'
     assert 0 <= score <= 1
-    assert isinstance(results, Dataset)
 
 
 @pytest.mark.slow
 def test_batch_on_context_recall_metric_fakellm2(testset):
     model = FakeListLLM(responses=['wrong response format'])
     metric = ContextRecall(model)
-    score, results = metric.compute(testset['answers'], testset['gt_answers'])
+    score, results = metric.compute(testset['questions'], testset['gt_answers'], testset['contexts'], 1)
     assert metric.mtype == 'ContextRelevancy'
     assert 0 <= score <= 1
-    assert isinstance(results, Dataset)

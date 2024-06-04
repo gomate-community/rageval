@@ -29,8 +29,6 @@ def testset(sample):
 def test_case_on_answer_edit_distance(testset):
     metric = AnswerEditDistance()
     assert metric.name == "answer_edit_distance"
-    assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
+    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
     assert score == 5 / 18
-    assert isinstance(results, Dataset)

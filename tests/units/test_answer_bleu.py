@@ -37,8 +37,6 @@ def testset(sample):
 def test_case_on_answer_bleu(testset):
     metric = AnswerBleuScore()
     assert metric.name == "answer_bleu"
-    assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
+    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
     assert score == 0.3172992057845065
-    assert isinstance(results, Dataset)

@@ -45,9 +45,8 @@ Examples:
     >>> metric = rl.metrics.AnswerCHRFCorrectness()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset)
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+
 """
 
 _CITATION = """\
@@ -138,7 +137,11 @@ class AnswerCHRFCorrectness(Metric):
                 }
             ),
             codebase_urls=["https://github.com/huggingface/datasets/blob/main/metrics/chrf/chrf.py"],
-            reference_urls=["https://aclanthology.org/W15-3049.pdf", "https://aclanthology.org/W17-4770", "https://www.aclweb.org/anthology/W18-6319"]
+            reference_urls=[
+                "https://aclanthology.org/W15-3049.pdf",
+                "https://aclanthology.org/W17-4770",
+                "https://www.aclweb.org/anthology/W18-6319"
+            ]
         )
 
     def _validate_data(
@@ -156,26 +159,33 @@ class AnswerCHRFCorrectness(Metric):
         self,
         pred_answers: List[str],
         ref_answers: List[List[str]],
-        batch_size: int = None,
+        batch_size: int
     ) -> Tuple[float, List[float]]:
         """Evaluate the predictions against references."""
         chrf = datasets.load_metric("chrf")
-        result = chrf.compute(predictions=pred_answers,
-                              references=ref_answers,
-                              char_order=self.char_order,
-                              word_order=self.word_order,
-                              beta=self.beta,
-                              lowercase=self.lowercase,
-                              whitespace=self.whitespace,
-                              eps_smoothing=self.eps_smoothing)
-        scores = [chrf.compute(predictions=[pred_answers[i]],
-                               references=[ref_answers[i]],
-                               char_order=self.char_order,
-                               word_order=self.word_order,
-                               beta=self.beta,
-                               lowercase=self.lowercase,
-                               whitespace=self.whitespace,
-                               eps_smoothing=self.eps_smoothing)['score'] for i in range(len(pred_answers))]
+        result = chrf.compute(
+            predictions=pred_answers,
+            references=ref_answers,
+            char_order=self.char_order,
+            word_order=self.word_order,
+            beta=self.beta,
+            lowercase=self.lowercase,
+            whitespace=self.whitespace,
+            eps_smoothing=self.eps_smoothing
+        )
+        scores = [
+            chrf.compute(
+                predictions=[pred_answers[i]],
+                references=[ref_answers[i]],
+                char_order=self.char_order,
+                word_order=self.word_order,
+                beta=self.beta,
+                lowercase=self.lowercase,
+                whitespace=self.whitespace,
+                eps_smoothing=self.eps_smoothing
+            )['score']
+            for i in range(len(pred_answers))
+        ]
 
         return result, scores
 
