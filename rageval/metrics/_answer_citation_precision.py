@@ -5,7 +5,6 @@ from typing import List, Callable, Tuple
 
 import datasets
 import numpy as np
-from datasets import Dataset
 from tqdm import tqdm
 
 from rageval.metrics import Metric, add_attribute
@@ -81,6 +80,7 @@ Examples:
     >>> metric.mtype
     'AnswerGroundedness'
     >>> score, results = metric.compute(dataset['answers'], dataset['contexts'], 1)
+    >>> assert 0 <= score <= 1
 """
 
 _CITATION = """\
@@ -113,7 +113,6 @@ class AnswerCitationPrecision(Metric):
         Ensure nli_model is initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'contexts']
         self.nli_model = nli_model
 
     def __repr__(self) -> str:

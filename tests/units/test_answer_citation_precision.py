@@ -60,6 +60,6 @@ def test_answer_citation_recall(testset):
     metric = AnswerCitationPrecision(nli_model=nli_model)
     assert metric.name == "answer_citation_precision"
     assert metric.mtype == 'AnswerGroundedness'
+    assert repr(metric) == "answer_citation_precision"
     score, results = metric.compute(testset['answers'], testset['contexts'], 1)
     assert 0 <= score <= 1
-

@@ -54,7 +54,10 @@ Examples:
     >>> metric.mtype
     'AnswerCorrectness'
     >>> score, results = metric.compute(dataset["answers"], dataset["gt_answers"], 1)
-    >>> assert score == 0.3172992057845065
+    >>> score
+    0.3172992057845065
+    >>> results[0]
+    0.49697705300310346
 """
 
 
@@ -84,7 +87,6 @@ class AnswerBleuScore(Metric):
     def __init__(self):
         """Explicitly initialize the AnswerBleuScore to ensure all parent class initialized."""
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -106,7 +108,7 @@ class AnswerBleuScore(Metric):
                 "https://github.com/tensorflow/nmt/blob/master/nmt/scripts/bleu.py",
                 "https://github.com/huggingface/datasets/blob/main/metrics/bleu/bleu.py"
             ],
-            reference_urls=["http://www.aclweb.org/anthology/P02-1040.pdf"]
+            reference_urls=["https://www.aclweb.org/anthology/P02-1040.pdf"]
         )
 
     def _clean_special_tokens(self, sentence: str, subword: str) -> str:

@@ -39,7 +39,6 @@ class Metric(MetricInfoMixin):
             config_name: type(string), Optional.
             experiment_id: type(string), Optional.
         """
-        self._required_columns = []
         info = self._info()
         info.metric_name = camelcase_to_snakecase(self.__class__.__name__)
         info.config_name = config_name or "default"

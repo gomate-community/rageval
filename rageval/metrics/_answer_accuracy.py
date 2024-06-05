@@ -48,8 +48,10 @@ Examples:
     >>> metric.mtype
     'AnswerCorrectness'
     >>> score, results = metric.compute(dataset["answers"], dataset["gt_answers"], 1)
-    >>> assert score == 2 / 3
-    >>> assert results[0] is True
+    >>> score
+    0.6666666666666666
+    >>> results[0]
+    True
 """
 
 _CITATION = """\
@@ -81,7 +83,6 @@ class AnswerAccuracy(Metric):
         Ensure all parent classes are initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""

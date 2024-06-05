@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 import datasets
-from datasets import Dataset
 
 from rageval.metrics import Metric, add_attribute
+
 
 _DESCRIPTION = """\
     ChrF and ChrF++ are two MT evaluation metrics. They both use the F-score statistic for character n-gram matches, and ChrF++ adds word n-grams as well which correlates more strongly with direct assessment.
@@ -46,7 +46,10 @@ Examples:
     >>> metric.mtype
     'AnswerCorrectness'
     >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
-
+    >>> score
+    84.64214891738334
+    >>> results[0]
+    84.41131092011067
 """
 
 _CITATION = """\
@@ -113,7 +116,6 @@ class AnswerCHRFCorrectness(Metric):
         Ensure all parent classes are initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
         self.char_order = char_order
         self.word_order = word_order
         self.beta = beta
@@ -151,9 +153,9 @@ class AnswerCHRFCorrectness(Metric):
     ) -> None:
         """Validate the input dataset."""
         if not all(isinstance(answer, str) for answer in pred_answers):
-            raise ValueError("The type of answers should be a string.")
+            raise ValueError("The type of pred_answers should be a string.")
         if not all(isinstance(a, list) and all(isinstance(item, str) for item in a) for a in ref_answers):
-            raise ValueError("The type of gt_answers should be a list of strings.")
+            raise ValueError("The type of ref_answers should be a list of strings.")
 
     def compute(
         self,
@@ -162,6 +164,7 @@ class AnswerCHRFCorrectness(Metric):
         batch_size: int
     ) -> Tuple[float, List[float]]:
         """Evaluate the predictions against references."""
+        self._validate_data(pred_answers, ref_answers)
         chrf = datasets.load_metric("chrf")
         result = chrf.compute(
             predictions=pred_answers,
@@ -172,7 +175,7 @@ class AnswerCHRFCorrectness(Metric):
             lowercase=self.lowercase,
             whitespace=self.whitespace,
             eps_smoothing=self.eps_smoothing
-        )
+        )['score']
         scores = [
             chrf.compute(
                 predictions=[pred_answers[i]],
