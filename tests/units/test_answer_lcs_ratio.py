@@ -29,8 +29,6 @@ def testset(sample):
 def test_case_on_answer_lcs_ratio(testset):
     metric = AnswerLCSRatio()
     assert metric.name == "answer_lcs_ratio"
-    assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset, 1)
+    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
     assert score == 16 / 17
-    assert isinstance(results, Dataset)

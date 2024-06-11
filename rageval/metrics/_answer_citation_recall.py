@@ -76,10 +76,7 @@ Examples:
     >>> metric = rl.metrics.AnswerCitationRecall(nli_model=nli_model)
     >>> metric.mtype
     'AnswerGroundedness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['contexts'], 1)
 """
 
 _CITATION = """\
@@ -170,8 +167,8 @@ class AnswerCitationRecall(Metric):
 
     def _compute_batch(
         self,
-        predictions: List[str],
-        references: List[List[str]]
+        answers: List[str],
+        contexts: List[List[str]]
     ) -> List[float]:
         """
         Evaluate the citation recall of a batch of answers.

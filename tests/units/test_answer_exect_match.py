@@ -22,7 +22,7 @@ def sample():
             [
                 ["Daei", "Ali Daei"],
                 ["Bican", "Josef Bican"],
-                ["Sinclair","Christine Sinclair"]
+                ["Sinclair", "Christine Sinclair"]
             ],
             [
                 ["Jeanne Calment"],
@@ -44,16 +44,12 @@ def testset(sample):
 def test_case_on_answer_exact_match(testset):
     metric = AnswerEMCorrectness()
     assert metric.name == "answer_exact_match"
-    assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset, 1)
+    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
     assert 0 <= score <= 1
-    assert isinstance(results, Dataset)
 
     metric = AnswerEMCorrectness(ignore_case=True)
     assert metric.name == "answer_exact_match"
-    assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset, 1)
+    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
     assert 0 <= score <= 1
-    assert isinstance(results, Dataset)

@@ -39,10 +39,8 @@ Examples:
     >>> metric = rl.metrics.AnswerEditDistance()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert s == 5 / 18
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+    >>> assert score == 5 / 18
 """
 
 _CITATION = """\
@@ -100,13 +98,13 @@ class AnswerEditDistance(Metric):
 
     def _compute_one(
         self,
-        answer: str,
-        gt_answer: str
+        pred_answer: str,
+        ref_answer: str
     ) -> float:
         """Evaluating the similarity between answer and gt_answer by calculating the edit distance."""
-        answer = answer.split()
-        gt_answer = gt_answer.split()
-        m, n = len(answer), len(gt_answer)
+        pred_answer = pred_answer.split()
+        ref_answer = ref_answer.split()
+        m, n = len(pred_answer), len(ref_answer)
 
         if m == 0 or n == 0:
             return 0
@@ -120,7 +118,7 @@ class AnswerEditDistance(Metric):
         for i in range(1, m + 1):
             for j in range(1, n + 1):
                 dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1)
-                if answer[i - 1] != gt_answer[j - 1]:
+                if pred_answer[i - 1] != ref_answer[j - 1]:
                     dp[i][j] = min(dp[i][j], dp[i - 1][j - 1] + 1)
                 else:
                     dp[i][j] = min(dp[i][j], dp[i - 1][j - 1])
@@ -129,9 +127,11 @@ class AnswerEditDistance(Metric):
 
     def _compute_batch(
         self,
-        predictions: List[str],
-        references: List[str]
+        pred_answers: List[str],
+        ref_answers: List[str],
     ) -> List[float]:
         """Evaluate the similarity of a batch of answers."""
-        return [self._compute_one(prediction, reference)
-            for prediction, reference in zip(predictions, references)]
+        return [
+            self._compute_one(pred_answer, reference)
+            for pred_answer, reference in zip(pred_answers, ref_answers)
+        ]

@@ -12,7 +12,7 @@ def sample():
         ],
         "gt_answers": [
             ["Ali Dael has the highest goals in men's world international football with 109 goals. Josef Bican has the highest goals all-time in men's football and Christine Sinclair has the highest goals in women's world international football.",
-            "The players with the highest all-time goals and highest men's and women's international football goals differ. The player with the highest all-time men's football goals is Josef Bican, who in 2020 was recognized by FIFA, the international governing body of football, as the record scorer with an estimated 805 goals. Christine Sinclair has the highest goals in women's international football with 187 and is the all-time leader for international goals scored for men or women. Cristiano Ronaldo and Ali Daei are currently tied for leading goalscorer in the history of men's international football with 109."],
+             "The players with the highest all-time goals and highest men's and women's international football goals differ. The player with the highest all-time men's football goals is Josef Bican, who in 2020 was recognized by FIFA, the international governing body of football, as the record scorer with an estimated 805 goals. Christine Sinclair has the highest goals in women's international football with 187 and is the all-time leader for international goals scored for men or women. Cristiano Ronaldo and Ali Daei are currently tied for leading goalscorer in the history of men's international football with 109."],
         ]
     }
     return test_case
@@ -28,8 +28,6 @@ def testset(sample):
 def test_case_on_answer_disambig_f1(testset):
     metric = AnswerDisambigF1Correctness()
     assert metric.name == "answer_disambig_f1"
-    assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset, 1)
+    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
     assert 0 <= score <= 1
-    assert isinstance(results, Dataset)

@@ -48,9 +48,7 @@ Examples:
     >>> metric = rl.metrics.AnswerTERCorrectness()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset)
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
 """
 
 _CITATION = """\
@@ -94,11 +92,11 @@ class AnswerTERCorrectness(Metric):
     ALIAS = ['answer_ter']
 
     def __init__(
-            self,
-            normalized: bool = False,
-            ignore_punct: bool = False,
-            support_zh_ja_chars: bool = False,
-            case_sensitive: bool = False
+        self,
+        normalized: bool = False,
+        ignore_punct: bool = False,
+        support_zh_ja_chars: bool = False,
+        case_sensitive: bool = False
     ):
         """
         Explicitly initialize AnswerTERCorrectness.
@@ -131,37 +129,49 @@ class AnswerTERCorrectness(Metric):
             reference_urls=["https://aclanthology.org/2006.amta-papers.25", "https://www.aclweb.org/anthology/W18-6319"]
         )
 
-    def _validate_data(self, dataset: datasets.Dataset) -> bool:
-        """Validate the of the input dataset."""
-        super()._validate_data(dataset)
-        if not all(isinstance(answer, str) for answer in dataset["answers"]):
-            raise ValueError("The type of answers should be a string.")
-        if not all(isinstance(a, List) or not all(isinstance(item, str) for item in a) for a in dataset["gt_answers"]):
-            raise ValueError("The type of gt_answers should be a list of strings.")
+    def _validate_data(
+        self,
+        pred_answers: List[str],
+        ref_answers: List[List[str]]
+    ) -> None:
+        """Validate the input predictions and references."""
+        if not all(isinstance(pred_answer, str) for pred_answer in pred_answers):
+            raise ValueError("The type of pred_answers should be a list of strings.")
+        if not all(isinstance(reference_list, list) and all(isinstance(reference, str) for reference in reference_list) for reference_list in ref_answers):
+            raise ValueError("The type of ref_answers should be a list of lists of strings.")
 
     def compute(
         self,
-        dataset: Dataset,
-        batch_size: int = None,
+        pred_answers: List[str],
+        ref_answers: List[List[str]],
+        batch_size: int,
     ) -> Tuple[float, Dataset]:
         """Evaluate the dataset."""
         ter = datasets.load_metric("ter")
-        predictions = list(dataset["answers"])
-        references = list(dataset["gt_answers"])
-        result = ter.compute(predictions=predictions,
-                             references=references,
-                             normalized=self.normalized,
-                             ignore_punct=self.ignore_punct,
-                             support_zh_ja_chars=self.support_zh_ja_chars,
-                             case_sensitive=self.case_sensitive)
-        scores = [ter.compute(predictions=[predictions[i]],
-                              references=[references[i]],
-                              normalized=self.normalized,
-                              ignore_punct=self.ignore_punct,
-                              support_zh_ja_chars=self.support_zh_ja_chars,
-                              case_sensitive=self.case_sensitive)['score'] for i in range(len(predictions))]
+        result = ter.compute(
+            predictions=pred_answers,
+            references=ref_answers,
+            normalized=self.normalized,
+            ignore_punct=self.ignore_punct,
+            support_zh_ja_chars=self.support_zh_ja_chars,
+            case_sensitive=self.case_sensitive
+        )
+        scores = [
+            ter.compute(
+                predictions=[pred_answers[i]],
+                references=[ref_answers[i]],
+                normalized=self.normalized,
+                ignore_punct=self.ignore_punct,
+                support_zh_ja_chars=self.support_zh_ja_chars,
+                case_sensitive=self.case_sensitive
+            )['score']
+            for i in range(len(pred_answers))
+        ]
+        return result, scores
 
-        return result['score'], dataset.add_column(f"{self.name}", scores)
-
-    def _compute_batch(self, dataset: Dataset) -> list:
+    def _compute_batch(
+        self,
+        pred_answers: List[str],
+        ref_answers: List[List[str]]
+    ) -> list:
         pass

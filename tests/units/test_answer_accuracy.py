@@ -31,8 +31,8 @@ def testset(sample):
 def test_case_on_answer_accuracy(testset):
     metric = AnswerAccuracy()
     assert metric.name == "answer_accuracy"
-    assert metric.homepage == ""
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset, 1)
+    assert repr(metric) == "answer_accuracy"
+    score, results = metric.compute(testset["answers"], testset["gt_answers"], 1)
     assert score == 2 / 3
-    assert isinstance(results, Dataset)
+    assert results[0] is True

@@ -3,11 +3,13 @@ from datasets import Dataset
 from typing import List
 from rageval.metrics import AnswerRougeCorrectness
 
+
 class CharTokenizer:
     """Tokenize text into characters."""
     def tokenize(self, text: str) -> List[str]:
         # Tokenize by characters to avoid a dependency on word segmentation methods.
         return [c for c in text]
+
 
 @pytest.fixture(scope='module')
 def sample():
@@ -36,18 +38,16 @@ def testset(sample):
 
 
 def test_case_on_answer_exact_match(testset):
-    
+
     # Test with Chinese tokenizer
     chinese_tokenizer = CharTokenizer()
     metric = AnswerRougeCorrectness('rouge1', chinese_tokenizer)
-    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
+    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
     assert metric.mtype == 'AnswerCorrectness'
     assert 0 <= score <= 1
-    assert isinstance(results, Dataset)
-    
+
     # Test with English tokenizer
     metric = AnswerRougeCorrectness('rouge1')
-    score, results = metric.compute(1, testset['answers'], testset['gt_answers'])
+    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
     assert metric.mtype == 'AnswerCorrectness'
     assert 0 <= score <= 1
-    assert isinstance(results, Dataset)

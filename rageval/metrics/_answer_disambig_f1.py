@@ -11,9 +11,9 @@ import spacy
 from rageval.metrics import Metric, add_attribute
 
 _DESCRIPTION = """\
-    The Disambig-F1 is a variant of the F1 score, estimates the similarity between the disambiguation of the answer and the ground truth answer.
+The Disambig-F1 is a variant of the F1 score, estimates the similarity between the disambiguation of the answer and the ground truth answer.
 
-    The original metric was presented in [ASQA paper](https://aclanthology.org/2022.emnlp-main.566/), and implemented through [this code](https://github.com/google-research/language/blob/master/language/asqa/scoring.py#L273). And we adopted an [alternative implementation](https://github.com/jzbjyb/FLARE/tree/main/src/datasets.py#L29) from the paper [Active Retrieval Augmented Generation](https://arxiv.org/abs/2305.06983).
+The original metric was presented in [ASQA paper](https://aclanthology.org/2022.emnlp-main.566/), and implemented through [this code](https://github.com/google-research/language/blob/master/language/asqa/scoring.py#L273). And we adopted an [alternative implementation](https://github.com/jzbjyb/FLARE/tree/main/src/datasets.py#L29) from the paper [Active Retrieval Augmented Generation](https://arxiv.org/abs/2305.06983).
 """
 
 _KWARGS_DESCRIPTION = """\
@@ -49,10 +49,8 @@ Examples:
     >>> metric = rl.metrics.AnswerDisambigF1Correctness(model="en_core_web_sm")
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+    >>> assert 0 <= score <= 1
 """
 
 _CITATION = """\
@@ -123,8 +121,14 @@ class AnswerDisambigF1Correctness(Metric):
                     "gt_answers": datasets.Sequence(datasets.Value("string"))
                 }
             ),
-            codebase_urls=["https://github.com/google-research/language/blob/master/language/asqa", "https://github.com/jzbjyb/FLARE"],
-            reference_urls=["https://aclanthology.org/2022.emnlp-main.566", "https://arxiv.org/abs/2305.06983"]
+            codebase_urls=[
+                "https://github.com/google-research/language/blob/master/language/asqa",
+                "https://github.com/jzbjyb/FLARE"
+            ],
+            reference_urls=[
+                "https://aclanthology.org/2022.emnlp-main.566",
+                "https://arxiv.org/abs/2305.06983"
+            ]
         )
 
     def _normalize_text(self, s: str) -> str:
@@ -148,14 +152,6 @@ class AnswerDisambigF1Correctness(Metric):
         ents = doc.ents
         return [self._normalize_text(e.text) for e in ents]
 
-    def _validate_data(self, dataset: datasets.Dataset) -> bool:
-        """Validate the of the input dataset."""
-        super()._validate_data(dataset)
-        if not all(isinstance(answer, str) for answer in dataset["answers"]):
-            raise ValueError("The type of answers should be a string.")
-        if not all(isinstance(a, List) or not all(isinstance(item, str) for item in a) for a in dataset["gt_answers"]):
-            raise ValueError("The type of gt_answers should be a list of strings.")
-
     def _f1_score(self, pred: str, ref: str) -> float:
         """Compute the f1 score between pred and ref."""
         pred_ents = self._ner(pred)
@@ -177,22 +173,24 @@ class AnswerDisambigF1Correctness(Metric):
 
     def _compute_one(
         self,
-        answer: str,
-        gt_answers: List[str]
+        pred_answer: str,
+        ref_answers: List[str]
     ) -> float:
         """Evaluate the disambig f1 score of an answer."""
         scores = []
-        for gt_answer in gt_answers:
-            score = self._f1_score(answer, gt_answer)
+        for ref_answer in ref_answers:
+            score = self._f1_score(pred_answer, ref_answer)
             scores.append(score)
 
         return np.max(scores)
 
     def _compute_batch(
         self,
-        predictions: List[str],
-        references: List[List[str]]
+        pred_answers: List[str],
+        ref_answers: List[List[str]]
     ) -> List[float]:
         """Evaluate the disambig f1 score of a batch of answers."""
-        return [self._compute_one(prediction, gt_answers)
-            for prediction, gt_answers in zip(predictions, references)]
+        return [
+            self._compute_one(pred_answer, gt_answer)
+            for pred_answer, gt_answer in zip(pred_answers, ref_answers)
+        ]

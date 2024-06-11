@@ -39,7 +39,6 @@ class Metric(MetricInfoMixin):
             config_name: type(string), Optional.
             experiment_id: type(string), Optional.
         """
-        self._required_columns = []
         info = self._info()
         info.metric_name = camelcase_to_snakecase(self.__class__.__name__)
         info.config_name = config_name or "default"
@@ -66,45 +65,45 @@ class Metric(MetricInfoMixin):
 
     def _validate_data(
         self,
-        predictions: Optional[Iterable] = None,
-        references: Optional[Iterable] = None,
+        pred_answers: Optional[Iterable] = None,
+        ref_answers: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> None:
         """Validate the of the input dataset."""
-        if len(predictions) != len(references) or any(len(predictions) != len(arg) for arg in args):
+        if len(pred_answers) != len(ref_answers) or any(len(pred_answers) != len(arg) for arg in args):
             raise ValueError("The length of predictions and references should be the same.")
 
     def compute(
         self,
+        pred_answers: Optional[Iterable] = None,
+        ref_answers: Optional[Iterable] = None,
         batch_size: int = None,
-        predictions: Optional[Iterable] = None,
-        references: Optional[Iterable] = None,
         *args: Optional[Iterable],
     ) -> Tuple[float, List[float]]:
         """Evaluate the dataset."""
-        self._validate_data(predictions, references, *args)
+        self._validate_data(pred_answers, ref_answers, *args)
         scores = []
-        length = len(predictions)
+        length = len(pred_answers)
         if batch_size:
             for start in tqdm(range(0, length, batch_size)):
                 end = start + batch_size
                 end = end if end < length else length
                 score = self._compute_batch(
-                    predictions[start:end],
-                    references[start:end],
+                    pred_answers[start:end],
+                    ref_answers[start:end],
                     *[arg[start:end] for arg in args],
                 )
                 scores.extend(score)
         else:
-            scores = self._compute_batch(predictions, references, *args)
+            scores = self._compute_batch(pred_answers, ref_answers, *args)
 
         return np.average(scores), scores
 
     @abstractmethod
     def _compute_batch(
         self,
-        predictions: Optional[Iterable] = None,
-        references: Optional[Iterable] = None,
+        pred_answers: Optional[Iterable] = None,
+        ref_answers: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> List[float]:
         ...
