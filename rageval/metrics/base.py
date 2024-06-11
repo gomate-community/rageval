@@ -82,6 +82,7 @@ class Metric(MetricInfoMixin):
     ) -> Tuple[float, List[float]]:
         """
         Evaluate the dataset.
+
         Return average scores of all inputs and a score list for each example.
         """
         self._validate_data(pred_answers, ref_answers, *args)
