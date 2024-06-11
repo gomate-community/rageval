@@ -194,7 +194,7 @@ class AnswerCitationPrecision(Metric):
         """
 
         results = []
-        for answer, context in tqdm(zip(predictions, references)):
+        for answer, context in tqdm(zip(answers, contexts)):
             citation_correct, citation_total = self._compute_one(answer, context)
             results.append((citation_correct, citation_total))
         return results
@@ -222,8 +222,8 @@ class AnswerCitationPrecision(Metric):
         citation_total = np.sum([total for correct, total in scores])
 
         dataset = datasets.Dataset.from_dict({
-            "predictions": predictions,
-            "references": references,
+            "predictions": answers,
+            "references": contexts,
             f"{self.name}_scores": scores
         })
 

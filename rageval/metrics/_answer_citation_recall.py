@@ -182,7 +182,7 @@ class AnswerCitationRecall(Metric):
         """
 
         results = []
-        for answer, context in tqdm(zip(predictions, references)):
+        for answer, context in tqdm(zip(answers, contexts)):
             r = self._compute_one(answer, context)
             results.append(r)
         return results
