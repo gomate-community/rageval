@@ -221,11 +221,11 @@ class AnswerCitationPrecision(Metric):
         citation_correct = np.sum([correct for correct, total in scores])
         citation_total = np.sum([total for correct, total in scores])
 
-        dataset = datasets.Dataset.from_dict({
-            "predictions": answers,
-            "references": contexts,
-            f"{self.name}_scores": scores
-        })
+        # dataset = datasets.Dataset.from_dict({
+        #     "predictions": answers,
+        #     "references": contexts,
+        #     f"{self.name}_scores": scores
+        # })
 
         if citation_total == 0:
             return 0.0, scores
