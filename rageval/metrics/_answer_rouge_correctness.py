@@ -86,7 +86,6 @@ class AnswerRougeCorrectness(Metric):
 
     def __init__(self, rouge_type: str, tokenizer: Optional[Callable] = None):
         """Explicitly initialize the AnswerRougeCorrectness to ensure all parent class initialized as well as initialize the rouge type and tokenizer."""
-        self._required_columns = ['answers', 'gt_answers']
         self.rouge_type = rouge_type
         self.scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True, tokenizer=tokenizer)
         super().__init__()
@@ -122,11 +121,11 @@ class AnswerRougeCorrectness(Metric):
     def _compute_batch(
         self,
         pred_answers: List[str],
-        ref_answers: List[str]
+        ref_answers: List[List[str]]
     ) -> List[float]:
         """Evaluate the ROUGE of a batch of answers."""
         results = [
-            self._compute_one(answer, gt_answer)
-            for answer, gt_answer in zip(pred_answers, ref_answers)
+            self._compute_one(pred_answer, ref_answer)
+            for pred_answer, ref_answer in zip(pred_answers, ref_answers)
         ]
         return results

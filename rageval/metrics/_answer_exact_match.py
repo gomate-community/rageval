@@ -86,7 +86,6 @@ class AnswerEMCorrectness(Metric):
     def __init__(self, ignore_case: bool = False):
         """Explicitly initialize the AnswerEMCorrectness to ensure all parent class initialized."""
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
         self.ignore_case = ignore_case
 
     def __repr__(self) -> str:

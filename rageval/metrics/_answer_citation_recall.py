@@ -109,7 +109,6 @@ class AnswerCitationRecall(Metric):
         Ensure nli_model is initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'contexts']
         self.nli_model = nli_model
 
     def __repr__(self) -> str:

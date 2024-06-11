@@ -101,7 +101,6 @@ class AnswerDisambigF1Correctness(Metric):
         Ensure spacy ner model is initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
         self.model = model
         self.nlp = spacy.load(model)
 

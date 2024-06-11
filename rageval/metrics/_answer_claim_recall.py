@@ -90,7 +90,6 @@ class AnswerNLICorrectness(Metric):
         Ensure nli_model and decompose_model is initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
         self.nli_model = nli_model
         self.decompose_model = decompose_model
 

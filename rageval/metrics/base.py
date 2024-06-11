@@ -80,7 +80,10 @@ class Metric(MetricInfoMixin):
         batch_size: int = None,
         *args: Optional[Iterable],
     ) -> Tuple[float, List[float]]:
-        """Evaluate the dataset."""
+        """
+        Evaluate the dataset.
+        Return average scores of all inputs and a score list for each example.
+        """
         self._validate_data(pred_answers, ref_answers, *args)
         scores = []
         length = len(pred_answers)

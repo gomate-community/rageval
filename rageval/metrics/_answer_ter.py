@@ -104,7 +104,6 @@ class AnswerTERCorrectness(Metric):
         Ensure all parent classes are initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
         self.normalized = normalized
         self.ignore_punct = ignore_punct
         self.support_zh_ja_chars = support_zh_ja_chars

@@ -108,7 +108,6 @@ class ContextRejectRate(MetricWithLLM):
     def __init__(self, model: Callable):
         """Explicitly initialize the ContextRejectRate to ensure all parent class initialized."""
         super().__init__(model)
-        self._required_columns = ['questions', 'contexts']
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
