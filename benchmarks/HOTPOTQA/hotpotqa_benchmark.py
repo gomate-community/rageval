@@ -30,37 +30,47 @@ class HOTPOTQABenchmark(BaseBenchmark):
             idx = data['context']['title'].index(title)
             recode = sum(len_support[:idx]) + 1 + sent_id
             recode_answers.append(str(recode))
-        recode_answers=[' '.join(recode_answers)]
+        recode_answers = [' '.join(recode_answers)]
         data["gt_sent_ids"] = recode_answers
         return data
 
     def _evaluate(self) -> Tuple[Dict[Any, Any], Dataset]:
         """Evaluate the dataset and return the dataset with scores.
 
-        For the HotPotQA dataset,we evaluate models by using the `short_answer` and `supporting_answer`.
-        
-        We use the `answer` as the `gt_answers` to evaluate the string Exact Match correctness and the `supporting_facts` to make "gt_sent_ids" to evaluate the F1.
+        For the HotPotQA dataset(Distractor Setting),we evaluate models by using the `short_answer` and `supporting_answer`.
+
+        For the HotPotQA dataset(Fullwiki Setting),we evaluate models by using the `response`.
+
+        In Distractor Setting,we use the `answer` as the `gt_answers` to evaluate the string Exact Match correctness and the `supporting_facts` to make "gt_sent_ids" to evaluate the F1.
+
+        In Fullwiki Setting,we use the `answer` as the `gt_answers` to evaluate the string Exact Match correctness.
         """
 
         self.metrics = [AnswerEMCorrectness(ignore_case=True),
                         AnswerF1Correctness()
                         ]
-        self.dataset = self.dataset.map(self._recode_gt_supporting_facts)
-        self.dataset = self.dataset.map(lambda exmaple:{"answer":[[ exmaple['answer']]]})
-        ground_truths = {
-            "answer_f1": ("supporting_answer", "gt_sent_ids"),
-            "answer_exact_match": ("short_answer", "answer")
-        }
+        if (("supporting_answer" in self.dataset.column_names) and "short_answer" in self.dataset.column_names):
+            self.dataset = self.dataset.map(self._recode_gt_supporting_facts)
+            self.dataset = self.dataset.map(lambda exmaple: {"answer": [[exmaple['answer']]]})
+            ground_truths = {
+                "answer_f1": ("supporting_answer", "gt_sent_ids"),
+                "answer_exact_match": ("short_answer", "answer")
+            }
+        else:
+            self.dataset = self.dataset.map(lambda exmaple: {"answer": [[exmaple['answer']]]})
+            ground_truths = {
+                "answer_exact_match": ("response", "answer")
+            }
 
         results = {}
 
         for metric in self.metrics:
             if metric.name in ground_truths:
                 print(f"Calculating {metric.name}...")
-                             
-                if metric.name in  self.dataset.column_names:
-                    self.dataset=self.dataset.remove_columns(metric.name)
-                    
+
+                if metric.name in self.dataset.column_names:
+                    self.dataset = self.dataset.remove_columns(metric.name)
+
                 an, gtan = ground_truths[metric.name]
                 self.dataset = self.dataset.rename_column(an, "answers")
                 self.dataset = self.dataset.rename_column(gtan, "gt_answers")
@@ -92,9 +102,9 @@ if __name__ == "__main__":
         )
         print(f"Results:\n {results}")
         benchmark.save_results(os.path.join(args.output_dir, 'results', f"{args.local_file[:-5]}_{date}.jsonl"))
-        benchmark.save_dataset(os.path.join(args.output_dir,'output',f"{args.local_file[:-5]}_{date}.jsonl"))
+        benchmark.save_dataset(os.path.join(args.output_dir, 'output', f"{args.local_file[:-5]}_{date}.jsonl"))
     else:
         results = benchmark.evaluate(path='golaxy/rag-bench', name='hotpot_qa', split=args.remote_split)
         print(f"Results:\n {results}")
         benchmark.save_results(os.path.join(args.output_dir, 'results', f"{args.remote_split}_{date}.jsonl"))
-        benchmark.save_dataset(os.path.join(args.output_dir,'output',f"{args.remote_split}_{date}.jsonl"))
+        benchmark.save_dataset(os.path.join(args.output_dir, 'output', f"{args.remote_split}_{date}.jsonl"))
