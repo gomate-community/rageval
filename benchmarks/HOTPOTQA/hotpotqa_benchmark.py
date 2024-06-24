@@ -23,13 +23,11 @@ class HOTPOTQABenchmark(BaseBenchmark):
         super().__init__()
 
     def _recode_gt_supporting_facts(self, data: object) -> object:
-        """To calculate f1 recode gt_sent_ids from 1 to the length of all sentences in contexts """
+        """To calculate f1 recode gt_sent_ids by linking title and index"""
         recode_answers = []
-        len_support = [len(i) for i in data['context']['sentences']]
         for title, sent_id in zip(data['supporting_facts']['title'], data['supporting_facts']['sent_id']):
-            idx = data['context']['title'].index(title)
-            recode = sum(len_support[:idx]) + 1 + sent_id
-            recode_answers.append(str(recode))
+            recode = title.replace(" ","")+ str(sent_id)
+            recode_answers.append(recode)
         recode_answers = [' '.join(recode_answers)]
         data["gt_sent_ids"] = recode_answers
         return data
@@ -37,9 +35,9 @@ class HOTPOTQABenchmark(BaseBenchmark):
     def _evaluate(self) -> Tuple[Dict[Any, Any], Dataset]:
         """Evaluate the dataset and return the dataset with scores.
 
-        For the HotPotQA dataset(Distractor Setting),we evaluate models by using the `short_answer` and `supporting_answer`.
+        For the HotPotQA dataset(Distractor Setting), we evaluate models by using the `short_answer` and `supporting_answer`.
 
-        For the HotPotQA dataset(Fullwiki Setting),we evaluate models by using the `response`.
+        For the HotPotQA dataset(Fullwiki Setting), we evaluate models by using the `response`.
 
         In Distractor Setting,we use the `answer` as the `gt_answers` to evaluate the string Exact Match correctness and the `supporting_facts` to make "gt_sent_ids" to evaluate the F1.
 
@@ -79,6 +77,7 @@ class HOTPOTQABenchmark(BaseBenchmark):
 
                 self.dataset = self.dataset.rename_column("answers", an)
                 self.dataset = self.dataset.rename_column("gt_answers", gtan)
+        self.dataset = self.dataset.map(lambda example: {"answer": example['answer'][0][0]})
         return results, self.dataset
 
 

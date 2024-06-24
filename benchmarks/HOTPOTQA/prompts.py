@@ -46,7 +46,7 @@ question:Which magazine was started first Arthur's Magazine or First for Women?
 question_type:comparison
 answer:Arthur's Magazine
 
-instructions:Please answer the question with a short and precise answer.documents:
+instructions:Please answer the question with a short and precise answer.
 question:The Oberoi family is part of a hotel company that has a head office in what city?
 question_type:bridge
 answer:Delhi

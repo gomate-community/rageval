@@ -1,6 +1,6 @@
 import argparse
 import os
-import re
+import ast
 import json
 import random
 
@@ -30,21 +30,14 @@ def process_response(response: str) -> Tuple[str, str]:
     response = response.strip()[1:-1].split('\n')
     if response:
         answer = response[0]
-        if len(response) != 1:
-            len_support = [len(s) for s in data['context']['sentences']]
-            for sup in response[1:]:
-                t = sup.split(':')
-                if t and len(t) != 1:
-                    title = t[0]
-                    if title in data['context']['title']:
-                        idx = data['context']['title'].index(title)
-                        supporting += [str(1 + sum(len_support[:idx]) + int(re.sub(r'\D', '', v))) for v in
-                                       t[1].replace('[', "").replace(']', "").split(',') if re.sub(r'\D', '', v)]
-    if supporting:
-        supporting = " ".join(supporting)
-    else:
-        supporting = ""
-    return answer, supporting
+    try:
+        for sup in response[1:]:
+            t = sup.split(':')
+            title = t[0].replace(" ","")
+            supporting += [f"{title}{v}" for v in  ast.literal_eval(t[1])]
+    except Exception as e:
+        print(e)
+    return answer,supporting
 
 
 if __name__ == "__main__":
