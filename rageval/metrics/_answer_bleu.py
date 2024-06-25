@@ -1,9 +1,8 @@
+import re
 from dataclasses import dataclass
 from typing import List, Tuple
 
 import datasets
-from datasets import Dataset
-import re
 
 from rageval.metrics import Metric, add_attribute
 
@@ -54,11 +53,11 @@ Examples:
     >>> metric = rl.metrics.AnswerBleuScore()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert s == 0.3172992057845065
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
-
+    >>> score, results = metric.compute(dataset["answers"], dataset["gt_answers"], 1)
+    >>> score
+    0.3172992057845065
+    >>> results[0]
+    0.49697705300310346
 """
 
 
@@ -88,7 +87,6 @@ class AnswerBleuScore(Metric):
     def __init__(self):
         """Explicitly initialize the AnswerBleuScore to ensure all parent class initialized."""
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -106,9 +104,11 @@ class AnswerBleuScore(Metric):
                     "gt_answers": datasets.Sequence(datasets.Value("string"))
                 }
             ),
-            codebase_urls=["https://github.com/tensorflow/nmt/blob/master/nmt/scripts/bleu.py",
-                           "https://github.com/huggingface/datasets/blob/main/metrics/bleu/bleu.py"],
-            reference_urls=["http://www.aclweb.org/anthology/P02-1040.pdf"]
+            codebase_urls=[
+                "https://github.com/tensorflow/nmt/blob/master/nmt/scripts/bleu.py",
+                "https://github.com/huggingface/datasets/blob/main/metrics/bleu/bleu.py"
+            ],
+            reference_urls=["https://www.aclweb.org/anthology/P02-1040.pdf"]
         )
 
     def _clean_special_tokens(self, sentence: str, subword: str) -> str:
@@ -119,22 +119,23 @@ class AnswerBleuScore(Metric):
             sentence = re.sub(subword, "", sentence)
         return sentence
 
-    def _compute_single(self, dataset: datasets.Dataset) -> List[float]:
+    def _compute_single(
+        self,
+        pred_answers: List[str],
+        ref_answers: List[List[str]]
+    ) -> List[float]:
         """Compute the bleu score of a batch of answers."""
 
         scores = []
         bleu = datasets.load_metric("bleu")
-        for output, gt_answers in zip(dataset["answers"], dataset["gt_answers"]):
+        for output, gt_answers in zip(pred_answers, ref_answers):
             output_clean = self._clean_special_tokens(output, None)
-            predictions = []
-            predictions.append(output_clean.split(' '))
+            predictions = [output_clean.split(' ')]
             references = []
-            reference = []
             for gt_answer in gt_answers:
                 gt_answer_clean = self._clean_special_tokens(gt_answer, None)
-                reference.append(list(gt_answer_clean.split(' ')))
-            references.append(reference)
-            bleu_result = bleu.compute(predictions=predictions, references=references)
+                references.append(list(gt_answer_clean.split(' ')))
+            bleu_result = bleu.compute(predictions=predictions, references=[references])
             bleu_score = bleu_result['bleu']
             scores.append(bleu_score)
 
@@ -142,27 +143,32 @@ class AnswerBleuScore(Metric):
 
     def compute(
         self,
-        dataset: Dataset,
-        batch_size: int = None,
-    ) -> Tuple[float, Dataset]:
+        pred_answers: List[str],
+        ref_answers: List[List[str]],
+        batch_size: int,
+    ) -> Tuple[float, List[float]]:
         """Evaluate the dataset."""
 
         bleu = datasets.load_metric("bleu")
         predictions = []
         references = []
-        reference = []
-        for output, gt_answers in zip(dataset["answers"], dataset["gt_answers"]):
+        for output, gt_answers in zip(pred_answers, ref_answers):
             output_clean = self._clean_special_tokens(output, None)
             predictions.append(list(output_clean.split(' ')))
+            reference = []
             for gt_answer in gt_answers:
                 gt_answer_clean = self._clean_special_tokens(gt_answer, None)
                 reference.append(list(gt_answer_clean.split(' ')))
             references.append(reference)
         bleu_result = bleu.compute(predictions=predictions, references=references)
         bleu_score = bleu_result['bleu']
-        scores = self._compute_single(dataset)
+        scores = self._compute_single(pred_answers, ref_answers)
 
-        return bleu_score, dataset.add_column(f"{self.name}", scores)
+        return bleu_score, scores
 
-    def _compute_batch(self, dataset: Dataset) -> list:
+    def _compute_batch(
+        self,
+        pred_answers: List[str],
+        ref_answers: List[List[str]]
+    ) -> List[float]:
         pass

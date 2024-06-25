@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Callable
+from typing import List, Callable, Tuple
 
 import datasets
 import numpy as np
@@ -56,10 +56,8 @@ Examples:
     >>> metric = rl.metrics.AnswerNLICorrectness(nli_model=nli_model, decompose_model="nltk")
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert s == 0 or s == 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+    >>> assert score == 0 or score == 1
 """
 
 _CITATION = """\
@@ -92,7 +90,6 @@ class AnswerNLICorrectness(Metric):
         Ensure nli_model and decompose_model is initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
         self.nli_model = nli_model
         self.decompose_model = decompose_model
 
@@ -148,8 +145,9 @@ class AnswerNLICorrectness(Metric):
 
     def _compute_batch(
         self,
-        dataset: datasets.Dataset
-    ) -> list:
+        pred_answers,
+        ref_answers
+    ) -> List[float]:
         """
         Evaluate the correctness of a batch of answers.
 
@@ -158,22 +156,20 @@ class AnswerNLICorrectness(Metric):
         Finally, aggregate all faithfulness score of each claim.
         """
 
-        if isinstance(dataset["gt_answers"], list):
-            if isinstance(dataset["gt_answers"][0], list):
+        if isinstance(ref_answers, list):
+            if isinstance(ref_answers[0], list):
                 # gt_answers has been decomposed into claims list
-                claims = dataset["gt_answers"]
-            elif isinstance(dataset["gt_answers"][0], str):
+                claims = ref_answers
+            elif isinstance(ref_answers[0], str):
                 # use decompose_model to decompose the gt_answers into claims list
-                claims = [text_to_sents(gt_answer, self.decompose_model) for gt_answer in dataset["gt_answers"]]
+                claims = [text_to_sents(gt_answer, self.decompose_model) for gt_answer in ref_answers]
             else:
                 raise ValueError("The type of gt_answers element should be list or string.")
         else:
             raise ValueError("The type of gt_answers should be list.")
 
-        answers = dataset["answers"]
-
         results = []
-        for i, answer in tqdm(enumerate(answers)):
+        for i, answer in tqdm(enumerate(pred_answers)):
             r = self._compute_one(answer, claims[i])
             results.append(r)
         return results

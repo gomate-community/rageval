@@ -76,10 +76,7 @@ Examples:
     >>> metric = rl.metrics.AnswerCitationRecall(nli_model=nli_model)
     >>> metric.mtype
     'AnswerGroundedness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['contexts'], 1)
 """
 
 _CITATION = """\
@@ -112,7 +109,6 @@ class AnswerCitationRecall(Metric):
         Ensure nli_model is initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'contexts']
         self.nli_model = nli_model
 
     def __repr__(self) -> str:
@@ -170,8 +166,9 @@ class AnswerCitationRecall(Metric):
 
     def _compute_batch(
         self,
-        dataset: datasets.Dataset
-    ) -> list:
+        answers: List[str],
+        contexts: List[List[str]]
+    ) -> List[float]:
         """
         Evaluate the citation recall of a batch of answers.
 
@@ -182,11 +179,6 @@ class AnswerCitationRecall(Metric):
         Then, average over all statements in the LLM answer.
         Finally, average over all scores of each answer.
         """
-
-        answers, contexts = (
-            dataset["answers"],
-            dataset["contexts"]
-        )
 
         results = []
         for answer, context in tqdm(zip(answers, contexts)):

@@ -5,7 +5,6 @@ from typing import List, Callable, Tuple
 
 import datasets
 import numpy as np
-from datasets import Dataset
 from tqdm import tqdm
 
 from rageval.metrics import Metric, add_attribute
@@ -80,10 +79,8 @@ Examples:
     >>> metric = rl.metrics.AnswerCitationPrecision(nli_model=nli_model)
     >>> metric.mtype
     'AnswerGroundedness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['contexts'], 1)
+    >>> assert 0 <= score <= 1
 """
 
 _CITATION = """\
@@ -116,7 +113,6 @@ class AnswerCitationPrecision(Metric):
         Ensure nli_model is initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'contexts']
         self.nli_model = nli_model
 
     def __repr__(self) -> str:
@@ -185,7 +181,8 @@ class AnswerCitationPrecision(Metric):
 
     def _compute_batch(
         self,
-        dataset: datasets.Dataset
+        answers: List[str],
+        contexts: List[List[str]]
     ) -> List[Tuple[float, float]]:
         """
         Evaluate the citation precision of a batch of answers.
@@ -196,11 +193,6 @@ class AnswerCitationPrecision(Metric):
         Finally, average over all scores of each answer.
         """
 
-        answers, contexts = (
-            dataset["answers"],
-            dataset["contexts"]
-        )
-
         results = []
         for answer, context in tqdm(zip(answers, contexts)):
             citation_correct, citation_total = self._compute_one(answer, context)
@@ -209,27 +201,33 @@ class AnswerCitationPrecision(Metric):
 
     def compute(
         self,
-        dataset: Dataset,
+        answers: List[str],
+        contexts: List[List[str]],
         batch_size: int = None,
-    ) -> Tuple[float, Dataset]:
+    ) -> Tuple[float, List[Tuple[float, float]]]:
         """Evaluate the dataset."""
-        self._validate_data(dataset)
         scores = []
 
-        length = len(dataset)
+        length = len(answers)
         if batch_size:
             for start in tqdm(range(0, length, batch_size)):
                 end = start + batch_size
                 end = end if end < length else length
-                score = self._compute_batch(dataset.select(range(start, end)))
+                score = self._compute_batch(answers[start:end], contexts[start:end])
                 scores.extend(score)
         else:
-            scores = self._compute_batch(dataset)
+            scores = self._compute_batch(answers, contexts)
 
         citation_correct = np.sum([correct for correct, total in scores])
         citation_total = np.sum([total for correct, total in scores])
 
+        # dataset = datasets.Dataset.from_dict({
+        #     "predictions": answers,
+        #     "references": contexts,
+        #     f"{self.name}_scores": scores
+        # })
+
         if citation_total == 0:
-            return 0.0, dataset.add_column(f"{self.name}", scores)
+            return 0.0, scores
         else:
-            return citation_correct / citation_total, dataset.add_column(f"{self.name}", scores)
+            return citation_correct / citation_total, scores

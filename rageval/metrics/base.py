@@ -1,4 +1,4 @@
-from typing import List, Tuple, Callable, Optional
+from typing import List, Tuple, Callable, Optional, Iterable
 from abc import abstractmethod
 from dataclasses import dataclass
 
@@ -39,7 +39,6 @@ class Metric(MetricInfoMixin):
             config_name: type(string), Optional.
             experiment_id: type(string), Optional.
         """
-        self._required_columns = []
         info = self._info()
         info.metric_name = camelcase_to_snakecase(self.__class__.__name__)
         info.config_name = config_name or "default"
@@ -64,35 +63,53 @@ class Metric(MetricInfoMixin):
         """
         raise NotImplementedError
 
-    def _validate_data(self, dataset: Dataset):
+    def _validate_data(
+        self,
+        pred_answers: Optional[Iterable] = None,
+        ref_answers: Optional[Iterable] = None,
+        *args: Optional[Iterable]
+    ) -> None:
         """Validate the of the input dataset."""
-        if not all(c in dataset.column_names for c in self._required_columns):
-            raise ValueError(
-                f"The input dataset of {self.name} metric should include {self._required_columns} columns."
-            )
+        if len(pred_answers) != len(ref_answers) or any(len(pred_answers) != len(arg) for arg in args):
+            raise ValueError("The length of predictions and references should be the same.")
 
     def compute(
         self,
-        dataset: Dataset,
+        pred_answers: Optional[Iterable] = None,
+        ref_answers: Optional[Iterable] = None,
         batch_size: int = None,
-    ) -> Tuple[float, Dataset]:
-        """Evaluate the dataset."""
-        self._validate_data(dataset)
+        *args: Optional[Iterable],
+    ) -> Tuple[float, List[float]]:
+        """
+        Evaluate the dataset.
+
+        Return average scores of all inputs and a score list for each example.
+        """
+        self._validate_data(pred_answers, ref_answers, *args)
         scores = []
-        length = len(dataset)
+        length = len(pred_answers)
         if batch_size:
             for start in tqdm(range(0, length, batch_size)):
                 end = start + batch_size
                 end = end if end < length else length
-                score = self._compute_batch(dataset.select(range(start, end)))
+                score = self._compute_batch(
+                    pred_answers[start:end],
+                    ref_answers[start:end],
+                    *[arg[start:end] for arg in args],
+                )
                 scores.extend(score)
         else:
-            scores = self._compute_batch(dataset)
+            scores = self._compute_batch(pred_answers, ref_answers, *args)
 
-        return np.average(scores), dataset.add_column(f"{self.name}", scores)
+        return np.average(scores), scores
 
     @abstractmethod
-    def _compute_batch(self, dataset: Dataset) -> list:
+    def _compute_batch(
+        self,
+        pred_answers: Optional[Iterable] = None,
+        ref_answers: Optional[Iterable] = None,
+        *args: Optional[Iterable]
+    ) -> List[float]:
         ...
 
 

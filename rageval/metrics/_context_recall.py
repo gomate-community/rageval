@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, List, Tuple
 
 import datasets
 import numpy as np
 import pandas as pd
-from datasets import Dataset
 from langchain.schema import LLMResult
+from tqdm import tqdm
 
 from rageval.metrics import MetricWithLLM, add_attribute
 from rageval.utils.utility import json_loader
@@ -58,10 +58,8 @@ Examples:
     >>> metric = rl.metrics.ContextRecall(model)
     >>> metric.mtype
     'ContextRelevancy'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['questions'], dataset['gt_answers'], dataset['contexts'], 1)
+    >>> assert 0 <= score <= 1
 """
 
 _CITATION = """\
@@ -87,7 +85,6 @@ class ContextRecall(MetricWithLLM):
     def __init__(self, model: Callable):
         """Explicitly initialize the AnswerEMCorrectness to ensure all parent class initialized."""
         super().__init__(model)
-        self._required_columns = ['questions', 'gt_answers', 'contexts']
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -143,25 +140,50 @@ class ContextRecall(MetricWithLLM):
         # Note that the `results can be recorded by logger.info`
         return scores
 
+    def compute(
+        self,
+        questions: List[str],
+        ref_answers: List[str],
+        contexts: List[List[str]],
+        batch_size: int,
+    ) -> Tuple[float, List[float]]:
+        """Evaluate the dataset."""
+        scores = []
+        length = len(questions)
+        if batch_size:
+            for start in tqdm(range(0, length, batch_size)):
+                end = start + batch_size
+                end = end if end < length else length
+                score = self._compute_batch(
+                    questions[start:end],
+                    ref_answers[start:end],
+                    contexts[start:end]
+                )
+                scores.extend(score)
+        else:
+            scores = self._compute_batch(questions, ref_answers, contexts)
+
+        return np.average(scores), scores
+
     def _compute_batch(
         self,
-        dataset: Dataset,
-    ) -> list:
-        question, ground_truths, contexts = (
-            dataset["questions"],
-            dataset["gt_answers"],
-            dataset["contexts"],
-        )
+        questions: List[str],
+        ref_answers: List[str],
+        contexts: List[List[str]]
+    ) -> List[float]:
 
         prompts = []
-        for qstn, gt, ctx in zip(question, ground_truths, contexts):
-            gt = "\n".join(gt) if isinstance(gt, list) else gt
-            ctx = "\n".join(ctx) if isinstance(ctx, list) else ctx
+        for question, ref_answer, context in zip(questions, ref_answers, contexts):
+            ref_answer = "\n".join(ref_answer) if isinstance(ref_answer, list) else ref_answer
+            context = "\n".join(context) if isinstance(context, list) else context
             prompt = CONTEXT_RECALL_RA.format(
-                question=qstn, context=ctx, answer=gt
+                question=question,
+                context=context,
+                answer=ref_answer
             )
             prompts.append(prompt)
 
         result = self.llm.generate(prompts)
         scores = self.parse_llm_result(prompts, result)
+
         return scores

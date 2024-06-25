@@ -1,9 +1,11 @@
 from dataclasses import dataclass
-from typing import Callable, List
+from typing import Callable, List, Tuple
 
 import datasets
+import numpy as np
 from datasets import Dataset
 from langchain.schema import LLMResult
+from tqdm import tqdm
 
 from rageval.metrics import MetricWithLLM, add_attribute
 from rageval.utils.prompt import REJECT_RATE_PROMPT
@@ -77,10 +79,8 @@ Examples:
     >>> metric = rl.metrics.ContextRejectRate(model)
     >>> metric.mtype
     'AnswerGroundedness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['questions'], dataset['contexts'], 1)
+    >>> assert 0 <= score <= 1
 """
 
 _CITATION = """\
@@ -108,7 +108,6 @@ class ContextRejectRate(MetricWithLLM):
     def __init__(self, model: Callable):
         """Explicitly initialize the ContextRejectRate to ensure all parent class initialized."""
         super().__init__(model)
-        self._required_columns = ['questions', 'contexts']
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -143,20 +142,41 @@ class ContextRejectRate(MetricWithLLM):
                 scores.append(0.)
         return scores
 
+    def compute(
+        self,
+        questions: List[str],
+        contexts: List[List[str]],
+        batch_size: int,
+    ) -> Tuple[float, List[float]]:
+        """Evaluate the dataset."""
+        scores = []
+        length = len(questions)
+        if batch_size:
+            for start in tqdm(range(0, length, batch_size)):
+                end = start + batch_size
+                end = end if end < length else length
+                score = self._compute_batch(
+                    questions[start:end],
+                    contexts[start:end]
+                )
+                scores.extend(score)
+        else:
+            scores = self._compute_batch(questions, contexts)
+
+        return np.average(scores), scores
+
     def _compute_batch(
         self,
-        dataset: Dataset,
-    ) -> list:
+        questions: List[str],
+        contexts: List[List[str]],
+    ) -> List[float]:
         """Compute the score by measure how many rejected answers in all answers."""
-        questions, contexts = (
-            dataset["questions"],
-            dataset["contexts"],
-        )
 
         prompts = []
         for question, context in zip(questions, contexts):
             prompt = REJECT_RATE_PROMPT.format(
-                question=question, evidence=context
+                question=question,
+                evidence=context
             )
             prompts.append(prompt)
 

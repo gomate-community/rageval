@@ -48,10 +48,8 @@ Examples:
     ... }
     >>> dataset = Dataset.from_dict(sample)
     >>> metric = rl.metrics.AnswerRougeCorrectness('rougeL')
-    >>> score, results = metric.compute(dataset, batch_size= 1)
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
     >>> assert 0 <= score <= 1
-    >>> type(results)
-    <class 'datasets.arrow_dataset.Dataset'>
 """
 
 _CITATION = """\
@@ -88,7 +86,6 @@ class AnswerRougeCorrectness(Metric):
 
     def __init__(self, rouge_type: str, tokenizer: Optional[Callable] = None):
         """Explicitly initialize the AnswerRougeCorrectness to ensure all parent class initialized as well as initialize the rouge type and tokenizer."""
-        self._required_columns = ['answers', 'gt_answers']
         self.rouge_type = rouge_type
         self.scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True, tokenizer=tokenizer)
         super().__init__()
@@ -110,22 +107,25 @@ class AnswerRougeCorrectness(Metric):
                 }
             ),
             codebase_urls=["https://github.com/mim-solutions/rouge_score"],
-            reference_urls=["https://aclanthology.org/W04-1013/", "https://arxiv.org/abs/2005.11401"]
+            reference_urls=[
+                "https://aclanthology.org/W04-1013/",
+                "https://arxiv.org/abs/2005.11401"
+            ]
         )
 
-    def _validate_data(self, dataset: Dataset) -> bool:
-        super()._validate_data(dataset)
-        if not all(isinstance(answer, str) for answer in dataset["answers"]):
-            raise ValueError("The type of answers should be a string.")
-        if not all(isinstance(a, List) or not all(isinstance(item, str) for item in a) for a in dataset["gt_answers"]):
-            raise ValueError("The type of gt_answers should be a list of strings.")
-
-    def _compute_one(self, answer: str, gt_answers: List[str]) -> float:
+    def _compute_one(self, pred_answer: str, ref_answers: List[str]) -> float:
         """Evaluate the ROUGE between a single answer and groundtruth answers."""
-        score = self.scorer.score_multi(gt_answers, answer)
+        score = self.scorer.score_multi(ref_answers, pred_answer)
         return score[self.rouge_type].fmeasure
 
-    def _compute_batch(self, dataset: Dataset) -> list:
+    def _compute_batch(
+        self,
+        pred_answers: List[str],
+        ref_answers: List[List[str]]
+    ) -> List[float]:
         """Evaluate the ROUGE of a batch of answers."""
-        results = [self._compute_one(answer, gt_answer) for answer, gt_answer in zip(dataset["answers"], dataset["gt_answers"])]
+        results = [
+            self._compute_one(pred_answer, ref_answer)
+            for pred_answer, ref_answer in zip(pred_answers, ref_answers)
+        ]
         return results

@@ -44,10 +44,8 @@ Examples:
     >>> metric = rl.metrics.AnswerF1Correctness()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+    >>> assert 0 <= score <= 1
 """
 
 _CITATION = """\
@@ -72,7 +70,6 @@ class AnswerF1Correctness(Metric):
         Ensure all parent classes are initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -108,14 +105,6 @@ class AnswerF1Correctness(Metric):
             return text.lower()
         return white_space_fix(remove_articles(remove_punc(lower(s))))
 
-    def _validate_data(self, dataset: datasets.Dataset) -> bool:
-        """Validate the of the input dataset."""
-        super()._validate_data(dataset)
-        if not all(isinstance(answer, str) for answer in dataset["answers"]):
-            raise ValueError("The type of answers should be a string.")
-        if not all(isinstance(a, List) or not all(isinstance(item, str) for item in a) for a in dataset["gt_answers"]):
-            raise ValueError("The type of gt_answers should be a list of strings.")
-
     def _f1_score(self, pred: str, ref: str) -> float:
         """Compute the f1 score between pred and ref."""
         normalized_prediction = self._normalize_text(pred)
@@ -140,21 +129,24 @@ class AnswerF1Correctness(Metric):
 
     def _compute_one(
         self,
-        answer: str,
-        gt_answers: List[str]
+        pred_answer: str,
+        ref_answers: List[str]
     ) -> float:
         """Evaluate the f1 score of an answer."""
         scores = []
-        for gt_answer in gt_answers:
-            score = self._f1_score(answer, gt_answer)
+        for ref_answer in ref_answers:
+            score = self._f1_score(pred_answer, ref_answer)
             scores.append(score)
 
         return np.max(scores)
 
     def _compute_batch(
         self,
-        dataset: datasets.Dataset
-    ) -> list:
+        pred_answers: List[str],
+        ref_answers: List[List[str]]
+    ) -> List[float]:
         """Evaluate the f1 score of a batch of answers."""
-        return [self._compute_one(answer, gt_answers)
-                for answer, gt_answers in zip(dataset["answers"], dataset["gt_answers"])]
+        return [
+            self._compute_one(pred_answer, ref_answer)
+            for pred_answer, ref_answer in zip(pred_answers, ref_answers)
+        ]

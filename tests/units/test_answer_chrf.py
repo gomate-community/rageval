@@ -30,5 +30,7 @@ def test_case_on_answer_ter(testset):
     metric = AnswerCHRFCorrectness()
     assert metric.name == "answer_chrf"
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset)
-    assert isinstance(results, Dataset)
+    assert repr(metric) == "answer_chrf"
+    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
+    assert score == 84.64214891738334
+    assert results[0] == 84.41131092011067

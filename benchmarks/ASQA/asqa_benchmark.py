@@ -1,6 +1,6 @@
 from typing import Dict, Tuple, Any, Optional
 from datasets import Dataset
-import math
+import numpy as np
 import os
 import argparse
 from benchmarks import BaseBenchmark
@@ -39,9 +39,9 @@ class ASQABenchmark(BaseBenchmark):
             self.dataset = self.dataset.map(lambda example: {"long_answers": [ann["long_answer"] for ann in example["annotations"]]})
 
         ground_truths = {
-            "answer_disambig_f1": ("long_answers", "gt_answers"),
-            "answer_rouge_correctness": ("long_answers", "gt_answers"),
-            "answer_exact_match": ("short_answers", "gt_answers")
+            "answer_disambig_f1": "long_answers",
+            "answer_rouge_correctness": "long_answers",
+            "answer_exact_match": "short_answers"
         }
 
         results = {}
@@ -52,35 +52,35 @@ class ASQABenchmark(BaseBenchmark):
                 if self.is_existed(m.name):
                     # Remove the metric column if it already exists
                     self.dataset = self.dataset.remove_columns(m.name)
-                if not self.is_existed(ground_truths[m.name][0]):
+                if not self.is_existed(ground_truths[m.name]):
                     # Check if the ground truth column exists
-                    raise ValueError(f"The column {ground_truths[m.name][0]} is not in the dataset. Please check the column names.")
+                    raise ValueError(f"The column {ground_truths[m.name]} is not in the dataset. Please check the column names.")
 
-                # Rename the ground truth column for metric calculation
-                self.dataset = self.dataset.rename_column(*ground_truths[m.name])
-                # Compute the metric
-                results[m.name], self.dataset = m.compute(self.dataset, self.batch_size)
-                # Rename the column back
-                self.dataset = self.dataset.rename_column(*ground_truths[m.name][::-1])
-                # Add the ground truth column name
-                self.dataset = self.dataset.map(lambda example: {f"{m.name}.{ground_truths[m.name][1]}": ground_truths[m.name][0]})
+                avg_scores, scores = m.compute(
+                    self.dataset["answers"], 
+                    self.dataset[ground_truths[m.name]]
+                )
+                results[m.name] = avg_scores
+                self.dataset = self.dataset.add_column(m.name, scores)
+
+                print(f"{m.name}: {avg_scores}")
 
         if self.is_existed("answer_rouge_correctness") and self.is_existed("answer_disambig_f1"):
             if self.is_existed("DR_score"):
                 self.dataset = self.dataset.remove_columns("DR_score")
             print("Calculating DR score...")
             def dr_score(d:dict):
-                d['DR_score'] = math.sqrt(d["answer_disambig_f1"] * d["answer_rouge_correctness"])
+                d['DR_score'] = np.sqrt(d["answer_disambig_f1"] * d["answer_rouge_correctness"])
                 return d
             self.dataset = self.dataset.map(dr_score)
-            results["DR_score"] = math.sqrt(results["answer_disambig_f1"] * results["answer_rouge_correctness"])
+            results["DR_score"] = np.average(self.dataset["DR_score"])
 
         return results, self.dataset
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output_dir", type=str, default=".rageval/benchmark")
-    parser.add_argument("--split", type=str, default="mistral_7b")
+    parser.add_argument("--split", type=str, default="llama2_7b_chat")
     args = parser.parse_args()
 
     benchmark = ASQABenchmark()

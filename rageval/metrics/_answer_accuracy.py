@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from typing import List
 
 import datasets
 
 from rageval.metrics import Metric, add_attribute
+
 
 _DESCRIPTION = """\
 The AnswerAccuracy is to measure the correctness of answers.
@@ -45,10 +47,11 @@ Examples:
     >>> metric = rl.metrics.AnswerAccuracy()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert s == 2 / 3
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset["answers"], dataset["gt_answers"], 1)
+    >>> score
+    0.6666666666666666
+    >>> results[0]
+    True
 """
 
 _CITATION = """\
@@ -80,7 +83,6 @@ class AnswerAccuracy(Metric):
         Ensure all parent classes are initialized.
         """
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -112,10 +114,11 @@ class AnswerAccuracy(Metric):
 
     def _compute_batch(
         self,
-        dataset: datasets.Dataset
-    ) -> list:
+        pred_answers,
+        ref_answers
+    ) -> List[float]:
         """Evaluate the correctness of a batch of answers."""
         return [
             self._compute_one(answer, gt_answer)
-            for answer, gt_answer in zip(dataset["answers"], dataset["gt_answers"])
+            for answer, gt_answer in zip(pred_answers, ref_answers)
         ]

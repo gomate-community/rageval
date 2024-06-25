@@ -57,10 +57,8 @@ Examples:
     >>> metric = rl.metrics.AnswerEMCorrectness()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> s, ds = metric.compute(dataset, batch_size=1)
-    >>> assert 0 <= s <= 1
-    >>> type(ds)
-    <class 'datasets.arrow_dataset.Dataset'>
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+    >>> assert 0 <= score <= 1
 """
 
 _CITATION = """\
@@ -88,7 +86,6 @@ class AnswerEMCorrectness(Metric):
     def __init__(self, ignore_case: bool = False):
         """Explicitly initialize the AnswerEMCorrectness to ensure all parent class initialized."""
         super().__init__()
-        self._required_columns = ['answers', 'gt_answers']
         self.ignore_case = ignore_case
 
     def __repr__(self) -> str:
@@ -111,22 +108,29 @@ class AnswerEMCorrectness(Metric):
             reference_urls=["https://arxiv.org/abs/2204.06092"]
         )
 
-    def _compute_one(self, output: str, short_answers: List[List[str]]) -> float:
+    def _compute_one(self, pred_answer: str, short_answers: List[List[str]]) -> float:
         """Compute the correctness of a single answer."""
         acc = []
         if self.ignore_case:
-            output = output.lower()
+            pred_answer = pred_answer.lower()
             short_answers = [[a.lower() for a in candidate_short_answers] for candidate_short_answers in short_answers]
         for candidate_short_answers in short_answers:
             for candidate_short_answer in candidate_short_answers:
-                if candidate_short_answer in output:
+                if candidate_short_answer in pred_answer:
                     acc.append(True)
                     break
             else:
                 acc.append(False)
         return np.average(acc)
 
-    def _compute_batch(self, dataset: datasets.Dataset) -> List[float]:
+    def _compute_batch(
+        self,
+        pred_answers: List[str],
+        ref_answers: List[List[List[str]]]
+    ) -> List[float]:
         """Compute the correctness of a batch of answers."""
-        return [self._compute_one(output, short_answers)
-                for output, short_answers in zip(dataset["answers"], dataset["gt_answers"])]
+
+        return [
+            self._compute_one(prediction, short_answers)
+            for prediction, short_answers in zip(pred_answers, ref_answers)
+        ]
