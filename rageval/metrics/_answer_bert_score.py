@@ -29,6 +29,7 @@ Optional Args:
 Functions:
     _clean: clean special word in sentence.
     _compute_single: compute bleu score for single prediction with its references
+    _compute_batch: compute bleu score for a batch of predictions with their references
 
 Examples:
     >>> from datasets import Dataset
