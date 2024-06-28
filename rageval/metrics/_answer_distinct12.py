@@ -6,7 +6,7 @@ import datasets
 import evaluate
 from nltk import ngrams
 
-from rageval.metrics import add_attribute, Metric
+from rageval.metrics import Metric, add_attribute
 
 _DESCRIPTION = """
 Distinct 1/2 measures the diversity of generated text by calculating the ratio of unique n-grams to the total number of n-grams.
