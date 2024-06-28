@@ -22,7 +22,6 @@ Args:
     name : str
     lang : str, Language of the text. Default is "en".
     rescale_with_baseline : bool, Whether to rescale the score with pre-computed baseline. Not affect BERTScore's correlation with human judgment. Default is False. For more details, see https://github.com/Tiiiger/bert_score/blob/master/journal/rescale_baseline.md
-    batch_size : int, Batch size for pred and ref pairs.
 
 Optional Args:
     None
