@@ -1,23 +1,14 @@
+import dataclasses
+from typing import List, Tuple
+
 import datasets
 import numpy as np
 import torch
 from torch.nn import CrossEntropyLoss
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from dataclasses import dataclass
-from typing import List, Tuple
 
-import evaluate
 from evaluate import logging
 from rageval.metrics import Metric, add_attribute
-
-
-_CITATION = """\
-@misc{HuggingFace2022perplexity,
-      title={Perplexity Metric for Language Models},
-      author={HuggingFace Datasets Authors},
-      year={2022},
-}
-"""
 
 _DESCRIPTION = """\
 Perplexity (PPL) is one of the most common metrics for evaluating language models.
@@ -66,7 +57,16 @@ Examples:
     647.0
 """
 
-@dataclass
+_CITATION = """\
+@misc{HuggingFace2022perplexity,
+      title={Perplexity Metric for Language Models},
+      author={HuggingFace Datasets Authors},
+      year={2022},
+}
+"""
+
+
+@dataclasses.dataclass
 @add_attribute('mtype', 'LanguageModelQuality')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class Perplexity(Metric):
@@ -76,30 +76,15 @@ class Perplexity(Metric):
 
     ALIAS = ['perplexity']
 
-    def __init__(
-            self,
-            model_id: str,
-            batch_size: int = 16,
-            add_start_token: bool = True,
-            device: str = None,
-            max_length: int = None
-    ):
-        """
-        Initialize the Perplexity metric.
+    model_id: str
+    batch_size: int = 16
+    add_start_token: bool = True
+    device: str = None
+    max_length: int = None
 
-        Args:
-            model_id (str): The identifier of the model to use.
-            batch_size (int): Batch size for processing texts. Defaults to 16.
-            add_start_token (bool): Whether to add the start token. Defaults to True.
-            device (str): Device to run the computation on. Defaults to 'cuda' if available.
-            max_length (int): Maximum length of tokenized inputs. If None, no truncation is applied.
-        """
-        super().__init__()
-        self.model_id = model_id
-        self.batch_size = batch_size
-        self.add_start_token = add_start_token
-        self.device = device if device is not None else ("cuda" if torch.cuda.is_available() else "cpu")
-        self.max_length = max_length
+    def __post_init__(self):
+        if self.device is None:
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -126,7 +111,6 @@ class Perplexity(Metric):
         """Compute perplexity scores for the input texts."""
         if self.device not in ["gpu", "cpu", "cuda"]:
             raise ValueError("device should be either gpu or cpu.")
-        
         model = pipeline.model
         tokenizer = pipeline.tokenizer
 
@@ -179,8 +163,7 @@ class Perplexity(Metric):
             shift_attention_mask_batch = attn_mask[..., 1:].contiguous()
 
             perplexity_batch = torch.exp(
-                (loss_fct(shift_logits.transpose(1, 2), shift_labels) * shift_attention_mask_batch).sum(1)
-                / shift_attention_mask_batch.sum(1)
+                (loss_fct(shift_logits.transpose(1, 2), shift_labels) * shift_attention_mask_batch).sum(1) / shift_attention_mask_batch.sum(1)
             )
 
             ppls += perplexity_batch.tolist()
