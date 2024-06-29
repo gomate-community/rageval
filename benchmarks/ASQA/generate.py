@@ -9,16 +9,14 @@ from prompts import (FEW_SHOT_EXAMPLES, PROMPT)
 
 def extract_key_information(pred: str) -> str:
     '''Extract key information from the response.'''
-    prefix_to_remove=['interpretations: (.*)$',
-                      'interpretation: (.*)$']
-    for pattern in prefix_to_remove:
-        pred = pred.strip().split('\n\n', 1)[0].strip()
-        find = re.compile(pattern).search(pred)
-        if find:
-            pred = find.group(1)
-            break
-    if find is None:
-        logging.warning(f"Cannot extract key information from the response: {pred}")
+    pattern = r"(?:1\.|\(1\)).*?((?:1\.|\(1\)).*)" # find the second list starting with 1. or (1)
+    pred = pred.strip().strip()
+    matches = re.findall(pattern, pred, re.DOTALL)
+    if matches:
+        pred = matches[0]
+    else:
+        print(f"Cannot extract key information from the response: {pred}")
+        return pred
     pred = re.sub(r'\(\d+\)\s', '', pred) # remove the index numbers
     return pred
 
