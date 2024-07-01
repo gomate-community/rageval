@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 import datasets
+from sacrebleu.metrics import CHRF
+import numpy as np
 
 from rageval.metrics import Metric, add_attribute
 
@@ -116,12 +118,15 @@ class AnswerCHRFCorrectness(Metric):
         Ensure all parent classes are initialized.
         """
         super().__init__()
-        self.char_order = char_order
-        self.word_order = word_order
-        self.beta = beta
-        self.lowercase = lowercase
-        self.whitespace = whitespace
-        self.eps_smoothing = eps_smoothing
+
+        self.chrf = CHRF(
+            char_order=char_order,
+            word_order=word_order,
+            beta=beta,
+            lowercase=lowercase,
+            whitespace=whitespace,
+            eps_smoothing=eps_smoothing
+        )
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -138,7 +143,7 @@ class AnswerCHRFCorrectness(Metric):
                     "gt_answers": datasets.Sequence(datasets.Value("string"))
                 }
             ),
-            codebase_urls=["https://github.com/huggingface/datasets/blob/main/metrics/chrf/chrf.py"],
+            codebase_urls=["https://github.com/mjpost/sacreBLEU#chrf--chrf"],
             reference_urls=[
                 "https://aclanthology.org/W15-3049.pdf",
                 "https://aclanthology.org/W17-4770",
@@ -158,44 +163,10 @@ class AnswerCHRFCorrectness(Metric):
         if not all(isinstance(a, list) and all(isinstance(item, str) for item in a) for a in ref_answers):
             raise ValueError("The type of ref_answers should be a list of strings.")
 
-    def compute(
+    def _compute_one(
         self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]],
-        batch_size: int
-    ) -> Tuple[float, List[float]]:
-        """Evaluate the predictions against references."""
-        self._validate_data(pred_answers, ref_answers)
-        chrf = datasets.load_metric("chrf")
-        result = chrf.compute(
-            predictions=pred_answers,
-            references=ref_answers,
-            char_order=self.char_order,
-            word_order=self.word_order,
-            beta=self.beta,
-            lowercase=self.lowercase,
-            whitespace=self.whitespace,
-            eps_smoothing=self.eps_smoothing
-        )['score']
-        scores = [
-            chrf.compute(
-                predictions=[pred_answers[i]],
-                references=[ref_answers[i]],
-                char_order=self.char_order,
-                word_order=self.word_order,
-                beta=self.beta,
-                lowercase=self.lowercase,
-                whitespace=self.whitespace,
-                eps_smoothing=self.eps_smoothing
-            )['score']
-            for i in range(len(pred_answers))
-        ]
-
-        return result, scores
-
-    def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> List[float]:
-        pass
+        pred_answer: str,
+        ref_answers: List[str]
+    ) -> float:
+        """Compute the metric for a single sentence against a single (or multiple) reference(s)."""
+        return self.chrf.sentence_score(pred_answer, ref_answers).score

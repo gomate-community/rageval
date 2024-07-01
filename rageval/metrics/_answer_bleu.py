@@ -125,7 +125,6 @@ class AnswerBleuScore(Metric):
         ref_answers: List[List[str]]
     ) -> List[float]:
         """Compute the bleu score of a batch of answers."""
-
         scores = []
         bleu = datasets.load_metric("bleu")
         for output, gt_answers in zip(pred_answers, ref_answers):
