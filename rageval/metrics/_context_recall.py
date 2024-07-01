@@ -17,7 +17,7 @@ ContextRecall evaluates contexts relevancy based on gt_answers.
 For details, see the doc: https://docs.ragas.io/en/stable/concepts/metrics/context_recall.html.
 """
 
-_KWARGS_DESCRIPTION = r"""\
+_KWARGS_DESCRIPTION = """
 Args:
     name : str
     batch_size : int, Batch size for openai completion.
@@ -62,7 +62,7 @@ Examples:
     >>> assert 0 <= score <= 1
 """
 
-_CITATION = """\
+_CITATION = """
 @misc{ragas,
     author= {explodinggradients},
     year  = {2023},
@@ -164,6 +164,9 @@ class ContextRecall(MetricWithLLM):
             scores = self._compute_batch(questions, ref_answers, contexts)
 
         return np.average(scores), scores
+
+    def _compute_one():
+        pass
 
     def _compute_batch(
         self,

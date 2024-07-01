@@ -119,7 +119,7 @@ class AnswerBleuScore(Metric):
             sentence = re.sub(subword, "", sentence)
         return sentence
 
-    def _compute_single(
+    def _compute_one(
         self,
         pred_answers: List[str],
         ref_answers: List[List[str]]

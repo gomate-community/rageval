@@ -142,6 +142,9 @@ class ContextRejectRate(MetricWithLLM):
                 scores.append(0.)
         return scores
 
+    def _compute_one():
+        pass
+
     def compute(
         self,
         questions: List[str],

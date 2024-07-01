@@ -18,7 +18,7 @@ For simplicity, we refer to all contexts collectively as ‘contexts’.
 For details, see the paper: https://arxiv.org/abs/2305.14627.
 """
 
-_KWARGS_DESCRIPTION = r"""\
+_KWARGS_DESCRIPTION = """\
 Args:
     name : str
     batch_size : int, Batch size for openai completion.
@@ -179,9 +179,4 @@ class AnswerCitationRecall(Metric):
         Then, average over all statements in the LLM answer.
         Finally, average over all scores of each answer.
         """
-
-        results = []
-        for answer, context in tqdm(zip(answers, contexts)):
-            r = self._compute_one(answer, context)
-            results.append(r)
-        return results
+        super()._compute_batch(answers, contexts)

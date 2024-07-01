@@ -152,6 +152,7 @@ class AnswerCHRFCorrectness(Metric):
         ref_answers: List[List[str]]
     ) -> None:
         """Validate the input dataset."""
+        super()._validate_data(pred_answers, ref_answers)
         if not all(isinstance(answer, str) for answer in pred_answers):
             raise ValueError("The type of pred_answers should be a string.")
         if not all(isinstance(a, list) and all(isinstance(item, str) for item in a) for a in ref_answers):

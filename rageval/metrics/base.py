@@ -104,13 +104,28 @@ class Metric(MetricInfoMixin):
         return np.average(scores), scores
 
     @abstractmethod
+    def _compute_one(
+        self,
+        pred_answers: Optional[Iterable] = None,
+        ref_answers: Optional[Iterable] = None,
+        *args: Optional[Iterable]
+    ) -> float:
+        ...
+
     def _compute_batch(
         self,
         pred_answers: Optional[Iterable] = None,
         ref_answers: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> List[float]:
-        ...
+        """Compute the metric for a batch of predictions and references.
+        """
+        scores = []
+        for pred, refs in tqdm(zip(pred_answers, ref_answers), 
+                               desc=f"Computing {self.name}", 
+                               total=len(pred_answers)):
+            scores.append(self._compute_single(pred, refs))
+        return scores
 
 
 @dataclass
