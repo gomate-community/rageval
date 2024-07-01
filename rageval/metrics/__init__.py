@@ -14,3 +14,4 @@ from ._answer_rouge_correctness import AnswerRougeCorrectness
 from ._answer_ter import AnswerTERCorrectness
 from ._context_recall import ContextRecall
 from ._context_reject_rate import ContextRejectRate
+from ._answer_bert_score import AnswerBERTScore

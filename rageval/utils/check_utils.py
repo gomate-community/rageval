@@ -3,12 +3,14 @@ import re
 from typing import List
 
 import nltk
+from nltk.downloader import Downloader
 
 from rageval.models import OpenAILLM
 from .prompt import DOC_TO_SENTENCES_PROMPT
 
 logger = logging.getLogger(__name__)
-nltk.download('punkt')
+if not Downloader().is_installed('punkt'):
+    nltk.download('punkt')
 
 
 def text_to_sents(text: str, model_name="nltk") -> List[str]:
