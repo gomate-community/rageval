@@ -3,6 +3,7 @@ import string
 from collections import Counter
 from dataclasses import dataclass
 from typing import List
+from tqdm import tqdm
 
 import datasets
 import numpy as np
@@ -176,12 +177,7 @@ class AnswerDisambigF1Correctness(Metric):
         ref_answers: List[str]
     ) -> float:
         """Evaluate the disambig f1 score of an answer."""
-        scores = []
-        for ref_answer in ref_answers:
-            score = self._f1_score(pred_answer, ref_answer)
-            scores.append(score)
-
-        return np.max(scores)
+        return np.max([self._f1_score(pred_answer, ref_answer) for ref_answer in ref_answers])
 
     def _compute_batch(
         self,
@@ -189,7 +185,7 @@ class AnswerDisambigF1Correctness(Metric):
         ref_answers: List[List[str]]
     ) -> List[float]:
         """Evaluate the disambig f1 score of a batch of answers."""
-        return [
-            self._compute_one(pred_answer, gt_answer)
-            for pred_answer, gt_answer in zip(pred_answers, ref_answers)
-        ]
+        scores = []
+        for pred, refs in tqdm(zip(pred_answers, ref_answers), desc="Computing Disambig F1", total=len(pred_answers)):
+            scores.append(self._compute_one(pred, refs))
+        return scores

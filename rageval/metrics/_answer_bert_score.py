@@ -1,4 +1,4 @@
-import re
+from tqdm import tqdm
 from dataclasses import dataclass
 from typing import List, Tuple
 
@@ -127,4 +127,7 @@ class AnswerBERTScore(Metric):
         ref_answers: List[List[str]]
     ) -> List[float]:
         """Compute the BERTscore for a batch of predictions and references."""
-        return [self._compute_single(pred, refs) for pred, refs in zip(pred_answers, ref_answers)]
+        scores = []
+        for pred, refs in tqdm(zip(pred_answers, ref_answers), desc="Computing BERTScore", total=len(pred_answers)):
+            scores.append(self._compute_single(pred, refs))
+        return scores
