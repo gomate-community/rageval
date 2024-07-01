@@ -2,11 +2,10 @@ import re
 import string
 from collections import Counter
 from dataclasses import dataclass
-from typing import List
 
 import datasets
 import numpy as np
-from typing import Union, Any, Iterable, List
+from typing import Union, Iterable, List
 
 from rageval.metrics import Metric, add_attribute
 
@@ -126,12 +125,10 @@ class AnswerF1Correctness(Metric):
         ref_answers: Union[List[str], Iterable]
     ) -> float:
         """Evaluate the f1 score of an answer."""
-        scores = []
-        for ref_answer in ref_answers:
-            if self.normalize:
-                pred_answer = self._normalize_text(pred_answer)
-                ref_answer = self._normalize_text(ref_answer)
-            score = self._f1_score(pred_answer, ref_answer)
-            scores.append(score)
+        if self.normalize:
+            pred_answer = self._normalize_text(pred_answer)
+            ref_answers = [self._normalize_text(ref_answer) for ref_answer in ref_answers]
+
+        scores = [self._f1_score(pred_answer, ref_answer) for ref_answer in ref_answers]
 
         return np.max(scores)

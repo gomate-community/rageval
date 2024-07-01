@@ -26,7 +26,7 @@ Optional Args:
 
 Functions:
     _clean: clean special word in sentence.
-    _compute_single: compute bleu score for single prediction with its references
+    _compute_one: compute bleu score for single prediction with its references
 
 Examples:
     >>> from datasets import Dataset
@@ -161,7 +161,7 @@ class AnswerBleuScore(Metric):
             references.append(reference)
         bleu_result = bleu.compute(predictions=predictions, references=references)
         bleu_score = bleu_result['bleu']
-        scores = self._compute_single(pred_answers, ref_answers)
+        scores = self._compute_one(pred_answers, ref_answers)
 
         return bleu_score, scores
 

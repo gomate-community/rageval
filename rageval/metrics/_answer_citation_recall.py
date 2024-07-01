@@ -18,7 +18,7 @@ For simplicity, we refer to all contexts collectively as ‘contexts’.
 For details, see the paper: https://arxiv.org/abs/2305.14627.
 """
 
-_KWARGS_DESCRIPTION = """\
+_KWARGS_DESCRIPTION = r"""\
 Args:
     name : str
     batch_size : int, Batch size for openai completion.
@@ -179,4 +179,4 @@ class AnswerCitationRecall(Metric):
         Then, average over all statements in the LLM answer.
         Finally, average over all scores of each answer.
         """
-        super()._compute_batch(answers, contexts)
+        return super()._compute_batch(pred_answers=answers, ref_answers=contexts)

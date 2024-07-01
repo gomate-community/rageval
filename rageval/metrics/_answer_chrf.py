@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import datasets
 from sacrebleu.metrics import CHRF
@@ -169,15 +169,16 @@ class AnswerCHRFCorrectness(Metric):
         ref_answers: List[str]
     ) -> float:
         """Compute the metric for a single sentence against a single (or multiple) reference(s)."""
-        # return self.chrf.sentence_score(pred_answer, ref_answers).score
-        pass
+        return self.chrf.sentence_score(pred_answer, ref_answers).score
 
-    def _compute_batch(
+    def compute(
         self,
         pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> List[float]:
-        """Compute the metric for a batch of sentences against their references."""
+        ref_answers: List[List[str]],
+        batch_size: Optional[int] = None,
+    ) -> Tuple[float, List[float]]:
+        """Corpus score takes into account all the answers as two corpora and returns the F1 score of the corpus, which is not equal to the average of the chrF scores of the individual (pred, refs) pair."""
+        scores = self._compute_batch(pred_answers, ref_answers)
         ref_answers = np.array(ref_answers)
-        ref_answers = ref_answers.T            
-        return self.chrf.corpus_score(pred_answers, ref_answers).score
+        ref_answers = ref_answers.T.tolist()
+        return self.chrf.corpus_score(pred_answers, ref_answers).score, scores

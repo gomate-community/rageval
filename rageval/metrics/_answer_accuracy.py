@@ -111,4 +111,3 @@ class AnswerAccuracy(Metric):
     ) -> float:
         """Evaluating the correctness of answer."""
         return answer == gt_answer
-

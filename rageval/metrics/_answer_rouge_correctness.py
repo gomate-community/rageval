@@ -117,4 +117,3 @@ class AnswerRougeCorrectness(Metric):
         """Evaluate the ROUGE between a single answer and groundtruth answers."""
         score = self.scorer.score_multi(ref_answers, pred_answer)
         return score[self.rouge_type].fmeasure
-

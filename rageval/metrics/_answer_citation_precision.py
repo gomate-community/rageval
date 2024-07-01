@@ -21,7 +21,7 @@ For simplicity, we refer to all contexts collectively as ‘contexts’.
 For details, see the paper: https://arxiv.org/abs/2305.14627.
 """
 
-_KWARGS_DESCRIPTION = """\
+_KWARGS_DESCRIPTION = r"""\
 Args:
     name : str
     batch_size : int, Batch size for openai completion.

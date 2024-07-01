@@ -17,7 +17,7 @@ ContextRecall evaluates contexts relevancy based on gt_answers.
 For details, see the doc: https://docs.ragas.io/en/stable/concepts/metrics/context_recall.html.
 """
 
-_KWARGS_DESCRIPTION = """
+_KWARGS_DESCRIPTION = r"""\
 Args:
     name : str
     batch_size : int, Batch size for openai completion.

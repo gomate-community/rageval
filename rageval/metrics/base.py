@@ -77,7 +77,7 @@ class Metric(MetricInfoMixin):
         self,
         pred_answers: Optional[Iterable] = None,
         ref_answers: Optional[Iterable] = None,
-        batch_size: int = None,
+        batch_size: Optional[int] = None,
         *args: Optional[Iterable],
     ) -> Tuple[float, List[float]]:
         """
@@ -118,13 +118,12 @@ class Metric(MetricInfoMixin):
         ref_answers: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> List[float]:
-        """Compute the metric for a batch of predictions and references.
-        """
+        """Compute the metric for a batch of predictions and references."""
         scores = []
-        for pred, refs in tqdm(zip(pred_answers, ref_answers), 
-                               desc=f"Computing {self.name}", 
+        for pred, refs in tqdm(zip(pred_answers, ref_answers),
+                               desc=f"Computing {self.name}",
                                total=len(pred_answers)):
-            scores.append(self._compute_single(pred, refs))
+            scores.append(self._compute_one(pred, refs))
         return scores
 
 
