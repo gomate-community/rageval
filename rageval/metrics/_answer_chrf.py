@@ -169,4 +169,15 @@ class AnswerCHRFCorrectness(Metric):
         ref_answers: List[str]
     ) -> float:
         """Compute the metric for a single sentence against a single (or multiple) reference(s)."""
-        return self.chrf.sentence_score(pred_answer, ref_answers).score
+        # return self.chrf.sentence_score(pred_answer, ref_answers).score
+        pass
+
+    def _compute_batch(
+        self,
+        pred_answers: List[str],
+        ref_answers: List[List[str]]
+    ) -> List[float]:
+        """Compute the metric for a batch of sentences against their references."""
+        ref_answers = np.array(ref_answers)
+        ref_answers = ref_answers.T            
+        return self.chrf.corpus_score(pred_answers, ref_answers).score
