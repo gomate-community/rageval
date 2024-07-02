@@ -18,6 +18,12 @@ class ASQABenchmark(BaseBenchmark):
                AnswerEMCorrectness(ignore_case=True), 
                AnswerDisambigF1Correctness()]
 
+    ground_truths = {
+        "answer_disambig_f1": "long_answers",
+        "answer_rouge_correctness": "long_answers",
+        "answer_exact_match": "short_answers"
+    }
+
     def __init__(self) -> None:
         """Initialization."""
         super().__init__()
@@ -38,27 +44,21 @@ class ASQABenchmark(BaseBenchmark):
         if not self.is_existed("long_answers"):
             self.dataset = self.dataset.map(lambda example: {"long_answers": [ann["long_answer"] for ann in example["annotations"]]})
 
-        ground_truths = {
-            "answer_disambig_f1": "long_answers",
-            "answer_rouge_correctness": "long_answers",
-            "answer_exact_match": "short_answers"
-        }
-
         results = {}
         for m in self.metrics:
-            if m.name in ground_truths:
+            if m.name in self.ground_truths:
                 print(f"Calculating {m.name}...")
 
                 if self.is_existed(m.name):
                     # Remove the metric column if it already exists
                     self.dataset = self.dataset.remove_columns(m.name)
-                if not self.is_existed(ground_truths[m.name]):
+                if not self.is_existed(self.ground_truths[m.name]):
                     # Check if the ground truth column exists
-                    raise ValueError(f"The column {ground_truths[m.name]} is not in the dataset. Please check the column names.")
+                    raise ValueError(f"The column {self.ground_truths[m.name]} is not in the dataset. Please check the column names.")
 
                 avg_scores, scores = m.compute(
                     self.dataset["answers"], 
-                    self.dataset[ground_truths[m.name]]
+                    self.dataset[self.ground_truths[m.name]]
                 )
                 results[m.name] = avg_scores
                 self.dataset = self.dataset.add_column(m.name, scores)
@@ -66,14 +66,10 @@ class ASQABenchmark(BaseBenchmark):
                 print(f"{m.name}: {avg_scores}")
 
         if self.is_existed("answer_rouge_correctness") and self.is_existed("answer_disambig_f1"):
-            if self.is_existed("DR_score"):
-                self.dataset = self.dataset.remove_columns("DR_score")
+            # Notice that DR score is an overall geometric mean of RougeL and DisambigF1 scores, which is calculated as sqrt(RougeL * DisambigF1) for whole dataset instead of average of each sample.
             print("Calculating DR score...")
-            def dr_score(d:dict):
-                d['DR_score'] = np.sqrt(d["answer_disambig_f1"] * d["answer_rouge_correctness"])
-                return d
-            self.dataset = self.dataset.map(dr_score)
-            results["DR_score"] = np.average(self.dataset["DR_score"])
+            results["DR_score"] = np.sqrt(np.average(self.dataset["answer_disambig_f1"]) * np.average(self.dataset["answer_rouge_correctness"]))
+            print(f"DR_score: {results['DR_score']}")
 
         return results, self.dataset
 

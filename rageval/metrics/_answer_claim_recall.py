@@ -145,8 +145,8 @@ class AnswerNLICorrectness(Metric):
 
     def _compute_batch(
         self,
-        pred_answers,
-        ref_answers
+        pred_answers: List[str],
+        ref_answers: List[List[str]]
     ) -> List[float]:
         """
         Evaluate the correctness of a batch of answers.

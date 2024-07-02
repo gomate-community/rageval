@@ -1,4 +1,3 @@
-import re
 from dataclasses import dataclass
 from typing import List, Tuple
 
@@ -28,7 +27,7 @@ Optional Args:
 
 Functions:
     _clean: clean special word in sentence.
-    _compute_single: compute bleu score for single prediction with its references
+    _compute_one: compute bleu score for single prediction with its references
     _compute_batch: compute bleu score for a batch of predictions with their references
 
 Examples:
@@ -112,7 +111,7 @@ class AnswerBERTScore(Metric):
             reference_urls=["https://openreview.net/forum?id=SkeHuCVFDr"]
         )
 
-    def _compute_single(
+    def _compute_one(
         self,
         pred_answers: str,
         ref_answers: List[str]
@@ -120,11 +119,3 @@ class AnswerBERTScore(Metric):
         """Compute the BERTscore for a pair of predictions and references."""
         P, R, F1 = self.scorer.score([pred_answers] * len(ref_answers), ref_answers)
         return F1.max().tolist()
-
-    def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> List[float]:
-        """Compute the BERTscore for a batch of predictions and references."""
-        return [self._compute_single(pred, refs) for pred, refs in zip(pred_answers, ref_answers)]

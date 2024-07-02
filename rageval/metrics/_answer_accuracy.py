@@ -111,14 +111,3 @@ class AnswerAccuracy(Metric):
     ) -> float:
         """Evaluating the correctness of answer."""
         return answer == gt_answer
-
-    def _compute_batch(
-        self,
-        pred_answers,
-        ref_answers
-    ) -> List[float]:
-        """Evaluate the correctness of a batch of answers."""
-        return [
-            self._compute_one(answer, gt_answer)
-            for answer, gt_answer in zip(pred_answers, ref_answers)
-        ]

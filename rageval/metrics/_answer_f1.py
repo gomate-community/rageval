@@ -2,10 +2,10 @@ import re
 import string
 from collections import Counter
 from dataclasses import dataclass
-from typing import List
 
 import datasets
 import numpy as np
+from typing import Union, Iterable, List
 
 from rageval.metrics import Metric, add_attribute
 
@@ -63,13 +63,14 @@ class AnswerF1Correctness(Metric):
 
     ALIAS = ['answer_f1']
 
-    def __init__(self):
+    def __init__(self, normalize: bool = True):
         """
         Explicitly initialize AnswerF1Correctness.
 
         Ensure all parent classes are initialized.
         """
         super().__init__()
+        self.normalize = normalize
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -90,12 +91,9 @@ class AnswerF1Correctness(Metric):
             reference_urls=[]
         )
 
-    def _normalize_text(self, s: str) -> str:
+    def _normalize_text(self, s: str) -> List[str]:
         def remove_articles(text):
             return re.sub(r'\b(a|an|the)\b', ' ', text)
-
-        def white_space_fix(text):
-            return ' '.join(text.split())
 
         def remove_punc(text):
             exclude = set(string.punctuation)
@@ -103,18 +101,12 @@ class AnswerF1Correctness(Metric):
 
         def lower(text):
             return text.lower()
-        return white_space_fix(remove_articles(remove_punc(lower(s))))
+        return remove_articles(remove_punc(lower(s))).split()
 
-    def _f1_score(self, pred: str, ref: str) -> float:
+    def _f1_score(self, preds: Iterable, refs: Iterable) -> float:
         """Compute the f1 score between pred and ref."""
-        normalized_prediction = self._normalize_text(pred)
-        normalized_ground_truth = self._normalize_text(ref)
-
-        prediction_tokens = normalized_prediction.split()
-        ground_truth_tokens = normalized_ground_truth.split()
-
-        pred_counter = Counter(prediction_tokens)
-        ref_counter = Counter(ground_truth_tokens)
+        pred_counter = Counter(preds)
+        ref_counter = Counter(refs)
 
         tp = sum((pred_counter & ref_counter).values())
         fp = sum((pred_counter - ref_counter).values())
@@ -129,24 +121,14 @@ class AnswerF1Correctness(Metric):
 
     def _compute_one(
         self,
-        pred_answer: str,
-        ref_answers: List[str]
+        pred_answer: Union[str, Iterable],
+        ref_answers: Union[List[str], Iterable]
     ) -> float:
         """Evaluate the f1 score of an answer."""
-        scores = []
-        for ref_answer in ref_answers:
-            score = self._f1_score(pred_answer, ref_answer)
-            scores.append(score)
+        if self.normalize:
+            pred_answer = self._normalize_text(pred_answer)
+            ref_answers = [self._normalize_text(ref_answer) for ref_answer in ref_answers]
+
+        scores = [self._f1_score(pred_answer, ref_answer) for ref_answer in ref_answers]
 
         return np.max(scores)
-
-    def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> List[float]:
-        """Evaluate the f1 score of a batch of answers."""
-        return [
-            self._compute_one(pred_answer, ref_answer)
-            for pred_answer, ref_answer in zip(pred_answers, ref_answers)
-        ]

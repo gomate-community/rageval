@@ -123,14 +123,3 @@ class AnswerEditDistance(Metric):
                     dp[i][j] = min(dp[i][j], dp[i - 1][j - 1])
 
         return dp[m][n] / m
-
-    def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[str],
-    ) -> List[float]:
-        """Evaluate the similarity of a batch of answers."""
-        return [
-            self._compute_one(pred_answer, reference)
-            for pred_answer, reference in zip(pred_answers, ref_answers)
-        ]

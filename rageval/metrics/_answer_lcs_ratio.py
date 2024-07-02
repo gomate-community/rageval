@@ -5,8 +5,7 @@ import datasets
 from rageval.metrics import Metric, add_attribute
 
 _DESCRIPTION = """\
-The AnswerLCSRatio is to measure the similarity between answer and gt_answer by calculating the longest common \
-subsequence.
+The AnswerLCSRatio is to measure the similarity between answer and gt_answer by calculating the longest common subsequence.
 
 This is a very traditional method, but to this day, some work is still being carried out using it, such as \
 https://ieeexplore.ieee.org/abstract/document/10172590.
@@ -118,14 +117,3 @@ class AnswerLCSRatio(Metric):
                 pre = tmp
 
         return dp[-1] / m
-
-    def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[str]
-    ) -> List[float]:
-        """Evaluate the similarity of a batch of answers."""
-        return [
-            self._compute_one(pred_answer, ref_answer)
-            for pred_answer, ref_answer in zip(pred_answers, ref_answers)
-        ]

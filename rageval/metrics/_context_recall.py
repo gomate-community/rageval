@@ -62,7 +62,7 @@ Examples:
     >>> assert 0 <= score <= 1
 """
 
-_CITATION = """\
+_CITATION = """
 @misc{ragas,
     author= {explodinggradients},
     year  = {2023},
@@ -164,6 +164,9 @@ class ContextRecall(MetricWithLLM):
             scores = self._compute_batch(questions, ref_answers, contexts)
 
         return np.average(scores), scores
+
+    def _compute_one():
+        pass
 
     def _compute_batch(
         self,

@@ -77,7 +77,7 @@ class Metric(MetricInfoMixin):
         self,
         pred_answers: Optional[Iterable] = None,
         ref_answers: Optional[Iterable] = None,
-        batch_size: int = None,
+        batch_size: Optional[int] = None,
         *args: Optional[Iterable],
     ) -> Tuple[float, List[float]]:
         """
@@ -86,31 +86,45 @@ class Metric(MetricInfoMixin):
         Return average scores of all inputs and a score list for each example.
         """
         self._validate_data(pred_answers, ref_answers, *args)
-        scores = []
-        length = len(pred_answers)
-        if batch_size:
-            for start in tqdm(range(0, length, batch_size)):
-                end = start + batch_size
-                end = end if end < length else length
-                score = self._compute_batch(
-                    pred_answers[start:end],
-                    ref_answers[start:end],
-                    *[arg[start:end] for arg in args],
-                )
-                scores.extend(score)
-        else:
-            scores = self._compute_batch(pred_answers, ref_answers, *args)
+        # scores = []
+        # length = len(pred_answers)
+        # if batch_size:
+        #     for start in tqdm(range(0, length, batch_size)):
+        #         end = start + batch_size
+        #         end = end if end < length else length
+        #         score = self._compute_batch(
+        #             pred_answers[start:end],
+        #             ref_answers[start:end],
+        #             *[arg[start:end] for arg in args],
+        #         )
+        #         scores.extend(score)
+        # else:
+        scores = self._compute_batch(pred_answers, ref_answers, *args)
 
         return np.average(scores), scores
 
     @abstractmethod
+    def _compute_one(
+        self,
+        pred_answers: Optional[Iterable] = None,
+        ref_answers: Optional[Iterable] = None,
+        *args: Optional[Iterable]
+    ) -> float:
+        ...
+
     def _compute_batch(
         self,
         pred_answers: Optional[Iterable] = None,
         ref_answers: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> List[float]:
-        ...
+        """Compute the metric for a batch of predictions and references."""
+        scores = []
+        for pred, refs in tqdm(zip(pred_answers, ref_answers),
+                               desc=f"Computing {self.name}",
+                               total=len(pred_answers)):
+            scores.append(self._compute_one(pred, refs))
+        return scores
 
 
 @dataclass
