@@ -49,7 +49,7 @@ Examples:
     >>> metric = rl.metrics.AnswerTERCorrectness()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'])
     >>> assert score == 110.00000000000001
     >>> assert results[0] == 25.0
 """
@@ -109,7 +109,7 @@ class AnswerTERCorrectness(Metric):
         super().__init__()
         self.ter = TER(
             normalized=normalized,
-            ignore_punct=ignore_punct,
+            no_punct=ignore_punct,
             asian_support=support_zh_ja_chars,
             case_sensitive=case_sensitive
         )
@@ -151,10 +151,7 @@ class AnswerTERCorrectness(Metric):
         ref_answers: List[str]
     ) -> float:
         """Compute the TER score of a single answer."""
-        return self.ter.sentence_score(
-            predictions=pred_answer,
-            references=ref_answers
-        )['score']
+        return self.ter.sentence_score(pred_answer, ref_answers).score
 
     def compute(
         self,

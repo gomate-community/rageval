@@ -32,7 +32,7 @@ def test_case_on_answer_ter(testset):
     metric = AnswerTERCorrectness()
     assert metric.name == "answer_ter"
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
+    score, results = metric.compute(testset['answers'], testset['gt_answers'])
     assert score == 110.00000000000001
     assert results[0] == 25.0
 

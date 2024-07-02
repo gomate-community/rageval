@@ -178,6 +178,7 @@ class AnswerCHRFCorrectness(Metric):
         batch_size: Optional[int] = None,
     ) -> Tuple[float, List[float]]:
         """Corpus score takes into account all the answers as two corpora and returns the F1 score of the corpus, which is not equal to the average of the chrF scores of the individual (pred, refs) pair."""
+        self._validate_data(pred_answers, ref_answers)
         scores = self._compute_batch(pred_answers, ref_answers)
         ref_answers = np.array(ref_answers)
         ref_answers = ref_answers.T.tolist()
