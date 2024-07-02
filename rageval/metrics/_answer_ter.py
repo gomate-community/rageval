@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 import datasets
-from datasets import Dataset
+from sacrebleu.metrics import TER
+import numpy as np
 
 from rageval.metrics import Metric, add_attribute
 
@@ -49,6 +50,8 @@ Examples:
     >>> metric.mtype
     'AnswerCorrectness'
     >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
+    >>> assert score == 110.00000000000001
+    >>> assert results[0] == 25.0
 """
 
 _CITATION = """\
@@ -104,10 +107,12 @@ class AnswerTERCorrectness(Metric):
         Ensure all parent classes are initialized.
         """
         super().__init__()
-        self.normalized = normalized
-        self.ignore_punct = ignore_punct
-        self.support_zh_ja_chars = support_zh_ja_chars
-        self.case_sensitive = case_sensitive
+        self.ter = TER(
+            normalized=normalized,
+            ignore_punct=ignore_punct,
+            asian_support=support_zh_ja_chars,
+            case_sensitive=case_sensitive
+        )
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -124,7 +129,7 @@ class AnswerTERCorrectness(Metric):
                     "gt_answers": datasets.Sequence(datasets.Value("string"))
                 }
             ),
-            codebase_urls=["https://github.com/huggingface/datasets/blob/main/metrics/ter/ter.py"],
+            codebase_urls=["https://github.com/mjpost/sacreBLEU#ter"],
             reference_urls=["https://aclanthology.org/2006.amta-papers.25", "https://www.aclweb.org/anthology/W18-6319"]
         )
 
@@ -134,43 +139,31 @@ class AnswerTERCorrectness(Metric):
         ref_answers: List[List[str]]
     ) -> None:
         """Validate the input predictions and references."""
+        super()._validate_data(pred_answers, ref_answers)
         if not all(isinstance(pred_answer, str) for pred_answer in pred_answers):
             raise ValueError("The type of pred_answers should be a list of strings.")
         if not all(isinstance(reference_list, list) and all(isinstance(reference, str) for reference in reference_list) for reference_list in ref_answers):
             raise ValueError("The type of ref_answers should be a list of lists of strings.")
 
+    def _compute_one(
+        self,
+        pred_answer: str,
+        ref_answers: List[str]
+    ) -> float:
+        """Compute the TER score of a single answer."""
+        return self.ter.sentence_score(
+            predictions=pred_answer,
+            references=ref_answers
+        )['score']
+
     def compute(
         self,
         pred_answers: List[str],
         ref_answers: List[List[str]],
-        batch_size: int,
-    ) -> Tuple[float, Dataset]:
+    ) -> Tuple[float, List[float]]:
         """Evaluate the dataset."""
-        ter = datasets.load_metric("ter")
-        result = ter.compute(
-            predictions=pred_answers,
-            references=ref_answers,
-            normalized=self.normalized,
-            ignore_punct=self.ignore_punct,
-            support_zh_ja_chars=self.support_zh_ja_chars,
-            case_sensitive=self.case_sensitive
-        )
-        scores = [
-            ter.compute(
-                predictions=[pred_answers[i]],
-                references=[ref_answers[i]],
-                normalized=self.normalized,
-                ignore_punct=self.ignore_punct,
-                support_zh_ja_chars=self.support_zh_ja_chars,
-                case_sensitive=self.case_sensitive
-            )['score']
-            for i in range(len(pred_answers))
-        ]
-        return result, scores
-
-    def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> list:
-        pass
+        self._validate_data(pred_answers, ref_answers)
+        scores = self._compute_batch(pred_answers, ref_answers)
+        ref_answers = np.array(ref_answers)
+        ref_answers = ref_answers.T.tolist()
+        return self.ter.corpus_score(pred_answers, ref_answers).score, scores
