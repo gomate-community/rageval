@@ -14,21 +14,23 @@ def sample():
             "A supercentenarian is someone who has reached the age of 110. Sarah Knauss, whose age is undisputed, was \
             the oldest person ever from the United States and the second-oldest fully documented person ever. Jeanne \
             Calment was a French supercentenarian and the oldest human whose age is well-documented, with a lifespan \
-            of 122 years and 164 days, and was the oldest person in the world as of 1997."
+            of 122 years and 164 days, and was the oldest person in the world as of 1997.",
+            "新品研发效率提升56.6%、不合格率下降47.3%、机时产量提升15%，精确的数据展现，使得钢铁行业在“智慧大脑”的调度下如虎添翼。",
+            "快手大模型团队负责人表示，技术革新正极大地降低视频内容制作的门槛，让更多有创意的人不再受限于设备和成本，凭借创造力和想象力就可以进行视频生产。"
         ],
         "gt_answers": [
             ["Daei", "Ali Daei"],
-            ["Jeanne Calment"]
+            ["Jeanne Calment"],
+            ["智慧大脑", "钢铁行业"],
+            ["快手大模型技术革新"]
         ]
     }
     return test_case
-
 
 @pytest.fixture(scope='module')
 def testset(sample):
     ds = Dataset.from_dict(sample)
     return ds
-
 
 @pytest.mark.slow
 def test_case_on_answer_f1(testset):
@@ -36,4 +38,6 @@ def test_case_on_answer_f1(testset):
     assert metric.name == "answer_f1"
     assert metric.mtype == 'AnswerCorrectness'
     score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
+
     assert 0 <= score <= 1
+
