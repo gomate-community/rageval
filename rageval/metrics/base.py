@@ -9,6 +9,11 @@ from datasets.naming import camelcase_to_snakecase
 from langchain.schema import LLMResult
 from tqdm import tqdm
 
+import sys
+import io
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')  # for Chinese language output
+
 
 def add_attribute(attribute_name, attribute_value):
     """
