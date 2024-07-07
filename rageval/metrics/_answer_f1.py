@@ -2,12 +2,14 @@ import re
 import string
 from collections import Counter
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
 import datasets
 import numpy as np
+import jieba
 
 from rageval.metrics import Metric, add_attribute
+
 
 _DESCRIPTION = """\
     F1 score combines precision and recall into a single score using their harmonic mean.
@@ -27,6 +29,7 @@ Functions:
     _compute_one: evaluate the f1 score of between `answer` and `gt_answers`, return the highest score in all pairs.
 
 Examples:
+    English:
     >>> from datasets import Dataset
     >>> import rageval as rl
     >>> sample = {
@@ -46,6 +49,28 @@ Examples:
     'AnswerCorrectness'
     >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
     >>> assert 0 <= score <= 1
+
+    Chinese:
+    >>> from datasets import Dataset
+    >>> import rageval as rl
+    >>> sample = {
+    ...     "answers": [
+    ...         "在数智化技术不断向各产业渗透的当下，以跨境电商为代表的新业态正在成为知识密集型服务贸易的重要内容。"
+    ...     ],
+    ...     "gt_answers": [
+    ...         [
+    ...             "跨境电商",
+    ...             "最新动态"
+    ...         ]
+    ...     ]
+    ... }
+    >>> dataset = Dataset.from_dict(sample)
+    >>> metric = rl.metrics.AnswerF1Correctness()
+    >>> metric.mtype
+    'AnswerCorrectness'
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1, ['Chinese'] * len(dataset['answers']))
+    >>> assert 0 <= score <= 1
+
 """
 
 _CITATION = """\
@@ -105,13 +130,35 @@ class AnswerF1Correctness(Metric):
             return text.lower()
         return white_space_fix(remove_articles(remove_punc(lower(s))))
 
-    def _f1_score(self, pred: str, ref: str) -> float:
-        """Compute the f1 score between pred and ref."""
-        normalized_prediction = self._normalize_text(pred)
-        normalized_ground_truth = self._normalize_text(ref)
+    def _normalize_text_zh(self, s: str) -> str:
+        """Normalize Chinese text."""
+        def white_space_fix(text):
+            return ' '.join(text.split())
 
-        prediction_tokens = normalized_prediction.split()
-        ground_truth_tokens = normalized_ground_truth.split()
+        def remove_punc(text):
+            exclude = set(string.punctuation) | {'，', '。', '？', '！', '：', '；', '“', '”', '‘', '’', '（', '）', '《', '》', '——', '……', '、'}
+            return ''.join(ch for ch in text if ch not in exclude)
+
+        return white_space_fix(remove_punc(s))
+
+    def _f1_score(self, pred: str, ref: str, language: Optional[str]) -> float:
+        """Compute the f1 score between pred and ref."""
+        if language is None:
+            normalized_prediction = self._normalize_text(pred)
+            normalized_ground_truth = self._normalize_text(ref)
+
+            prediction_tokens = normalized_prediction.split()
+            ground_truth_tokens = normalized_ground_truth.split()
+
+        elif language[0] == "Chinese":
+            normalized_prediction = self._normalize_text_zh(pred)
+            normalized_ground_truth = self._normalize_text_zh(ref)
+
+            prediction_tokens = list(jieba.cut(normalized_prediction))
+            ground_truth_tokens = list(jieba.cut(normalized_ground_truth))
+
+        else:
+            raise Exception('Unsupported language: {}'.format(language))
 
         pred_counter = Counter(prediction_tokens)
         ref_counter = Counter(ground_truth_tokens)
@@ -130,12 +177,13 @@ class AnswerF1Correctness(Metric):
     def _compute_one(
         self,
         pred_answer: str,
-        ref_answers: List[str]
+        ref_answers: List[str],
+        language: Optional[str] = None
     ) -> float:
         """Evaluate the f1 score of an answer."""
         scores = []
         for ref_answer in ref_answers:
-            score = self._f1_score(pred_answer, ref_answer)
+            score = self._f1_score(pred_answer, ref_answer, language)
             scores.append(score)
 
         return np.max(scores)
@@ -143,10 +191,11 @@ class AnswerF1Correctness(Metric):
     def _compute_batch(
         self,
         pred_answers: List[str],
-        ref_answers: List[List[str]]
+        ref_answers: List[List[str]],
+        language: Optional[List[str]] = None
     ) -> List[float]:
         """Evaluate the f1 score of a batch of answers."""
         return [
-            self._compute_one(pred_answer, ref_answer)
+            self._compute_one(pred_answer, ref_answer, language)
             for pred_answer, ref_answer in zip(pred_answers, ref_answers)
         ]
