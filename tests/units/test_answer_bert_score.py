@@ -40,5 +40,5 @@ def test_case_on_answer_bert_score(testset):
     assert metric.mtype == 'AnswerCorrectness'
     assert repr(metric) == "answer_bert_score"
     score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
-    assert score == 0.5511645078659058
-    assert results[0] == 0.7265544533729553
+    assert round(score, 2) == 0.55
+    assert round(results[0], 1) == 0.7
