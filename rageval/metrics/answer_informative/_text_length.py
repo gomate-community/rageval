@@ -8,7 +8,7 @@ from rageval.metrics import Metric, add_attribute
 
 
 _DESCRIPTION = """\
-Textlength is a metric used to evaluate the length of a model-generated response. 
+Textlength is a metric used to evaluate the length of a model-generated response.
 
 It measures the number of tokens in the generated text by first converting the text into tokens and then counting the total number. This metric provides insight into the verbosity or conciseness of the model's output, offering a standardized way to compare text length across different responses.
 """
