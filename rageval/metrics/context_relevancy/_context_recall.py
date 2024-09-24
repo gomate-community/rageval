@@ -165,9 +165,6 @@ class ContextRecall(MetricWithLLM):
 
         return np.average(scores), scores
 
-    def _compute_one():
-        pass
-
     def _compute_batch(
         self,
         questions: List[str],

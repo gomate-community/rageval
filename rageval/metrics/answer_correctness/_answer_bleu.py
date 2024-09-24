@@ -164,10 +164,3 @@ class AnswerBleuScore(Metric):
         scores = self._compute_one(pred_answers, ref_answers)
 
         return bleu_score, scores
-
-    def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> List[float]:
-        pass
