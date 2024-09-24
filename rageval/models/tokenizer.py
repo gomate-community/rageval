@@ -11,5 +11,5 @@ class Tokenizer(ABC):
 
     def __init__(self, model: str = "Qwen/Qwen2-0.5B-Instruct") -> None:
         """Init the Model."""
-        self._model_name = model
+        #self._model_name = model
         self.tokenizer = AutoTokenizer.from_pretrained(model)
