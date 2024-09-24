@@ -103,6 +103,7 @@ class Metric(MetricInfoMixin):
 
         return np.average(scores), scores
 
+    @abstractmethod
     def _compute_one(
         self,
         pred_answers: Optional[Iterable] = None,
