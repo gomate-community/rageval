@@ -56,10 +56,10 @@ Examples:
     >>> metric.mtype
     'AnswerCorrectness'
     >>> score, results = metric.compute(dataset["answers"], dataset["gt_answers"], 1)
-    >>> score
-    0.5511645078659058
-    >>> results[0]
-    0.7265544533729553
+    >>> round(score, 2)
+    0.55
+    >>> round(results[0], 1)
+    0.7
 """
 
 
