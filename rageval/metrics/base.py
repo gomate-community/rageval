@@ -85,21 +85,36 @@ class Metric(MetricInfoMixin):
 
         Return average scores of all inputs and a score list for each example.
         """
-        self._validate_data(pred_answers, ref_answers, *args)
-        scores = []
-        length = len(pred_answers)
-        if batch_size:
-            for start in tqdm(range(0, length, batch_size)):
-                end = start + batch_size
-                end = end if end < length else length
-                score = self._compute_batch(
-                    pred_answers[start:end],
-                    ref_answers[start:end],
-                    *[arg[start:end] for arg in args],
-                )
-                scores.extend(score)
+        if ref_answers:
+            self._validate_data(pred_answers, ref_answers, *args)
+            scores = []
+            length = len(pred_answers)
+            if batch_size:
+                for start in tqdm(range(0, length, batch_size)):
+                    end = start + batch_size
+                    end = end if end < length else length
+                    score = self._compute_batch(
+                        pred_answers[start:end],
+                        ref_answers[start:end],
+                        *[arg[start:end] for arg in args],
+                    )
+                    scores.extend(score)
+            else:
+                scores = self._compute_batch(pred_answers, ref_answers, *args)
         else:
-            scores = self._compute_batch(pred_answers, ref_answers, *args)
+            scores = []
+            length = len(pred_answers)
+            if batch_size:
+                for start in tqdm(range(0, length, batch_size)):
+                    end = start + batch_size
+                    end = end if end < length else length
+                    score = self._compute_batch(
+                        pred_answers[start:end],
+                        *[arg[start:end] for arg in args],
+                    )
+                    scores.extend(score)
+            else:
+                scores = self._compute_batch(pred_answers, *args)
 
         return np.average(scores), scores
 

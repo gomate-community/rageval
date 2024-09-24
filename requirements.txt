@@ -24,3 +24,4 @@ sentencepiece == 0.2.0
 protobuf == 4.25.3
 sacrebleu == 2.3.3
 bert_score == 0.3.13
+transformers

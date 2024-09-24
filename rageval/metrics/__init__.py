@@ -13,16 +13,22 @@ from .answer_correctness._answer_claim_recall import AnswerNLICorrectness
 from .answer_correctness._answer_disambig_f1 import AnswerDisambigF1Correctness
 from .answer_correctness._answer_lcs_ratio import AnswerLCSRatio
 from .answer_correctness._answer_ter import AnswerTERCorrectness
+##from .answer_correctness._answer_relevancy import AnswerRelevancy
 
 # Metrics about the answer groundedness
 from .answer_groundedness._answer_citation_precision import AnswerCitationPrecision
 from .answer_groundedness._answer_citation_recall import AnswerCitationRecall
 from .answer_groundedness._context_reject_rate import ContextRejectRate
+##from .answer_groundedness._claim_faithfulness import ClaimFaithfulness
 
 # Metrics about the answer informativeness
-
-# Metrics about the context relevancy
-from .context_relevancy._context_recall import ContextRecall
+##from .answer_informative._claim_num import ClaimNum
+from .answer_informative._text_length import TextLength
+##from .answer_informative._repetitiveness import Repetitiveness
+##from .answer_informative._pairwise_accuracy import PairwiseAccuracy
 
 # Metrics about the context aduquacy
+from .context_adequacy._context_recall import ContextRecall
+
+# Metrics about the context relevance
 
