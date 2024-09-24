@@ -12,6 +12,7 @@ Distinct 1/2 measures the diversity of generated text by calculating the ratio o
 _KWARGS_DESCRIPTION = """\
 Args:
     pred_answers (list of str): List of generated texts for which distinct metrics are computed.
+    n_grams (int): The n-gram order for which distinct metrics are computed.
 
 Returns:
     dict: Dictionary containing Distinct-1 and Distinct-2 scores.
@@ -50,19 +51,13 @@ _CITATION = """\
 
 def get_distinct_score(pred_answers: List[str], n_grams:int) -> dict:
     """Compute Distinct-1 and Distinct-2 metrics."""
-    unigram_counter = Counter()
-    bigram_counter = Counter()
-
+    c = Counter()
     for answer in pred_answers:
         tokens = answer.split()
-        unigram_counter.update(tokens)
-        bigram_counter.update(ngrams(tokens, 2))
-
-    distinct_1 = len(unigram_counter) / sum(unigram_counter.values())
-    distinct_2 = len(bigram_counter) / sum(bigram_counter.values())
-
-    return {"distinct_1": distinct_1, "distinct_2": distinct_2}
-
+        c.update(ngrams(tokens, n_grams))
+    
+    distinct = len(c) / sum(c.values())
+    return distinct
 
 @dataclass
 @add_attribute('mtype', 'AnswerInformativeness')
@@ -114,7 +109,7 @@ class AnswerDistinct(Metric):
         pred_answers: str,
     ) -> dict:
         """Compute Distinct-1 and Distinct-2 metrics for a single text."""
-        return get_distinct_score([pred_answers])
+        return get_distinct_score([pred_answers], self.n_grams)
 
     def _compute_batch(
         self,
@@ -122,4 +117,4 @@ class AnswerDistinct(Metric):
         ref_answers: Optional[Iterable] = None,
     ) -> dict:
         """Compute Distinct-1 and Distinct-2 metrics for a batch of texts."""
-        return get_distinct_score(pred_answers)
+        return get_distinct_score(pred_answers, self.n_grams)

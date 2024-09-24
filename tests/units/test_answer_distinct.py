@@ -28,7 +28,13 @@ def testset(sample):
 
 @pytest.mark.slow
 def test_case_on_answer_distinct(testset):
-    metric = AnswerDistinct()
+    metric = AnswerDistinct(n_grams=1)
+    assert metric.name == "answer_distinct"
+    assert metric.mtype == 'AnswerInformativeness'
+    score, results = metric.compute(pred_answers=testset['answers'])
+    assert 0 <= score <= 1
+
+    metric = AnswerDistinct(n_grams=2)
     assert metric.name == "answer_distinct"
     assert metric.mtype == 'AnswerInformativeness'
     score, results = metric.compute(pred_answers=testset['answers'])
