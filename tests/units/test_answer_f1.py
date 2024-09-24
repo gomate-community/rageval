@@ -37,3 +37,5 @@ def test_case_on_answer_f1(testset):
     assert metric.mtype == 'AnswerCorrectness'
     score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
     assert 0 <= score <= 1
+    score = metric._compute_one(testset['answers'][0], testset['gt_answers'][0])
+    assert 0 <= score <= 1
