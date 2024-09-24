@@ -49,7 +49,7 @@ class Metric(MetricInfoMixin):
     @abstractmethod
     def name(self) -> str:
         """The metric name."""
-        ...
+        ...  # pragma: no cover
 
     def _info(self) -> MetricInfo:
         """Construct the MetricInfo object. See `datasets.MetricInfo` for details.
@@ -61,7 +61,7 @@ class Metric(MetricInfoMixin):
             info: (datasets.MetricInfo) The metrics information
 
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def _validate_data(
         self,
@@ -110,7 +110,7 @@ class Metric(MetricInfoMixin):
         ref_answers: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> float:
-        ...
+        ...  # pragma: no cover
 
     def _compute_batch(
         self,
@@ -139,4 +139,4 @@ class MetricWithLLM(Metric):
     @abstractmethod
     def parse_llm_result(self, prompts: List[str], result: LLMResult):
         """Parse the LLM Result based on the Prompt."""
-        ...
+        ...  # pragma: no cover
