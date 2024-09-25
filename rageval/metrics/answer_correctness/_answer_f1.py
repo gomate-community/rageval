@@ -126,7 +126,7 @@ class AnswerF1Correctness(Metric):
 
         def lower(text):
             return text.lower()
-        return remove_articles(remove_punc(lower(s))).split()
+        return remove_articles(remove_punc(lower(s)))
 
     def _normalize_text_zh(self, s: str) -> str:
         """Normalize Chinese text."""
