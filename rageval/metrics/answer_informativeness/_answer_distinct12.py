@@ -47,15 +47,15 @@ _CITATION = """\
 """
 
 
-def get_distinct_score(pred_answers: List[str], n_grams:int) -> dict:
+def get_distinct_score(pred_answers: List[str], n_grams: int) -> dict:
     """Compute Distinct-1 and Distinct-2 metrics."""
     c = Counter()
     for answer in pred_answers:
         tokens = answer.split()
         c.update(ngrams(tokens, n_grams))
-    
-    distinct = len(c) / sum(c.values())
-    return distinct
+
+    return len(c) / sum(c.values())
+
 
 @dataclass
 @add_attribute('mtype', 'AnswerInformativeness')
@@ -95,7 +95,7 @@ class AnswerDistinct(Metric):
         )
 
     def _validate_data(
-        self, 
+        self,
         pred_answers: Optional[Iterable] = None,
         ref_answers: Optional[Iterable] = None,
     ) -> bool:
@@ -103,7 +103,12 @@ class AnswerDistinct(Metric):
         assert isinstance(pred_answers, str) or isinstance(pred_answers, list)
 
     def compute(
-        self, 
-        pred_answers: Optional[Iterable] = None, 
+        self,
+        pred_answers: Optional[Iterable] = None,
     ) -> Tuple[float, List[float]]:
+        """
+        Evaluate the dataset.
+
+        Return average scores of all inputs and a score list for each example.
+        """
         return get_distinct_score(pred_answers, self.n_grams), [get_distinct_score([pred_answer], self.n_grams) for pred_answer in pred_answers]
