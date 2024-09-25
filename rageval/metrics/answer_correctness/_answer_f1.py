@@ -193,7 +193,7 @@ class AnswerF1Correctness(Metric):
                 preds = list(jieba.cut(self._normalize_text_zh(pred_answer)))
                 refs = [list(jieba.cut(self._normalize_text_zh(ref_answer))) for ref_answer in ref_answers]
             else:
-                raise Exception('Unsupported language: {}'.format(self.language)) # pragma: no cover
+                raise Exception('Unsupported language: {}'.format(self.language))  # pragma: no cover
             scores = [self._f1_score(preds, ref) for ref in refs]
         else:
             scores = self._f1_score(pred_answer, ref_answers)
