@@ -62,7 +62,7 @@ Examples:
     >>> assert 0 <= score <= 1
 """
 
-_CITATION = """\
+_CITATION = """
 @misc{ragas,
     author= {explodinggradients},
     year  = {2023},

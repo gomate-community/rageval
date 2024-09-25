@@ -179,9 +179,4 @@ class AnswerCitationRecall(Metric):
         Then, average over all statements in the LLM answer.
         Finally, average over all scores of each answer.
         """
-
-        results = []
-        for answer, context in tqdm(zip(answers, contexts)):
-            r = self._compute_one(answer, context)
-            results.append(r)
-        return results
+        return super()._compute_batch(pred_answers=answers, ref_answers=contexts)
