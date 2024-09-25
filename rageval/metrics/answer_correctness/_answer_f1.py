@@ -58,13 +58,16 @@ Examples:
     >>> import rageval as rl
     >>> sample = {
     ...     "answers": [
-    ...         "在数智化技术不断向各产业渗透的当下，以跨境电商为代表的新业态正在成为知识密集型服务贸易的重要内容。"
+    ...         "督邮，中国古代职官名，自汉代开始设置。",
+    ...         "魏晋",
+    ...         "北齐只设于清都郡。",
+    ...         "隋代",
     ...     ],
     ...     "gt_answers": [
-    ...         [
-    ...             "跨境电商",
-    ...             "最新动态"
-    ...         ]
+    ...         ["督邮，中国古代职官名，自汉代开始设置。"],
+    ...         ["魏晋", "魏晋时期"],
+    ...         ["北齐只设于清都郡。", "清都郡"],
+    ...         ["隋代", "隋朝"]
     ...     ]
     ... }
     >>> dataset = Dataset.from_dict(sample)
@@ -73,7 +76,7 @@ Examples:
     'AnswerCorrectness'
     >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'])
     >>> round(score, 2)
-    0.14
+    1.0
 
     Other Iterables:
     >>> from datasets import Dataset
@@ -188,9 +191,9 @@ class AnswerF1Correctness(Metric):
                 refs = [self._normalize_text(ref_answer) for ref_answer in ref_answers]
             elif self.language == "zh":
                 preds = list(jieba.cut(self._normalize_text_zh(pred_answer)))
-                refs = list(jieba.cut(self._normalize_text_zh(ref_answer)) for ref_answer in ref_answers)
+                refs = [list(jieba.cut(self._normalize_text_zh(ref_answer))) for ref_answer in ref_answers]
             else:
-                raise Exception('Unsupported language: {}'.format(self.language))
+                raise Exception('Unsupported language: {}'.format(self.language)) # pragma: no cover
             scores = [self._f1_score(preds, ref) for ref in refs]
         else:
             scores = self._f1_score(pred_answer, ref_answers)

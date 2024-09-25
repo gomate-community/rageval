@@ -20,16 +20,16 @@ def sample():
             ["Daei", "Ali Daei"],
             ["Jeanne Calment"]
         ],
-        "答案": [
-            "新品研发效率提升56.6%、不合格率下降47.3%、机时产量提升15%，精确的数据展现，使得钢铁行业在“智慧大脑”的调度下如虎添翼。",
-            "快手大模型团队负责人表示，技术革新正极大地降低视频内容制作的门槛，让更多有创意的人不再受限于设备和成本，凭借创造力和想象力就可以进行视频生产。"
+        "answers_zh": [
+            "魏晋",
+            "北齐只设于清都郡。",
         ],
-        "参考答案": [
-            ["智慧大脑", "钢铁行业"],
-            ["快手大模型技术革新"]
+        "gt_answers_zh": [
+            ["魏晋", "魏晋时期"],
+            ["北齐只设于清都郡。", "清都郡"]
         ],
-        "num":[[1,2,3], [4,5,6]],
-        "num_ref":[[2,3,4,5,6], [1,2,3,4,5]]
+        "answers_num":[[1,2,3], [4,5,6]],
+        "gt_answers_num":[[2,3,4,5,6], [1,2,3,4,5]]
     }
     return test_case
 
@@ -49,11 +49,11 @@ def test_case_on_answer_f1(testset):
     metric = AnswerF1Correctness(normalize=True, language='zh')
     assert metric.name == "answer_f1"
     assert metric.mtype == 'AnswerCorrectness'
-    score_zh, results_zh = metric.compute(testset['答案'], testset['参考答案'])
+    score_zh, results_zh = metric.compute(testset['answers_zh'], testset['gt_answers_zh'])
     assert 0 <= score_zh <= 1
 
     metric = AnswerF1Correctness(normalize=False)
     assert metric.name == "answer_f1"
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset['num'], testset['num_ref'])
+    score, results = metric.compute(testset['answers_num'], testset['gt_answers_num'])
     assert 0 <= score <= 1
