@@ -90,7 +90,7 @@ class AnswerDistinct(Metric):
                     "pred_answers": datasets.Value("string"),
                 }
             ),
-            codebase_urls=["https://github.com/Hannibal046/SelfMemory/blob/58d8b611ad51605091c7555c0f32dce6702dadbf/src/utils/metrics_utils.py"],
+            codebase_urls=["https://github.com/Hannibal046/SelfMemory/blob/main/src/utils/metrics_utils.py"],
             reference_urls=["https://arxiv.org/abs/2305.02437"]
         )
 
