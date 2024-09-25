@@ -1,6 +1,6 @@
 from collections import Counter
 from dataclasses import dataclass
-from typing import List, Optional, Iterable
+from typing import List, Optional, Iterable, Tuple
 import datasets
 from nltk import ngrams
 from rageval.metrics import Metric, add_attribute
@@ -27,13 +27,11 @@ Examples:
     ...     ]
     ... }
     >>> dataset = Dataset.from_dict(sample)
-    >>> metric = rl.metrics.AnswerDistinct()
+    >>> metric = rl.metrics.AnswerDistinct(1)
     >>> metric.mtype
     'AnswerInformativeness'
-    >>> scores = metric.compute(dataset['answers'])
-    >>> scores['distinct_1']
-    0.8
-    >>> scores['distinct_2']
+    >>> score, results = metric.compute(dataset['answers'])
+    >>> score
     0.6
 """
 
@@ -104,17 +102,8 @@ class AnswerDistinct(Metric):
         """Validate the input data."""
         assert isinstance(pred_answers, str) or isinstance(pred_answers, list)
 
-    def _compute_one(
-        self,
-        pred_answers: str,
-    ) -> dict:
-        """Compute Distinct-1 and Distinct-2 metrics for a single text."""
-        return get_distinct_score([pred_answers], self.n_grams)
-
-    def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: Optional[Iterable] = None,
-    ) -> dict:
-        """Compute Distinct-1 and Distinct-2 metrics for a batch of texts."""
-        return get_distinct_score(pred_answers, self.n_grams)
+    def compute(
+        self, 
+        pred_answers: Optional[Iterable] = None, 
+    ) -> Tuple[float, List[float]]:
+        return get_distinct_score(pred_answers, self.n_grams), [get_distinct_score([pred_answer], self.n_grams) for pred_answer in pred_answers]
