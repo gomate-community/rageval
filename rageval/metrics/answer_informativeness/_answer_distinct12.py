@@ -100,7 +100,7 @@ class AnswerDistinct(Metric):
         ref_answers: Optional[Iterable] = None,
     ) -> bool:
         """Validate the input data."""
-        assert isinstance(pred_answers, str) or isinstance(pred_answers, list)
+        assert isinstance(pred_answers, str) or isinstance(pred_answers, list)  # pragma: no cover
 
     def compute(
         self,
