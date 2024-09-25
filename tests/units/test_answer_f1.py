@@ -38,12 +38,14 @@ def testset(sample):
 
 @pytest.mark.slow
 def test_case_on_answer_f1(testset):
-    metric = AnswerF1Correctness(normalize=True)
+    metric = AnswerF1Correctness(normalize=True, language='en')
     assert metric.name == "answer_f1"
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
-    score_zh, results_zh = metric.compute(testset['答案'], testset['参考答案'], 1,  ['Chinese'] * len(testset['答案']))
-
+    score, results = metric.compute(testset['answers'], testset['gt_answers'])
     assert 0 <= score <= 1
-    assert 0 <= score_zh <= 1
 
+    metric = AnswerF1Correctness(normalize=True, language='zh')
+    assert metric.name == "answer_f1"
+    assert metric.mtype == 'AnswerCorrectness'
+    score_zh, results_zh = metric.compute(testset['答案'], testset['参考答案'])
+    assert 0 <= score_zh <= 1

@@ -88,7 +88,7 @@ class AnswerF1Correctness(Metric):
 
     ALIAS = ['answer_f1']
 
-    def __init__(self, normalize: bool = True):
+    def __init__(self, normalize: bool = True, language: Optional[str] = "en"):
         """
         Explicitly initialize AnswerF1Correctness.
 
@@ -96,6 +96,7 @@ class AnswerF1Correctness(Metric):
         """
         super().__init__()
         self.normalize = normalize
+        self.language = language
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
@@ -141,14 +142,14 @@ class AnswerF1Correctness(Metric):
 
     def _f1_score(self, pred: str, ref: str, language: Optional[str]) -> float:
         """Compute the f1 score between pred and ref."""
-        if language is None:
+        if language == "en":
             normalized_prediction = self._normalize_text(pred)
             normalized_ground_truth = self._normalize_text(ref)
 
             prediction_tokens = normalized_prediction.split()
             ground_truth_tokens = normalized_ground_truth.split()
 
-        elif language[0] == "Chinese":
+        elif language == "zh":
             normalized_prediction = self._normalize_text_zh(pred)
             normalized_ground_truth = self._normalize_text_zh(ref)
 
@@ -176,13 +177,12 @@ class AnswerF1Correctness(Metric):
         self,
         pred_answer: Union[str, Iterable],
         ref_answers: Union[List[str], Iterable],
-        language: Optional[str] = None
     ) -> float:
         """Evaluate the f1 score of an answer."""
         if self.normalize:
             pred_answer = self._normalize_text(pred_answer)
             ref_answers = [self._normalize_text(ref_answer) for ref_answer in ref_answers]
 
-        scores = [self._f1_score(pred_answer, ref_answer, language) for ref_answer in ref_answers]
+        scores = [self._f1_score(pred_answer, ref_answer, self.language) for ref_answer in ref_answers]
 
         return np.max(scores)
