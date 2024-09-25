@@ -27,7 +27,9 @@ def sample():
         "参考答案": [
             ["智慧大脑", "钢铁行业"],
             ["快手大模型技术革新"]
-        ]
+        ],
+        "num":[[1,2,3], [4,5,6]],
+        "num_ref":[[2,3,4,5,6], [1,2,3,4,5]]
     }
     return test_case
 
@@ -49,3 +51,9 @@ def test_case_on_answer_f1(testset):
     assert metric.mtype == 'AnswerCorrectness'
     score_zh, results_zh = metric.compute(testset['答案'], testset['参考答案'])
     assert 0 <= score_zh <= 1
+
+    metric = AnswerF1Correctness(normalize=False)
+    assert metric.name == "answer_f1"
+    assert metric.mtype == 'AnswerCorrectness'
+    score, results = metric.compute(testset['num'], testset['num_ref'])
+    assert 0 <= score <= 1

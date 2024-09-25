@@ -18,6 +18,8 @@ _DESCRIPTION = """\
 _KWARGS_DESCRIPTION = """\
 Args:
     name : str
+    normalize : bool, default is True, whether to normalize the text. If False, the text will be treated as a list of tokens.
+    language : str, default is 'en', the language of the text. Supported languages are 'en' and 'zh'.
 
 Optional Args:
     None
@@ -25,7 +27,7 @@ Optional Args:
 Functions:
     _normalize_text: normalize the text by removing articles, white spaces, punctuations and lowercasing.
     _validate_data: validate the dataset format.
-    _f1_score: compute the f1 score between `pred` string and `ref` string.
+    _f1_score: compute the f1 score between `pred` tokens and `ref` tokens.
     _compute_one: evaluate the f1 score of between `answer` and `gt_answers`, return the highest score in all pairs.
 
 Examples:
@@ -47,8 +49,9 @@ Examples:
     >>> metric = rl.metrics.AnswerF1Correctness()
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1)
-    >>> assert 0 <= score <= 1
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'])
+    >>> round(score, 2)
+    0.18
 
     Chinese:
     >>> from datasets import Dataset
@@ -65,11 +68,27 @@ Examples:
     ...     ]
     ... }
     >>> dataset = Dataset.from_dict(sample)
-    >>> metric = rl.metrics.AnswerF1Correctness()
+    >>> metric = rl.metrics.AnswerF1Correctness(language='zh')
     >>> metric.mtype
     'AnswerCorrectness'
-    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'], 1, ['Chinese'] * len(dataset['answers']))
-    >>> assert 0 <= score <= 1
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'])
+    >>> round(score, 2)
+    0.14
+
+    Other Iterables:
+    >>> from datasets import Dataset
+    >>> import rageval as rl
+    >>> sample = {
+    ...     "answers": [[1,2,3], [4,5,6]],
+    ...     "gt_answers": [[2,3,4,5,6], [1,2,3,4,5]]
+    ... }
+    >>> dataset = Dataset.from_dict(sample)
+    >>> metric = rl.metrics.AnswerF1Correctness(normalize=False)
+    >>> metric.mtype
+    'AnswerCorrectness'
+    >>> score, results = metric.compute(dataset['answers'], dataset['gt_answers'])
+    >>> round(score, 2)
+    0.5
 
 """
 
@@ -127,7 +146,7 @@ class AnswerF1Correctness(Metric):
 
         def lower(text):
             return text.lower()
-        return remove_articles(remove_punc(lower(s)))
+        return remove_articles(remove_punc(lower(s))).split()
 
     def _normalize_text_zh(self, s: str) -> str:
         """Normalize Chinese text."""
@@ -140,27 +159,10 @@ class AnswerF1Correctness(Metric):
 
         return white_space_fix(remove_punc(s))
 
-    def _f1_score(self, pred: str, ref: str, language: Optional[str]) -> float:
+    def _f1_score(self, pred: Iterable, ref: Iterable) -> float:
         """Compute the f1 score between pred and ref."""
-        if language == "en":
-            normalized_prediction = self._normalize_text(pred)
-            normalized_ground_truth = self._normalize_text(ref)
-
-            prediction_tokens = normalized_prediction.split()
-            ground_truth_tokens = normalized_ground_truth.split()
-
-        elif language == "zh":
-            normalized_prediction = self._normalize_text_zh(pred)
-            normalized_ground_truth = self._normalize_text_zh(ref)
-
-            prediction_tokens = list(jieba.cut(normalized_prediction))
-            ground_truth_tokens = list(jieba.cut(normalized_ground_truth))
-
-        else:
-            raise Exception('Unsupported language: {}'.format(language))
-
-        pred_counter = Counter(prediction_tokens)
-        ref_counter = Counter(ground_truth_tokens)
+        pred_counter = Counter(pred)
+        ref_counter = Counter(ref)
 
         tp = sum((pred_counter & ref_counter).values())
         fp = sum((pred_counter - ref_counter).values())
@@ -176,13 +178,21 @@ class AnswerF1Correctness(Metric):
     def _compute_one(
         self,
         pred_answer: Union[str, Iterable],
-        ref_answers: Union[List[str], Iterable],
+        ref_answers: Union[List[str], Iterable]
     ) -> float:
         """Evaluate the f1 score of an answer."""
         if self.normalize:
-            pred_answer = self._normalize_text(pred_answer)
-            ref_answers = [self._normalize_text(ref_answer) for ref_answer in ref_answers]
-
-        scores = [self._f1_score(pred_answer, ref_answer, self.language) for ref_answer in ref_answers]
+            # str, List[str] -> List[str], List[List[str]]
+            if self.language == "en":
+                preds = self._normalize_text(pred_answer)
+                refs = [self._normalize_text(ref_answer) for ref_answer in ref_answers]
+            elif self.language == "zh":
+                preds = list(jieba.cut(self._normalize_text_zh(pred_answer)))
+                refs = list(jieba.cut(self._normalize_text_zh(ref_answer)) for ref_answer in ref_answers)
+            else:
+                raise Exception('Unsupported language: {}'.format(self.language))
+            scores = [self._f1_score(preds, ref) for ref in refs]
+        else:
+            scores = self._f1_score(pred_answer, ref_answers)
 
         return np.max(scores)
