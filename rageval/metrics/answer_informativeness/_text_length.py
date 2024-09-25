@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional, Iterable
-import numpy as np
+from typing import Optional, Iterable
 from transformers import AutoTokenizer
 
 
@@ -35,8 +34,7 @@ Examples:
     ...     ]
     ... }
     >>> dataset = Dataset.from_dict(sample)
-    >>> tokenize_model = rl.models.Tokenizer("Qwen/Qwen2-0.5B-Instruct")
-    >>> metric = rl.metrics.TextLength(tokenize_model=tokenize_model)
+    >>> metric = TextLength(tokenize_model="Qwen/Qwen2-0.5B-Instruct")
     >>> metric.mtype
     'answer_informativeness'
 """
