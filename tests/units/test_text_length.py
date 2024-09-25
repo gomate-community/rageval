@@ -5,7 +5,7 @@ from rageval.metrics import TextLength
 import rageval as rl
 
 
-#@pytest.fixture(scope='module')
+@pytest.fixture(scope='module')
 def sample():
     test_case = {
         #"questions": [
@@ -20,18 +20,16 @@ def sample():
     return test_case
 
 
-#@pytest.fixture(scope='module')
+@pytest.fixture(scope='module')
 def testset(sample):
     ds = Dataset.from_dict(sample)
     return ds
 
 
-#@pytest.mark.slow
+@pytest.mark.slow
 def test_case_on_text_length(testset):
     metric = TextLength(tokenize_model="Qwen/Qwen2-0.5B-Instruct")
     assert metric.name == "text_length"
     score, results = metric.compute(testset["answers"])
     print(score, results)
     assert score == 75.0
-
-test_case_on_text_length(testset(sample()))
