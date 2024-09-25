@@ -46,6 +46,31 @@ The search task is to retrieve relevant documents from the knowledge base.
 
 * [Context Recall](./rageval/metrics/_context_recall.py): also known as *Context Recall* in [RAGAS framework](https://github.com/explodinggradients/ragas).
 
+## Setup Evaluator LLMs
+
+Some metrics evaluations rely on LLMs as evaluators. You can either directly call OpenAI's API or deploy an open-source model as a RESTful API in the OpenAI format for evaluation.
+
+- OpenAI
+
+```python
+os.environ["OPENAI_API_KEY"] = "<your_openai_api_key>"
+```
+
+
+- Open source LLMs
+
+Please use [vllm](https://github.com/vllm-project/vllm) to setup the API server for open source LLMs. For example, use the following command to deploy a Llama-3-8B model hosted on HuggingFace:
+
+```bash
+python -m vllm.entrypoints.openai.api_server \
+  --model meta-llama/Meta-Llama-3-8B-Instruct \
+  --tensor-parallel-size 8 \
+  --dtype auto \
+  --api-key sk-123456789 \
+  --gpu-memory-utilization 0.9 \
+  --port 5000
+```
+
 ## Benchmark Results
 
 ### 1. [ASQA benchmark](benchmarks/ASQA/README.md)

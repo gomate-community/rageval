@@ -65,18 +65,19 @@ class Metric(MetricInfoMixin):
 
     def _validate_data(
         self,
-        pred_answers: Optional[Iterable] = None,
-        ref_answers: Optional[Iterable] = None,
+        AObjects: Optional[Iterable] = None,
+        BObjects: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> None:
         """Validate the of the input dataset."""
-        if len(pred_answers) != len(ref_answers) or any(len(pred_answers) != len(arg) for arg in args):
-            raise ValueError("The length of predictions and references should be the same.")
+        if (AObjects and BObjects):
+            if len(AObjects) != len(BObjects) or any(len(AObjects) != len(arg) for arg in args):
+                raise ValueError("The length of predictions and references should be the same.")
 
     def compute(
         self,
-        pred_answers: Optional[Iterable] = None,
-        ref_answers: Optional[Iterable] = None,
+        AObjects: Optional[Iterable] = None,
+        BObjects: Optional[Iterable] = None,
         batch_size: Optional[int] = None,
         *args: Optional[Iterable],
     ) -> Tuple[float, List[float]]:
@@ -85,45 +86,38 @@ class Metric(MetricInfoMixin):
 
         Return average scores of all inputs and a score list for each example.
         """
-        self._validate_data(pred_answers, ref_answers, *args)
-        # scores = []
-        # length = len(pred_answers)
-        # if batch_size:
-        #     for start in tqdm(range(0, length, batch_size)):
-        #         end = start + batch_size
-        #         end = end if end < length else length
-        #         score = self._compute_batch(
-        #             pred_answers[start:end],
-        #             ref_answers[start:end],
-        #             *[arg[start:end] for arg in args],
-        #         )
-        #         scores.extend(score)
-        # else:
-        scores = self._compute_batch(pred_answers, ref_answers, *args)
+        self._validate_data(AObjects, BObjects, *args)
+        scores = self._compute_batch(AObjects, BObjects, *args)
 
         return np.average(scores), scores
 
     @abstractmethod
     def _compute_one(
         self,
-        pred_answers: Optional[Iterable] = None,
-        ref_answers: Optional[Iterable] = None,
+        AObject: Optional[Iterable] = None,
+        BObject: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> float:
         ...  # pragma: no cover
 
     def _compute_batch(
         self,
-        pred_answers: Optional[Iterable] = None,
-        ref_answers: Optional[Iterable] = None,
+        AObjects: Optional[Iterable] = None,
+        BObjects: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> List[float]:
         """Compute the metric for a batch of predictions and references."""
         scores = []
-        for pred, refs in tqdm(zip(pred_answers, ref_answers),
-                               desc=f"Computing {self.name}",
-                               total=len(pred_answers)):
-            scores.append(self._compute_one(pred, refs))
+        if (AObjects and BObjects): # if both columns exist
+            for AObject, BObject in tqdm(zip(AObjects, BObjects),
+                                desc=f"Computing {self.name}",
+                                total=len(AObjects)):
+                scores.append(self._compute_one(AObject, BObject))
+        else:
+            for AObject in tqdm(AObjects,
+                                desc=f"Computing {self.name}",
+                                total=len(AObjects)):
+                scores.append(self._compute_one(AObject))
         return scores
 
 

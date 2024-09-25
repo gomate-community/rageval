@@ -23,7 +23,7 @@ from .answer_groundedness._context_reject_rate import ContextRejectRate
 
 # Metrics about the answer informativeness
 ##from .answer_informative._claim_num import ClaimNum
-from .answer_informative._text_length import TextLength
+from .answer_informativeness._text_length import TextLength
 ##from .answer_informative._repetitiveness import Repetitiveness
 ##from .answer_informative._pairwise_accuracy import PairwiseAccuracy
 

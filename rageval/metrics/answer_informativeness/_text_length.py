@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional, Iterable
 import numpy as np
+from transformers import AutoTokenizer
+
 
 import datasets
 
@@ -36,12 +38,12 @@ Examples:
     >>> tokenize_model = rl.models.Tokenizer("Qwen/Qwen2-0.5B-Instruct")
     >>> metric = rl.metrics.TextLength(tokenize_model=tokenize_model)
     >>> metric.mtype
-    'answer_informative'
+    'answer_informativeness'
 """
 
 
 @dataclass
-@add_attribute('mtype', 'answer_informative')
+@add_attribute('mtype', 'answer_informativeness')
 @datasets.utils.file_utils.add_start_docstrings(_DESCRIPTION, _KWARGS_DESCRIPTION)
 class TextLength(Metric):
     """Estimates the text length of answers."""
@@ -56,7 +58,7 @@ class TextLength(Metric):
 
         Ensure all parent classes are initialized.
         """
-        self.tokenize_model = tokenize_model
+        self.tokenizer = AutoTokenizer.from_pretrained(tokenize_model)
         super().__init__()
 
     def __repr__(self) -> str:
@@ -81,15 +83,8 @@ class TextLength(Metric):
     def _compute_one(
         self,
         answer: str,
+        *args: Optional[Iterable],
     ) -> float:
         """Evaluating the text length of answer."""
-        length = len(self.tokenize_model.tokenizer(answer, return_tensors="pt")['input_ids'][0])
+        length = len(self.tokenizer(answer, return_tensors="pt")['input_ids'][0])
         return length
-
-    def _compute_batch(
-        self,
-        pred_answers,
-    ) -> List[float]:
-        """Evaluate the text length of a batch of answers."""
-        results = [self._compute_one(answer) for answer in pred_answers]
-        return results
