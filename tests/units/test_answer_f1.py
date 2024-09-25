@@ -45,10 +45,5 @@ def test_case_on_answer_f1(testset):
     score_zh, results_zh = metric.compute(testset['答案'], testset['参考答案'], 1,  ['Chinese'] * len(testset['答案']))
 
     assert 0 <= score <= 1
-<<<<<<< HEAD
-    score = metric._compute_one(testset['answers'][0], testset['gt_answers'][0])
-    assert 0 <= score <= 1
-=======
     assert 0 <= score_zh <= 1
 
->>>>>>> 1120c938e9cecf4b86cb5e93821937ea4a6e26e3
