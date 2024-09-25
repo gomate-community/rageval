@@ -26,7 +26,7 @@ Optional Args:
 
 Functions:
     _clean: clean special word in sentence.
-    _compute_single: compute bleu score for single prediction with its references
+    _compute_one: compute bleu score for single prediction with its references
 
 Examples:
     >>> from datasets import Dataset
@@ -119,13 +119,12 @@ class AnswerBleuScore(Metric):
             sentence = re.sub(subword, "", sentence)
         return sentence
 
-    def _compute_single(
+    def _compute_one(
         self,
         pred_answers: List[str],
         ref_answers: List[List[str]]
     ) -> List[float]:
         """Compute the bleu score of a batch of answers."""
-
         scores = []
         bleu = datasets.load_metric("bleu")
         for output, gt_answers in zip(pred_answers, ref_answers):
@@ -162,13 +161,6 @@ class AnswerBleuScore(Metric):
             references.append(reference)
         bleu_result = bleu.compute(predictions=predictions, references=references)
         bleu_score = bleu_result['bleu']
-        scores = self._compute_single(pred_answers, ref_answers)
+        scores = self._compute_one(pred_answers, ref_answers)
 
         return bleu_score, scores
-
-    def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> List[float]:
-        pass

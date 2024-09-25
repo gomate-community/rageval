@@ -117,15 +117,3 @@ class AnswerRougeCorrectness(Metric):
         """Evaluate the ROUGE between a single answer and groundtruth answers."""
         score = self.scorer.score_multi(ref_answers, pred_answer)
         return score[self.rouge_type].fmeasure
-
-    def _compute_batch(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> List[float]:
-        """Evaluate the ROUGE of a batch of answers."""
-        results = [
-            self._compute_one(pred_answer, ref_answer)
-            for pred_answer, ref_answer in zip(pred_answers, ref_answers)
-        ]
-        return results

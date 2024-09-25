@@ -26,7 +26,7 @@ def testset(sample):
 
 
 @pytest.mark.slow
-def test_case_on_answer_ter(testset):
+def test_case_on_answer_chrf(testset):
     metric = AnswerCHRFCorrectness()
     assert metric.name == "answer_chrf"
     assert metric.mtype == 'AnswerCorrectness'

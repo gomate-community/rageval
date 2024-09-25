@@ -192,7 +192,6 @@ class AnswerCitationPrecision(Metric):
         Then, average over all statements in the LLM answer.
         Finally, average over all scores of each answer.
         """
-
         results = []
         for answer, context in tqdm(zip(answers, contexts)):
             citation_correct, citation_total = self._compute_one(answer, context)
