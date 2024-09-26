@@ -29,10 +29,6 @@ from .answer_informativeness._text_length import TextLength
 from .answer_informativeness._answer_distinct12 import AnswerDistinct
 
 # Metrics about the context relevancy
-from .context_relevancy._context_recall import ContextRecall
 
 # Metrics about the context aduquacy
 from .context_adequacy._context_recall import ContextRecall
-
-# Metrics about the context relevance
-
