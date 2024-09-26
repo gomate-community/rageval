@@ -19,23 +19,41 @@ def sample():
         "gt_answers": [
             ["Daei", "Ali Daei"],
             ["Jeanne Calment"]
-        ]
+        ],
+        "answers_zh": [
+            "魏晋",
+            "北齐只设于清都郡。",
+        ],
+        "gt_answers_zh": [
+            ["魏晋", "魏晋时期"],
+            ["北齐只设于清都郡。", "清都郡"]
+        ],
+        "answers_num":[[1,2,3], [4,5,6]],
+        "gt_answers_num":[[2,3,4,5,6], [1,2,3,4,5]]
     }
     return test_case
-
 
 @pytest.fixture(scope='module')
 def testset(sample):
     ds = Dataset.from_dict(sample)
     return ds
 
-
 @pytest.mark.slow
 def test_case_on_answer_f1(testset):
-    metric = AnswerF1Correctness(normalize=True)
+    metric = AnswerF1Correctness(normalize=True, language='en')
     assert metric.name == "answer_f1"
     assert metric.mtype == 'AnswerCorrectness'
-    score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
+    score, results = metric.compute(testset['answers'], testset['gt_answers'])
     assert 0 <= score <= 1
-    score = metric._compute_one(testset['answers'][0], testset['gt_answers'][0])
+
+    metric = AnswerF1Correctness(normalize=True, language='zh')
+    assert metric.name == "answer_f1"
+    assert metric.mtype == 'AnswerCorrectness'
+    score_zh, results_zh = metric.compute(testset['answers_zh'], testset['gt_answers_zh'])
+    assert 0 <= score_zh <= 1
+
+    metric = AnswerF1Correctness(normalize=False)
+    assert metric.name == "answer_f1"
+    assert metric.mtype == 'AnswerCorrectness'
+    score, results = metric.compute(testset['answers_num'], testset['gt_answers_num'])
     assert 0 <= score <= 1

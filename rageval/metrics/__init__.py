@@ -24,8 +24,12 @@ from .answer_groundedness._context_reject_rate import ContextRejectRate
 # Metrics about the answer informativeness
 ##from .answer_informative._claim_num import ClaimNum
 from .answer_informativeness._text_length import TextLength
-##from .answer_informative._repetitiveness import Repetitiveness
-##from .answer_informative._pairwise_accuracy import PairwiseAccuracy
+##from .answer_informativeness._repetitiveness import Repetitiveness
+##from .answer_informativeness._pairwise_accuracy import PairwiseAccuracy
+from .answer_informativeness._answer_distinct12 import AnswerDistinct
+
+# Metrics about the context relevancy
+from .context_relevancy._context_recall import ContextRecall
 
 # Metrics about the context aduquacy
 from .context_adequacy._context_recall import ContextRecall
