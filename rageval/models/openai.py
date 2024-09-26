@@ -144,10 +144,10 @@ class OpenAILLM(ABC):
         except openai.RateLimitError as e:
             logger.info("A 429 status code was received; we should back off a bit.")
             logger.info(e.__cause__)
-        except openai.APIStatusError as e:
-            logger.info("Another non-200-range status code was received.")
-            logger.info(e.status_code)
-            logger.info(e.response)
+        except openai.APIStatusError as e:  # pragma: no cover
+            logger.info("Another non-200-range status code was received.")  # pragma: no cover
+            logger.info(e.status_code)  # pragma: no cover
+            logger.info(e.response)  # pragma: no cover
         except TypeError as e:
             logger.info("Please check the input arguments.")
             logger.info(e.__cause__)
