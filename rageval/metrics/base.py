@@ -12,6 +12,7 @@ from tqdm import tqdm
 import sys
 import io
 
+
 def add_attribute(attribute_name, attribute_value):
     """
     This decorate is used to set attribute for Class.

@@ -97,8 +97,9 @@ class OpenAILLM(ABC):
         }
 
     def _get_chat_model_response(self, prompt: List[Dict[str, str]]) -> dict:
-        """Get the response from the chat model. 
-        The messages is a list of dictionaries, each containing a role and content key, for example: 
+        """Get the response from the chat model.
+
+        The messages is a list of dictionaries, each containing a role and content key, for example:
         messages = [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "Who won the world series in 2020?"},
@@ -142,6 +143,7 @@ class OpenAILLM(ABC):
             logger.info(e.__cause__)  # an underlying Exception, likely raised within httpx.
         except openai.RateLimitError as e:
             logger.info("A 429 status code was received; we should back off a bit.")
+            logger.info(e.__cause__)
         except openai.APIStatusError as e:
             logger.info("Another non-200-range status code was received.")
             logger.info(e.status_code)
@@ -207,8 +209,7 @@ class OpenAILLM(ABC):
     def batch_generate(self,
                        prompts: Union[List[List[Dict[str, str]]], List[str]],
                        max_workers: int = 1) -> List[LLMResult]:
-        """
-        Batch generate the LLMResult from the response using multithreading. 
+        """Batch generate the LLMResult from the response using multithreading.
 
         Args:
             inputs: The list of inputs. If the model is chat model, the inputs should be a list of List[Dict[str, str]]. If the model is instruct model, the inputs should be a list of string.
@@ -217,8 +218,8 @@ class OpenAILLM(ABC):
 
         Returns:
             List[LLMResult], The list of LLMResult. The order of the result is the same as the order of the inputs.
-        """
 
+        """
         results = [None] * len(prompts)  # initialize the results
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = []
