@@ -26,4 +26,3 @@ sacrebleu == 2.3.3
 bert_score == 0.3.13
 transformers
 jieba >= 0.42.1
-refchecker
