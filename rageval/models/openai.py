@@ -222,12 +222,13 @@ class OpenAILLM(ABC):
         """
         results = [None] * len(prompts)  # initialize the results
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = []
+            futures = {}
             for idx, prompt in enumerate(prompts):
-                futures.append((idx, executor.submit(self.generate, prompt)))
+                future = executor.submit(self.generate, prompt)
+                futures[future] = idx
 
-            for future in tqdm(as_completed([f[1] for f in futures]), total=len(prompts), desc="Generating"):
-                idx = next(idx for idx, f in futures if f == future)
+            for future in tqdm(as_completed(futures), total=len(prompts),   desc="Generating"):
+                idx = futures[future]
                 result = future.result()
                 results[idx] = result  # store the result at the correct order
 
