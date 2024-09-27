@@ -75,8 +75,9 @@ class Metric(MetricInfoMixin):
         *args: Optional[Iterable]
     ) -> None:
         """Validate the of the input dataset."""
-        if len(pred_answers) != len(ref_answers) or any(len(pred_answers) != len(arg) for arg in args):
-            raise ValueError("The length of predictions and references should be the same.")
+        if (pred_answers and ref_answers):
+            if len(pred_answers) != len(ref_answers) or any(len(pred_answers) != len(arg) for arg in args):
+                raise ValueError("The length of predictions and references should be the same.")
 
     def compute(
         self,
@@ -91,19 +92,6 @@ class Metric(MetricInfoMixin):
         Return average scores of all inputs and a score list for each example.
         """
         self._validate_data(pred_answers, ref_answers, *args)
-        # scores = []
-        # length = len(pred_answers)
-        # if batch_size:
-        #     for start in tqdm(range(0, length, batch_size)):
-        #         end = start + batch_size
-        #         end = end if end < length else length
-        #         score = self._compute_batch(
-        #             pred_answers[start:end],
-        #             ref_answers[start:end],
-        #             *[arg[start:end] for arg in args],
-        #         )
-        #         scores.extend(score)
-        # else:
         scores = self._compute_batch(pred_answers, ref_answers, *args)
 
         return np.average(scores), scores
@@ -111,8 +99,8 @@ class Metric(MetricInfoMixin):
     @abstractmethod
     def _compute_one(
         self,
-        pred_answers: Optional[Iterable] = None,
-        ref_answers: Optional[Iterable] = None,
+        pred_answer: Optional[Iterable] = None,
+        ref_answer: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> float:
         ...  # pragma: no cover
@@ -125,10 +113,16 @@ class Metric(MetricInfoMixin):
     ) -> List[float]:
         """Compute the metric for a batch of predictions and references."""
         scores = []
-        for pred, refs in tqdm(zip(pred_answers, ref_answers),
-                               desc=f"Computing {self.name}",
-                               total=len(pred_answers)):
-            scores.append(self._compute_one(pred, refs))
+        if (pred_answers and ref_answers):  # if both columns exist
+            for pred_answer, ref_answer in tqdm(zip(pred_answers, ref_answers),
+                                                desc=f"Computing {self.name}",
+                                                total=len(pred_answers)):
+                scores.append(self._compute_one(pred_answer, ref_answer))
+        else:
+            for pred_answer in tqdm(pred_answers,
+                                    desc=f"Computing {self.name}",
+                                    total=len(pred_answers)):
+                scores.append(self._compute_one(pred_answer))
         return scores
 
 
