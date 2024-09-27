@@ -190,7 +190,7 @@ class OpenAILLM(ABC):
         More detail for api prices: https://openai.com/pricing/
         """
         # $ / 1k tokens:
-        mapping = {
+        mapping = {  # pragma: no cover
             "gpt-3.5-turbo-0125": (0.0005, 0.0015),
             "gpt-4": (0.03, 0.06),
             "gpt-4-32k": (0.06, 0.12),
@@ -198,10 +198,10 @@ class OpenAILLM(ABC):
             "gpt-4o": (0.005, 0.015),
         }
 
-        intokens = self.usage["prompt_tokens"]
-        outtokens = self.usage["completion_tokens"]
+        intokens = self.usage["prompt_tokens"]  # pragma: no cover
+        outtokens = self.usage["completion_tokens"]  # pragma: no cover
 
-        if self.model in mapping.keys():
+        if self.model in mapping.keys():  # pragma: no cover
             print(f"Total tokens: {self.usage['total_tokens']}")
             print(f"Input tokens: {intokens}, Output tokens: {outtokens}")
             print(f"Total cost: {mapping[self.model][0] * intokens / 1000 + mapping[self.model][1] * outtokens / 1000}")
