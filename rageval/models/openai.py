@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import List, Optional, Any, Union
+from typing import List, Optional, Any, Union, Dict
 import logging
 import os
 from abc import ABC
 from dataclasses import dataclass, field
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import openai
 import pytest
@@ -37,6 +38,7 @@ class OpenAILLM(ABC):
 
     def __init__(self, model: str = "gpt-3.5-turbo",
                  _api_key_env_var: str = field(default='NO_KEY', repr=False),
+                 base_url: str = "https://api.openai.com/v1",
                  num_retries: int = 3,
                  timeout: int = 60,
                  max_tokens: Optional[int] = None,
@@ -47,6 +49,7 @@ class OpenAILLM(ABC):
                  top_logprobs: Optional[int] = None) -> None:
         """Init the OpenAI Model."""
         self.model = model
+        self.base_url = base_url
         self.num_retries = num_retries
         self.timeout = timeout
         self.max_tokens = max_tokens
@@ -67,9 +70,20 @@ class OpenAILLM(ABC):
     @property
     def llm(self):
         """Construct the OpenAI LLM model."""
-        return openai.OpenAI(api_key=self.api_key).with_options(
+        return openai.OpenAI(
+            api_key=self.api_key,
+            base_url=self.base_url,
             max_retries=self.num_retries,
-            timeout=self.timeout)
+            timeout=self.timeout
+        )
+
+    @property
+    def _is_chat_model_engine(self) -> bool:
+        if self.model == "gpt-3.5-turbo-instruct":
+            return False
+        elif self.model.startswith("gpt-3.5") or self.model.startswith("gpt-4"):
+            return True
+        return True
 
     def build_request(self, ) -> dict:
         """Build the request for the model."""
@@ -82,21 +96,20 @@ class OpenAILLM(ABC):
             "logprobs": self.logprobs,
         }
 
-    def _is_chat_model_engine(self, ) -> bool:
-        if self.model == "gpt-3.5-turbo-instruct":
-            return False
-        elif self.model.startswith("gpt-3.5") or self.model.startswith("gpt-4"):
-            return True
-        return False
+    def _get_chat_model_response(self, prompt: List[Dict[str, str]]) -> dict:
+        """Get the response from the chat model.
 
-    def _get_chat_model_response(self, inputs: List[str], system_role: Optional[str]):
-        messages = []
-        if system_role:
-            messages.append({"role": "system", "content": system_role})
-        messages.extend([{"role": "user", "content": input_str} for input_str in inputs])
-
+        The messages is a list of dictionaries, each containing a role and content key, for example:
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Who won the world series in 2020?"},
+            {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+            {"role": "user", "content": "Where was it played?"}
+        ].
+        See more at https://platform.openai.com/docs/guides/chat-completions/getting-started.
+        """
         request = self.build_request()
-        request["messages"] = messages
+        request["messages"] = prompt
         request["top_logprobs"] = self.top_logprobs
         response = self.llm.chat.completions.create(**request)
         return response
@@ -107,36 +120,39 @@ class OpenAILLM(ABC):
         return self.llm.completions.create(**request)
 
     @pytest.mark.api
-    def generate(self,
-                 **kwargs) -> LLMResult:
+    def generate(self, prompt: Union[List[Dict[str, str]], str]) -> LLMResult:
         """
-        Obtain the LLMResult from the response.
+        Obtain the LLMResult from the response. If the response is not successful, return an empty generation.
 
         TODO: Add cache to the response.
         """
+        result = LLMResult(generations=[[Generation(text="")]], llm_output={})
         try:
-            if self._is_chat_model_engine():
-                response = self._get_chat_model_response(**kwargs)
+            if self._is_chat_model_engine:
+                assert isinstance(prompt, list), "The prompts should be a list of dictionaries for chat model."
+                response = self._get_chat_model_response(prompt=prompt)
             else:
-                response = self._get_instruct_model_response(**kwargs)
+                assert isinstance(prompt, str), "The prompts should be a string for instruct model."
+                response = self._get_instruct_model_response(prompt=prompt)
             result = self.create_llm_result(response)
-            return result
+        except AssertionError as e:
+            logger.info("Please check the input arguments.")
+            logger.info(e)
         except openai.APIConnectionError as e:
             logger.info("The server could not be reached.")
             logger.info(e.__cause__)  # an underlying Exception, likely raised within httpx.
-            raise e
         except openai.RateLimitError as e:
             logger.info("A 429 status code was received; we should back off a bit.")
-            raise e
-        except openai.APIStatusError as e:
-            logger.info("Another non-200-range status code was received.")
-            logger.info(e.status_code)
-            logger.info(e.response)
-            raise e
+            logger.info(e.__cause__)
+        except openai.APIStatusError as e:  # pragma: no cover
+            logger.info("Another non-200-range status code was received.")  # pragma: no cover
+            logger.info(e.status_code)  # pragma: no cover
+            logger.info(e.response)  # pragma: no cover
         except TypeError as e:
             logger.info("Please check the input arguments.")
             logger.info(e.__cause__)
-            raise e
+
+        return result
 
     def create_llm_result(self, response) -> LLMResult:
         """Create the LLMResult from the choices and prompts."""
@@ -157,7 +173,7 @@ class OpenAILLM(ABC):
         choices = response["choices"]
         generations = [
             Generation(
-                text=choice["message"]["content"] if self._is_chat_model_engine() else choice["text"],
+                text=choice["message"]["content"] if self._is_chat_model_engine else choice["text"],
                 generation_info=dict(
                     finish_reason=choice.get("finish_reason"),
                     logprobs=choice.get("logprobs"),
@@ -174,49 +190,46 @@ class OpenAILLM(ABC):
         More detail for api prices: https://openai.com/pricing/
         """
         # $ / 1k tokens:
-        mapping = {
-            "gpt-3.5-turbo": (0.0005, 0.0015),
-            "gpt-3.5-turbo-16k": (0.003, 0.004),  # outdated
+        mapping = {  # pragma: no cover
+            "gpt-3.5-turbo-0125": (0.0005, 0.0015),
             "gpt-4": (0.03, 0.06),
             "gpt-4-32k": (0.06, 0.12),
             "gpt-3.5-turbo-instruct": (0.0015, 0.002),
+            "gpt-4o": (0.005, 0.015),
         }
 
-        intokens = self.usage["prompt_tokens"]
-        outtokens = self.usage["completion_tokens"]
+        intokens = self.usage["prompt_tokens"]  # pragma: no cover
+        outtokens = self.usage["completion_tokens"]  # pragma: no cover
 
-        if self.model in mapping.keys():
+        if self.model in mapping.keys():  # pragma: no cover
             print(f"Total tokens: {self.usage['total_tokens']}")
             print(f"Input tokens: {intokens}, Output tokens: {outtokens}")
             print(f"Total cost: {mapping[self.model][0] * intokens / 1000 + mapping[self.model][1] * outtokens / 1000}")
 
-    def _chat_model_batch_generate(self,
-                                   inputs: List[List[str]],
-                                   system_roles: Optional[List[str]]) -> List[LLMResult]:
-        """Batch generate the LLMResult from the response."""
-        if not system_roles:
-            system_roles = ["You are a helpful assistant"] * len(inputs)
+    def batch_generate(self,
+                       prompts: Union[List[List[Dict[str, str]]], List[str]],
+                       max_workers: int = 1) -> List[LLMResult]:
+        """Batch generate the LLMResult from the response using multithreading.
 
-        results = []
-        for input_str, system_role in tqdm(zip(inputs, system_roles), total=len(inputs), desc="Generating"):
-            result = self.generate(input_str, system_role)
-            results.append(result)
+        Args:
+            inputs: The list of inputs. If the model is chat model, the inputs should be a list of List[Dict[str, str]]. If the model is instruct model, the inputs should be a list of string.
+            system_roles: List[str], The list of system roles. Default to None. If the model is chat model, the system_roles should be a list of strings. If the model is instruct model, the system_roles should be None.
+            max_workers: int, The number of workers to use. Default to 1.
+
+        Returns:
+            List[LLMResult], The list of LLMResult. The order of the result is the same as the order of the inputs.
+
+        """
+        results = [None] * len(prompts)  # initialize the results
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {}
+            for idx, prompt in enumerate(prompts):
+                future = executor.submit(self.generate, prompt)
+                futures[future] = idx
+
+            for future in tqdm(as_completed(futures), total=len(prompts), desc="Generating"):
+                idx = futures[future]
+                result = future.result()
+                results[idx] = result  # store the result at the correct order
+
         return results
-
-    def _instruct_model_batch_generate(self, prompts: List[str]) -> List[LLMResult]:
-        results = []
-        for prompt in tqdm(prompts):
-            try:
-                result = self.generate(prompt)
-            except Exception as e:
-                result = LLMResult(generations=[[Generation(text="")]], llm_output={})
-                print(e)
-            results.append(result)
-        return results
-
-    def batch_generate(self, **kwargs) -> List[LLMResult]:
-        """Batch generate the LLMResult from the response."""
-        if self._is_chat_model_engine():
-            return self._chat_model_batch_generate(**kwargs)
-        else:
-            return self._instruct_model_batch_generate(**kwargs)
