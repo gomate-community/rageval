@@ -3,7 +3,7 @@ import string
 from collections import Counter
 from dataclasses import dataclass
 from typing import List
-from tqdm import tqdm
+import evaluate
 
 import datasets
 import numpy as np
@@ -104,13 +104,7 @@ class AnswerDisambigF1Correctness(Metric):
         super().__init__()
         self.model = model
         self.nlp = spacy.load(model)
-
-    def __repr__(self) -> str:
-        """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
-
-    def _info(self):
-        return datasets.MetricInfo(
+        self.info = evaluate.MetricInfo(
             description=_DESCRIPTION,
             inputs_description=_KWARGS_DESCRIPTION,
             citation=_CITATION,
@@ -130,6 +124,11 @@ class AnswerDisambigF1Correctness(Metric):
                 "https://arxiv.org/abs/2305.06983"
             ]
         )
+
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"
+
 
     def _normalize_text(self, s: str) -> str:
         def remove_articles(text):

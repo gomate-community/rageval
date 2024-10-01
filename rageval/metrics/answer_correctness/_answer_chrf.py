@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
+import evaluate
 
 import datasets
 from sacrebleu.metrics import CHRF
@@ -127,13 +128,7 @@ class AnswerCHRFCorrectness(Metric):
             whitespace=whitespace,
             eps_smoothing=eps_smoothing
         )
-
-    def __repr__(self) -> str:
-        """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
-
-    def _info(self):
-        return datasets.MetricInfo(
+        self.info = evaluate.MetricInfo(
             description=_DESCRIPTION,
             inputs_description=_KWARGS_DESCRIPTION,
             citation=_CITATION,
@@ -150,6 +145,10 @@ class AnswerCHRFCorrectness(Metric):
                 "https://www.aclweb.org/anthology/W18-6319"
             ]
         )
+
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"
 
     def _validate_data(
         self,

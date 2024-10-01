@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List
+import evaluate
 
 import datasets
 
@@ -83,13 +84,7 @@ class AnswerAccuracy(Metric):
         Ensure all parent classes are initialized.
         """
         super().__init__()
-
-    def __repr__(self) -> str:
-        """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
-
-    def _info(self):
-        return datasets.MetricInfo(
+        self.info = evaluate.MetricInfo(
             description=_DESCRIPTION,
             inputs_description=_KWARGS_DESCRIPTION,
             citation=_CITATION,
@@ -103,6 +98,10 @@ class AnswerAccuracy(Metric):
             codebase_urls=["https://github.com/hendrycks/test"],
             reference_urls=["https://arxiv.org/abs/2009.03300"]
         )
+
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"
 
     def _compute_one(
         self,

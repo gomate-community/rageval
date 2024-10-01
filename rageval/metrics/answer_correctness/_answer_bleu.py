@@ -1,6 +1,7 @@
 import re
 from dataclasses import dataclass
 from typing import List, Tuple
+import evaluate
 
 import datasets
 
@@ -87,13 +88,7 @@ class AnswerBleuScore(Metric):
     def __init__(self):
         """Explicitly initialize the AnswerBleuScore to ensure all parent class initialized."""
         super().__init__()
-
-    def __repr__(self) -> str:
-        """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
-
-    def _info(self):
-        return datasets.MetricInfo(
+        self.info = evaluate.MetricInfo(
             description=_DESCRIPTION,
             inputs_description=_KWARGS_DESCRIPTION,
             citation=_CITATION,
@@ -110,6 +105,10 @@ class AnswerBleuScore(Metric):
             ],
             reference_urls=["https://www.aclweb.org/anthology/P02-1040.pdf"]
         )
+
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"        
 
     def _clean_special_tokens(self, sentence: str, subword: str) -> str:
         """Clean special word in sentence"""

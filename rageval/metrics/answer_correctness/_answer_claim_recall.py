@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Callable, Tuple
+import evaluate
 
 import datasets
 import numpy as np
@@ -92,13 +93,7 @@ class AnswerNLICorrectness(Metric):
         super().__init__()
         self.nli_model = nli_model
         self.decompose_model = decompose_model
-
-    def __repr__(self) -> str:
-        """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
-
-    def _info(self):
-        return datasets.MetricInfo(
+        self.info = evaluate.MetricInfo(
             description=_DESCRIPTION,
             inputs_description=_KWARGS_DESCRIPTION,
             citation=_CITATION,
@@ -112,6 +107,10 @@ class AnswerNLICorrectness(Metric):
             codebase_urls=["https://github.com/princeton-nlp/ALCE"],
             reference_urls=["https://arxiv.org/abs/2305.14627"]
         )
+
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"
 
     def _compute_one(
         self,

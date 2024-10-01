@@ -3,8 +3,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 
 import numpy as np
-from datasets import Dataset, MetricInfo
-from datasets.metric import MetricInfoMixin
+from evaluate import MetricInfo
 from datasets.naming import camelcase_to_snakecase
 from langchain.schema import LLMResult
 from tqdm import tqdm
@@ -28,7 +27,7 @@ def add_attribute(attribute_name, attribute_value):
 
 
 @dataclass
-class Metric(MetricInfoMixin):
+class Metric():
     """Metric base class without LLM."""
 
     def __init__(
@@ -42,29 +41,13 @@ class Metric(MetricInfoMixin):
             config_name: type(string), Optional.
             experiment_id: type(string), Optional.
         """
-        info = self._info()
-        info.metric_name = camelcase_to_snakecase(self.__class__.__name__)
-        info.config_name = config_name or "default"
-        info.experiment_id = experiment_id or "default_experiment"
-        MetricInfoMixin.__init__(self, info)
-
+        
+        
     @property
     @abstractmethod
     def name(self) -> str:
         """The metric name."""
         ...  # pragma: no cover
-
-    def _info(self) -> MetricInfo:
-        """Construct the MetricInfo object. See `datasets.MetricInfo` for details.
-
-        Warning: This function is only called once and the result is cached for all
-        following .info() calls.
-
-        Returns:
-            info: (datasets.MetricInfo) The metrics information
-
-        """
-        raise NotImplementedError  # pragma: no cover
 
     def _validate_data(
         self,
