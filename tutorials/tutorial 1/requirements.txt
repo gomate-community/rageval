@@ -1,0 +1,7 @@
+openpyxl
+pandas
+transformers
+matplotlib
+datasets
+ragchecker
+vllm
