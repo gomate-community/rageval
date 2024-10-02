@@ -7,7 +7,7 @@ from rageval.models import NLIModel
 from rageval.metrics import AnswerNLICorrectness
 
 
-#@pytest.fixture(scope='module')
+@pytest.fixture(scope='module')
 def sample():
     test_case = {
         "answers": [
@@ -28,7 +28,7 @@ def sample():
     return test_case
 
 
-#@pytest.fixture(scope='module')
+@pytest.fixture(scope='module')
 def sample_with_decompose():
     test_case = {
         "answers": [
@@ -47,19 +47,19 @@ def sample_with_decompose():
     return test_case
 
 
-#@pytest.fixture(scope='module')
+@pytest.fixture(scope='module')
 def testset(sample):
     ds = Dataset.from_dict(sample)
     return ds
 
 
-#@pytest.fixture(scope='module')
+@pytest.fixture(scope='module')
 def testset_with_decompose(sample_with_decompose):
     ds = Dataset.from_dict(sample_with_decompose)
     return ds
 
 
-#@pytest.mark.slow
+@pytest.mark.slow
 def test_case_on_answer_claim_recall_metric(testset):
     nli_model = NLIModel(
         'text2text-generation',
@@ -72,7 +72,7 @@ def test_case_on_answer_claim_recall_metric(testset):
     assert score == 0 or score == 1
 
 
-#@pytest.mark.slow
+@pytest.mark.slow
 def test_case_on_answer_claim_recall_metric_with_decompose(testset_with_decompose):
     nli_model = NLIModel(
         'text2text-generation',
@@ -83,5 +83,3 @@ def test_case_on_answer_claim_recall_metric_with_decompose(testset_with_decompos
     assert metric.mtype == 'AnswerCorrectness'
     score, results = metric.compute(testset_with_decompose['answers'], testset_with_decompose['gt_answers'], 1)
     assert score == 0 or score == 1
-
-test_case_on_answer_claim_recall_metric_with_decompose(testset_with_decompose(sample_with_decompose()))
