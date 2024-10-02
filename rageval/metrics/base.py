@@ -52,7 +52,7 @@ class Metric():
         """Validate the of the input dataset."""
         if (pred_answers and ref_answers):
             if len(pred_answers) != len(ref_answers) or any(len(pred_answers) != len(arg) for arg in args):
-                raise ValueError("The length of predictions and references should be the same.")
+                raise ValueError("The length of predictions and references should be the same.")  # pragma: no cover
 
     def compute(
         self,
