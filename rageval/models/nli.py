@@ -54,7 +54,7 @@ class NLIModel(ABC):
             premise = premise[:int(L / 2)]
             input = "<s>{}</s></s>{}</s></s>".format(premise, hypothesis)
             pred = self._model(input)
-            logger.info(f"An exception occured during nli inference: {e}")
+            logger.info(f"An exception occurred during nli inference: {e}")
         return pred
 
     @pytest.mark.api
