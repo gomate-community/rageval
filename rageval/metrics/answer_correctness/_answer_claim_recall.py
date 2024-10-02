@@ -163,9 +163,9 @@ class AnswerNLICorrectness(Metric):
                 # use decompose_model to decompose the gt_answers into claims list
                 claims = [text_to_sents(gt_answer, self.decompose_model) for gt_answer in ref_answers]
             else:
-                raise ValueError("The type of gt_answers element should be list or string.")
+                raise ValueError("The type of gt_answers element should be list or string.")  # pragma: no cover
         else:
-            raise ValueError("The type of gt_answers should be list.")
+            raise ValueError("The type of gt_answers should be list.")  # pragma: no cover
 
         results = []
         for i, answer in tqdm(enumerate(pred_answers)):

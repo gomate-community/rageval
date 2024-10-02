@@ -149,19 +149,15 @@ class ContextRecall(MetricWithLLM):
         """Evaluate the dataset."""
         scores = []
         length = len(questions)
-        if batch_size:
-            for start in tqdm(range(0, length, batch_size)):
-                end = start + batch_size
-                end = end if end < length else length
-                score = self._compute_batch(
-                    questions[start:end],
-                    ref_answers[start:end],
-                    contexts[start:end]
-                )
-                scores.extend(score)
-        else:
-            scores = self._compute_batch(questions, ref_answers, contexts)
-
+        for start in tqdm(range(0, length, batch_size)):
+            end = start + batch_size
+            end = end if end < length else length
+            score = self._compute_batch(
+                questions[start:end],
+                ref_answers[start:end],
+                contexts[start:end]
+            )
+            scores.extend(score)
         return np.average(scores), scores
 
     def _compute_batch(
