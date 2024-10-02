@@ -4,6 +4,7 @@ from typing import List, Tuple
 import evaluate
 import datasets
 from rageval.metrics import Metric, add_attribute
+from tqdm import tqdm
 
 
 _DESCRIPTION = """\
@@ -108,12 +109,31 @@ class AnswerBleuScore(Metric):
         """:return: Formatted string representation of the metric."""
         return f"{self.ALIAS[0]}"  # pragma: no cover
 
+    def compute(
+        self,
+        pred_answers: List[str],
+        ref_answers: List[List[str]],
+        batch_size: int,
+    ) -> Tuple[float, List[float]]:
+        """Compute the bleu score on both corpus level and instance level."""
+        bleu = evaluate.load("bleu")
+        # corpus level
+        score = bleu.compute(predictions=pred_answers, references=ref_answers)
+        # instance level
+        scores = []
+        for pred_answer, ref_answer in tqdm(zip(pred_answers, ref_answers),
+                                            desc=f"Computing {self.name}",
+                                            total=len(pred_answers)):
+            scores.append(self._compute_one(pred_answer, ref_answer))
+        return score, scores
+
     def _compute_one(
         self,
         pred_answers: List[str],
         ref_answers: List[List[str]]
     ) -> List[float]:
-        """Compute the bleu score of a batch of answers."""
+        """Compute the bleu score on an instance level."""
+
         bleu = evaluate.load("bleu")
         bleu_result = bleu.compute(predictions=[pred_answers], references=[ref_answers])
         bleu_score = bleu_result['bleu']
