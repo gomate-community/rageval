@@ -40,5 +40,5 @@ def test_case_on_answer_bleu(testset):
     assert metric.mtype == 'AnswerCorrectness'
     assert repr(metric) == "answer_bleu"
     score, results = metric.compute(testset['answers'], testset['gt_answers'], 1)
-    assert score == 0.27008629492975705
+    assert score == 0.3450835085970013
     assert results[0] == 0.5401725898595141

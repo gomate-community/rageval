@@ -55,7 +55,7 @@ Examples:
     'AnswerCorrectness'
     >>> score, results = metric.compute(dataset["answers"], dataset["gt_answers"], 1)
     >>> score
-    0.27008629492975705
+    0.3450835085970013
     >>> results[0]
     0.5401725898595141
 """
@@ -118,7 +118,8 @@ class AnswerBleuScore(Metric):
         """Compute the bleu score on both corpus level and instance level."""
         bleu = evaluate.load("bleu")
         # corpus level
-        score = bleu.compute(predictions=pred_answers, references=ref_answers)
+        bleu_result = bleu.compute(predictions=pred_answers, references=ref_answers)
+        score = bleu_result['bleu']
         # instance level
         scores = []
         for pred_answer, ref_answer in tqdm(zip(pred_answers, ref_answers),
