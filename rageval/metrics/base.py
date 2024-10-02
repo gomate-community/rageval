@@ -40,9 +40,8 @@ class Metric():
         Args:
             config_name: type(string), Optional.
             experiment_id: type(string), Optional.
-        """
-        
-        
+        """ 
+
     @property
     @abstractmethod
     def name(self) -> str:

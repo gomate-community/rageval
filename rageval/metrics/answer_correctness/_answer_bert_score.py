@@ -90,25 +90,25 @@ class AnswerBERTScore(Metric):
         super().__init__()
         self.scorer = BERTScorer(lang=lang, rescale_with_baseline=rescale_with_baseline)
         self.info = evaluate.MetricInfo(
-                        description=_DESCRIPTION,
-                        inputs_description=_KWARGS_DESCRIPTION,
-                        citation=_CITATION,
-                        homepage="",
-                        features=datasets.Features(
-                            {
-                                "answers": datasets.Value("string"),
-                                "gt_answers": datasets.Sequence(datasets.Value("string"))
-                            }
-                        ),
-                        codebase_urls=[
-                            "https://github.com/Tiiiger/bert_score/tree/master",
-                        ],
-                        reference_urls=["https://openreview.net/forum?id=SkeHuCVFDr"]
-                    )
+            description=_DESCRIPTION,
+            inputs_description=_KWARGS_DESCRIPTION,
+            citation=_CITATION,
+            homepage="",
+            features=datasets.Features(
+                {
+                    "answers": datasets.Value("string"),
+                    "gt_answers": datasets.Sequence(datasets.Value("string"))
+                }
+            ),
+            codebase_urls=[
+                "https://github.com/Tiiiger/bert_score/tree/master",
+            ],
+            reference_urls=["https://openreview.net/forum?id=SkeHuCVFDr"]
+        )
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"      
+        return f"{self.ALIAS[0]}"
 
     def _compute_one(
         self,

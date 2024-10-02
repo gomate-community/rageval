@@ -129,7 +129,6 @@ class AnswerDisambigF1Correctness(Metric):
         """:return: Formatted string representation of the metric."""
         return f"{self.ALIAS[0]}"
 
-
     def _normalize_text(self, s: str) -> str:
         def remove_articles(text):
             return re.sub(r'\b(a|an|the)\b', ' ', text)
