@@ -21,10 +21,10 @@ def text_to_sents(text: str, model_name="nltk") -> List[str]:
         sentences = [s.strip() for s in sentences if len(s.strip()) >= 3]
 
     elif model_name == "gpt-3.5-turbo":
-        model = OpenAILLM("gpt-3.5-turbo-16k", "OPENAI_API_KEY")
-        prompt = DOC_TO_SENTENCES_PROMPT
-        input_str = prompt.format(doc=text).strip()
-        r = model.generate([input_str])
+        model = OpenAILLM("gpt-3.5-turbo-16k", "OPENAI_API_KEY")  # pragma: no cover
+        prompt = DOC_TO_SENTENCES_PROMPT  # pragma: no cover
+        input_str = prompt.format(doc=text).strip()  # pragma: no cover
+        r = model.generate([input_str])  # pragma: no cover
         sentences = eval(r)  # pragma: no cover
     else:
         logger.info("The parameter `model_name` should be in [`nltk`, `gpt-3.5-turbo-16k`]. ")  # pragma: no cover
