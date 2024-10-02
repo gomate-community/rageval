@@ -104,7 +104,7 @@ class ContextRecall(MetricWithLLM):
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
+        return f"{self.ALIAS[0]}"  # pragma: no cover
 
     def parse_llm_result(self, prompts: str, result: LLMResult):
         """

@@ -2,9 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import List, Tuple
 import evaluate
-
 import datasets
-
 from rageval.metrics import Metric, add_attribute
 
 
@@ -108,15 +106,7 @@ class AnswerBleuScore(Metric):
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
-
-    def _clean_special_tokens(self, sentence: str, subword: str) -> str:
-        """Clean special word in sentence"""
-
-        sentence = sentence.strip()
-        if subword is not None:
-            sentence = re.sub(subword, "", sentence)
-        return sentence
+        return f"{self.ALIAS[0]}"  # pragma: no cover
 
     def _compute_one(
         self,

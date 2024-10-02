@@ -126,7 +126,7 @@ class ContextRejectRate(MetricWithLLM):
 
     def __repr__(self) -> str:
         """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
+        return f"{self.ALIAS[0]}"  # pragma: no cover
 
     def parse_llm_result(self, prompts: List[str], result: LLMResult):
         """Parse the results of LLM based on whether the answer contains the content specified by prompt."""
