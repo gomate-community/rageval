@@ -147,7 +147,7 @@ class AnswerBleuScore(Metric):
     ) -> Tuple[float, List[float]]:
         """Evaluate the dataset."""
 
-        bleu = datasets.load_metric("bleu")
+        bleu = evaluate.load("bleu")
         predictions = []
         references = []
         for output, gt_answers in zip(pred_answers, ref_answers):
