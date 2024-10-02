@@ -158,9 +158,9 @@ class AnswerCHRFCorrectness(Metric):
         """Validate the input dataset."""
         super()._validate_data(pred_answers, ref_answers)
         if not all(isinstance(answer, str) for answer in pred_answers):
-            raise ValueError("The type of pred_answers should be a string.")
+            raise ValueError("The type of pred_answers should be a string.")  # pragma: no cover
         if not all(isinstance(a, list) and all(isinstance(item, str) for item in a) for a in ref_answers):
-            raise ValueError("The type of ref_answers should be a list of strings.")
+            raise ValueError("The type of ref_answers should be a list of strings.")  # pragma: no cover
 
     def _compute_one(
         self,
