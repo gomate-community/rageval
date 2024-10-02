@@ -56,9 +56,9 @@ Examples:
     'AnswerCorrectness'
     >>> score, results = metric.compute(dataset["answers"], dataset["gt_answers"], 1)
     >>> score
-    0.3172992057845065
+    0.27008629492975705
     >>> results[0]
-    0.49697705300310346
+    0.5401725898595141
 """
 
 
@@ -124,42 +124,7 @@ class AnswerBleuScore(Metric):
         ref_answers: List[List[str]]
     ) -> List[float]:
         """Compute the bleu score of a batch of answers."""
-        scores = []
-        bleu = datasets.load_metric("bleu")
-        for output, gt_answers in zip(pred_answers, ref_answers):
-            output_clean = self._clean_special_tokens(output, None)
-            predictions = [output_clean.split(' ')]
-            references = []
-            for gt_answer in gt_answers:
-                gt_answer_clean = self._clean_special_tokens(gt_answer, None)
-                references.append(list(gt_answer_clean.split(' ')))
-            bleu_result = bleu.compute(predictions=predictions, references=[references])
-            bleu_score = bleu_result['bleu']
-            scores.append(bleu_score)
-
-        return scores
-
-    def compute(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]],
-        batch_size: int,
-    ) -> Tuple[float, List[float]]:
-        """Evaluate the dataset."""
-
         bleu = evaluate.load("bleu")
-        predictions = []
-        references = []
-        for output, gt_answers in zip(pred_answers, ref_answers):
-            output_clean = self._clean_special_tokens(output, None)
-            predictions.append(list(output_clean.split(' ')))
-            reference = []
-            for gt_answer in gt_answers:
-                gt_answer_clean = self._clean_special_tokens(gt_answer, None)
-                reference.append(list(gt_answer_clean.split(' ')))
-            references.append(reference)
-        bleu_result = bleu.compute(predictions=predictions, references=references)
+        bleu_result = bleu.compute(predictions=[pred_answers], references=[ref_answers])
         bleu_score = bleu_result['bleu']
-        scores = self._compute_one(pred_answers, ref_answers)
-
-        return bleu_score, scores
+        return bleu_score
