@@ -9,8 +9,10 @@ from rageval.models import OpenAILLM
 from .prompt import DOC_TO_SENTENCES_PROMPT
 
 logger = logging.getLogger(__name__)
-if not Downloader().is_installed('punkt'):
-    nltk.download('punkt')
+#if not Downloader().is_installed('punkt'):
+#    nltk.download('punkt')
+if not Downloader().is_installed('punkt_tab'):
+    nltk.download('punkt_tab')
 
 
 def text_to_sents(text: str, model_name="nltk") -> List[str]:
