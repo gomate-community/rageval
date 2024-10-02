@@ -3,13 +3,8 @@ from abc import abstractmethod
 from dataclasses import dataclass
 
 import numpy as np
-from evaluate import MetricInfo
-from datasets.naming import camelcase_to_snakecase
 from langchain.schema import LLMResult
 from tqdm import tqdm
-
-import sys
-import io
 
 
 def add_attribute(attribute_name, attribute_value):
@@ -40,7 +35,7 @@ class Metric():
         Args:
             config_name: type(string), Optional.
             experiment_id: type(string), Optional.
-        """
+        """  # pragma: no cover
 
     @property
     @abstractmethod
