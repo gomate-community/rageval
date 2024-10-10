@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable, List, Tuple
+import evaluate
 
 import datasets
 import numpy as np
@@ -85,13 +86,7 @@ class ContextRecall(MetricWithLLM):
     def __init__(self, model: Callable):
         """Explicitly initialize the AnswerEMCorrectness to ensure all parent class initialized."""
         super().__init__(model)
-
-    def __repr__(self) -> str:
-        """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
-
-    def _info(self):
-        return datasets.MetricInfo(
+        self.info = evaluate.MetricInfo(
             description=_DESCRIPTION,
             inputs_description=_KWARGS_DESCRIPTION,
             citation=_CITATION,
@@ -106,6 +101,10 @@ class ContextRecall(MetricWithLLM):
             codebase_urls=["https://github.com/explodinggradients/ragas"],
             reference_urls=["https://docs.ragas.io/en/stable/concepts/metrics/context_recall.html"]
         )
+
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"  # pragma: no cover
 
     def parse_llm_result(self, prompts: str, result: LLMResult):
         """
@@ -150,19 +149,15 @@ class ContextRecall(MetricWithLLM):
         """Evaluate the dataset."""
         scores = []
         length = len(questions)
-        if batch_size:
-            for start in tqdm(range(0, length, batch_size)):
-                end = start + batch_size
-                end = end if end < length else length
-                score = self._compute_batch(
-                    questions[start:end],
-                    ref_answers[start:end],
-                    contexts[start:end]
-                )
-                scores.extend(score)
-        else:
-            scores = self._compute_batch(questions, ref_answers, contexts)
-
+        for start in tqdm(range(0, length, batch_size)):
+            end = start + batch_size
+            end = end if end < length else length
+            score = self._compute_batch(
+                questions[start:end],
+                ref_answers[start:end],
+                contexts[start:end]
+            )
+            scores.extend(score)
         return np.average(scores), scores
 
     def _compute_batch(

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, Iterable
 from transformers import AutoTokenizer
-
+import evaluate
 
 import datasets
 
@@ -58,13 +58,7 @@ class TextLength(Metric):
         """
         self.tokenizer = AutoTokenizer.from_pretrained(tokenize_model)
         super().__init__()
-
-    def __repr__(self) -> str:
-        """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"  # pragma: no cover
-
-    def _info(self):
-        return datasets.MetricInfo(
+        self.info = evaluate.MetricInfo(
             description=_DESCRIPTION,
             inputs_description=_KWARGS_DESCRIPTION,
             citation="",
@@ -77,6 +71,10 @@ class TextLength(Metric):
             codebase_urls=[],
             reference_urls=[]
         )
+
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"  # pragma: no cover
 
     def _compute_one(
         self,

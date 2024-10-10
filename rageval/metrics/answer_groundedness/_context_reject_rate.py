@@ -3,7 +3,8 @@ from typing import Callable, List, Tuple
 
 import datasets
 import numpy as np
-from datasets import Dataset
+import evaluate
+
 from langchain.schema import LLMResult
 from tqdm import tqdm
 
@@ -108,13 +109,7 @@ class ContextRejectRate(MetricWithLLM):
     def __init__(self, model: Callable):
         """Explicitly initialize the ContextRejectRate to ensure all parent class initialized."""
         super().__init__(model)
-
-    def __repr__(self) -> str:
-        """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
-
-    def _info(self):
-        return datasets.MetricInfo(
+        self.info = evaluate.MetricInfo(
             description=_DESCRIPTION,
             inputs_description=_KWARGS_DESCRIPTION,
             citation=_CITATION,
@@ -128,6 +123,10 @@ class ContextRejectRate(MetricWithLLM):
             codebase_urls=[],
             reference_urls=["https://arxiv.org/abs/2311.09210"]
         )
+
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"  # pragma: no cover
 
     def parse_llm_result(self, prompts: List[str], result: LLMResult):
         """Parse the results of LLM based on whether the answer contains the content specified by prompt."""
@@ -151,17 +150,14 @@ class ContextRejectRate(MetricWithLLM):
         """Evaluate the dataset."""
         scores = []
         length = len(questions)
-        if batch_size:
-            for start in tqdm(range(0, length, batch_size)):
-                end = start + batch_size
-                end = end if end < length else length
-                score = self._compute_batch(
-                    questions[start:end],
-                    contexts[start:end]
-                )
-                scores.extend(score)
-        else:
-            scores = self._compute_batch(questions, contexts)
+        for start in tqdm(range(0, length, batch_size)):
+            end = start + batch_size
+            end = end if end < length else length
+            score = self._compute_batch(
+                questions[start:end],
+                contexts[start:end]
+            )
+            scores.extend(score)
 
         return np.average(scores), scores
 

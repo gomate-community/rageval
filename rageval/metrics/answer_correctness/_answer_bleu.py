@@ -1,10 +1,10 @@
 import re
 from dataclasses import dataclass
 from typing import List, Tuple
-
+import evaluate
 import datasets
-
 from rageval.metrics import Metric, add_attribute
+from tqdm import tqdm
 
 
 _DESCRIPTION = """\
@@ -55,9 +55,9 @@ Examples:
     'AnswerCorrectness'
     >>> score, results = metric.compute(dataset["answers"], dataset["gt_answers"], 1)
     >>> score
-    0.3172992057845065
+    0.3450835085970013
     >>> results[0]
-    0.49697705300310346
+    0.5401725898595141
 """
 
 
@@ -87,13 +87,7 @@ class AnswerBleuScore(Metric):
     def __init__(self):
         """Explicitly initialize the AnswerBleuScore to ensure all parent class initialized."""
         super().__init__()
-
-    def __repr__(self) -> str:
-        """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
-
-    def _info(self):
-        return datasets.MetricInfo(
+        self.info = evaluate.MetricInfo(
             description=_DESCRIPTION,
             inputs_description=_KWARGS_DESCRIPTION,
             citation=_CITATION,
@@ -111,34 +105,9 @@ class AnswerBleuScore(Metric):
             reference_urls=["https://www.aclweb.org/anthology/P02-1040.pdf"]
         )
 
-    def _clean_special_tokens(self, sentence: str, subword: str) -> str:
-        """Clean special word in sentence"""
-
-        sentence = sentence.strip()
-        if subword is not None:
-            sentence = re.sub(subword, "", sentence)
-        return sentence
-
-    def _compute_one(
-        self,
-        pred_answers: List[str],
-        ref_answers: List[List[str]]
-    ) -> List[float]:
-        """Compute the bleu score of a batch of answers."""
-        scores = []
-        bleu = datasets.load_metric("bleu")
-        for output, gt_answers in zip(pred_answers, ref_answers):
-            output_clean = self._clean_special_tokens(output, None)
-            predictions = [output_clean.split(' ')]
-            references = []
-            for gt_answer in gt_answers:
-                gt_answer_clean = self._clean_special_tokens(gt_answer, None)
-                references.append(list(gt_answer_clean.split(' ')))
-            bleu_result = bleu.compute(predictions=predictions, references=[references])
-            bleu_score = bleu_result['bleu']
-            scores.append(bleu_score)
-
-        return scores
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"  # pragma: no cover
 
     def compute(
         self,
@@ -146,21 +115,27 @@ class AnswerBleuScore(Metric):
         ref_answers: List[List[str]],
         batch_size: int,
     ) -> Tuple[float, List[float]]:
-        """Evaluate the dataset."""
+        """Compute the bleu score on both corpus level and instance level."""
+        bleu = evaluate.load("bleu")
+        # corpus level
+        bleu_result = bleu.compute(predictions=pred_answers, references=ref_answers)
+        score = bleu_result['bleu']
+        # instance level
+        scores = []
+        for pred_answer, ref_answer in tqdm(zip(pred_answers, ref_answers),
+                                            desc=f"Computing {self.name}",
+                                            total=len(pred_answers)):
+            scores.append(self._compute_one(pred_answer, ref_answer))
+        return score, scores
 
-        bleu = datasets.load_metric("bleu")
-        predictions = []
-        references = []
-        for output, gt_answers in zip(pred_answers, ref_answers):
-            output_clean = self._clean_special_tokens(output, None)
-            predictions.append(list(output_clean.split(' ')))
-            reference = []
-            for gt_answer in gt_answers:
-                gt_answer_clean = self._clean_special_tokens(gt_answer, None)
-                reference.append(list(gt_answer_clean.split(' ')))
-            references.append(reference)
-        bleu_result = bleu.compute(predictions=predictions, references=references)
+    def _compute_one(
+        self,
+        pred_answers: List[str],
+        ref_answers: List[List[str]]
+    ) -> List[float]:
+        """Compute the bleu score on an instance level."""
+
+        bleu = evaluate.load("bleu")
+        bleu_result = bleu.compute(predictions=[pred_answers], references=[ref_answers])
         bleu_score = bleu_result['bleu']
-        scores = self._compute_one(pred_answers, ref_answers)
-
-        return bleu_score, scores
+        return bleu_score

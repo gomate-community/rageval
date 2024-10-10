@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
+import evaluate
 
 import datasets
 from sacrebleu.metrics import CHRF
@@ -127,13 +128,7 @@ class AnswerCHRFCorrectness(Metric):
             whitespace=whitespace,
             eps_smoothing=eps_smoothing
         )
-
-    def __repr__(self) -> str:
-        """:return: Formatted string representation of the metric."""
-        return f"{self.ALIAS[0]}"
-
-    def _info(self):
-        return datasets.MetricInfo(
+        self.info = evaluate.MetricInfo(
             description=_DESCRIPTION,
             inputs_description=_KWARGS_DESCRIPTION,
             citation=_CITATION,
@@ -151,6 +146,10 @@ class AnswerCHRFCorrectness(Metric):
             ]
         )
 
+    def __repr__(self) -> str:
+        """:return: Formatted string representation of the metric."""
+        return f"{self.ALIAS[0]}"  # pragma: no cover
+
     def _validate_data(
         self,
         pred_answers: List[str],
@@ -159,9 +158,9 @@ class AnswerCHRFCorrectness(Metric):
         """Validate the input dataset."""
         super()._validate_data(pred_answers, ref_answers)
         if not all(isinstance(answer, str) for answer in pred_answers):
-            raise ValueError("The type of pred_answers should be a string.")
+            raise ValueError("The type of pred_answers should be a string.")  # pragma: no cover
         if not all(isinstance(a, list) and all(isinstance(item, str) for item in a) for a in ref_answers):
-            raise ValueError("The type of ref_answers should be a list of strings.")
+            raise ValueError("The type of ref_answers should be a list of strings.")  # pragma: no cover
 
     def _compute_one(
         self,

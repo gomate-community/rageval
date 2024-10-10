@@ -41,7 +41,7 @@ extras_requires = {
         'pytest >= 3.7.4',
         'pytest-cov >= 2.4.0',
         'flake8 == 7.0.0',
-        'pydocstyle == 2.1',
+        'pydocstyle == 6.1',
         'flake8_docstrings >= 1.7.0'
     ],
     'benchmarks': [
