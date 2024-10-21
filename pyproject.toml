@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools >= 42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "RagEval"
+version = "0.1.0"
+description = "Evaluation tools for Retrieval-augmented Generation (RAG) methods."
+keywords = ["RAG evaluation tools"]
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+authors = [
+  { name="Wenshan Wang, Yixing Fan, etc.", email="wangwenshan@ict.ac.cn" },
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3"
+]
+dependencies = [
+    "refchecker == 0.2.13",
+    "numpy >= 1.26",
+    "tqdm >= 4.66",
+    "hyperopt >= 0.1.1",
+    "h5py >= 2.8.0",
+    "openai >= 1.10.0",
+    "datasets >= 3.0.1",
+    "langchain >= 0.3.1",
+    "langchain-community >= 0.3.1",
+    "transformers >= 4.37.2",
+    "torch >= 2.2.0",
+    "pandas >= 2.0.0",
+    "nltk >= 3.9.1",
+    "spacy >= 3.7.4",
+    "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl",
+    "rouge_score >= 0.1.2",
+    "jieba >= 0.42.1",
+    "evaluate >= 0.4.3"
+]
+
+[project.optional-dependencies]
+tests = [
+    "coverage >= 4.3.4",
+    "codecov >= 2.0.15",
+    "pytest >= 3.7.4",
+    "pytest-cov >= 2.4.0",
+    "flake8 == 7.0.0",
+    "pydocstyle == 6.1",
+    "flake8_docstrings >= 1.7.0"
+]
+benchmarks = [
+    "accelerate == 0.27.2",
+    "sentencepiece == 0.2.0",
+    "protobuf == 4.25.3"
+]
+
+[project.urls]
+Homepage = "https://github.com/gomate-community/rageval"
+Issues = "https://github.com/gomate-community/rageval/issues"
