@@ -21,20 +21,12 @@ def testset(sample):
     ds = Dataset.from_dict(sample)
     return ds
 
-
-@pytest.mark.slow
-def test_case_on_g_eval(testset):
-    metric = GEval(dimension="coherent")
-    assert metric.name == "g_eval"
-    score, results = metric.compute(contexts=testset["contexts"], pred_answers=testset["answers"])
-    print(score, results)
-    assert 1.0 < score < 5.0
-
 @pytest.fixture(scope='module')
 def mock_llm():
     mock = MagicMock()
     mock.batch_generate.return_value = [
-        MagicMock(generations=[[MagicMock(generation_info={'stop': 'stop'}, text='4')]])
+        MagicMock(generations=[[MagicMock(generation_info={'stop': 'stop'}, text='4'),
+                                MagicMock(generation_info={'stop': 'stop'}, text='3')]])
     ]
     return mock
 
@@ -44,8 +36,8 @@ def test_case_on_g_eval_with_mock(testset, mock_llm):
     assert metric.name == "g_eval"
     score, results = metric.compute(contexts=testset["contexts"], pred_answers=testset["answers"])
     print(score, results)
-    assert score == 4.0
-    assert results == [4.0]
+    assert score == 3.5
+    assert results == [3.5]
 
 def test_case_on_g_eval_invalid_dimension(testset):
     with pytest.raises(AssertionError):
