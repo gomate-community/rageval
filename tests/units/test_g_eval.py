@@ -2,6 +2,7 @@ import pytest
 from datasets import Dataset
 
 from rageval.metrics import GEval
+from unittest.mock import MagicMock
 
 @pytest.fixture(scope='module')
 def sample():
@@ -28,3 +29,28 @@ def test_case_on_g_eval(testset):
     score, results = metric.compute(contexts=testset["contexts"], pred_answers=testset["answers"])
     print(score, results)
     assert 1.0 < score < 5.0
+
+@pytest.fixture(scope='module')
+def mock_llm():
+    mock = MagicMock()
+    mock.batch_generate.return_value = [
+        MagicMock(generations=[[MagicMock(generation_info={'stop': 'stop'}, text='4')]])
+    ]
+    return mock
+
+def test_case_on_g_eval_with_mock(testset, mock_llm):
+    metric = GEval(dimension="coherent")
+    metric.llm = mock_llm
+    assert metric.name == "g_eval"
+    score, results = metric.compute(contexts=testset["contexts"], pred_answers=testset["answers"])
+    print(score, results)
+    assert score == 4.0
+    assert results == [4.0]
+
+def test_case_on_g_eval_invalid_dimension(testset):
+    with pytest.raises(AssertionError):
+        GEval(dimension="invalid_dimension")
+    
+def test_case_on_g_eval_no_dimension(testset):
+    with pytest.raises(AssertionError):
+        GEval(dimension=None)
