@@ -4,6 +4,7 @@ from typing import List, Optional, Iterable, Tuple
 import datasets
 from nltk import ngrams
 from rageval.metrics import Metric, add_attribute
+from tqdm import tqdm
 
 _DESCRIPTION = """\
 Distinct 1/2 measures the diversity of generated text by calculating the ratio of unique n-grams to the total number of n-grams.
@@ -50,7 +51,9 @@ _CITATION = """\
 def get_distinct_score(pred_answers: List[str], n_grams: int) -> dict:
     """Compute Distinct-1 and Distinct-2 metrics."""
     c = Counter()
-    for answer in pred_answers:
+    for answer in tqdm(pred_answers,
+                       desc=f"Computing answer_distinct",
+                       total=len(pred_answers)):
         tokens = answer.split()
         c.update(ngrams(tokens, n_grams))
 
