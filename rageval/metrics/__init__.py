@@ -19,12 +19,12 @@ from .answer_correctness._answer_ter import AnswerTERCorrectness
 from .answer_groundedness._answer_citation_precision import AnswerCitationPrecision
 from .answer_groundedness._answer_citation_recall import AnswerCitationRecall
 from .answer_groundedness._context_reject_rate import ContextRejectRate
-##from .answer_groundedness._claim_faithfulness import ClaimFaithfulness
+from .answer_groundedness._claim_faithfulness import ClaimFaithfulness
 
 # Metrics about the answer informativeness
-##from .answer_informative._claim_num import ClaimNum
+from .answer_informativeness._claim_num import ClaimNum
 from .answer_informativeness._text_length import TextLength
-##from .answer_informativeness._repetitiveness import Repetitiveness
+from .answer_informativeness._repetitiveness import Repetitiveness
 ##from .answer_informativeness._pairwise_accuracy import PairwiseAccuracy
 from .answer_informativeness._answer_distinct12 import AnswerDistinct
 

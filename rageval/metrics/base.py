@@ -58,6 +58,7 @@ class Metric():
         self,
         pred_answers: Optional[Iterable] = None,
         ref_answers: Optional[Iterable] = None,
+        contexts: Optional[Iterable] = None,
         batch_size: Optional[int] = None,
         *args: Optional[Iterable],
     ) -> Tuple[float, List[float]]:
@@ -67,7 +68,7 @@ class Metric():
         Return average scores of all inputs and a score list for each example.
         """
         self._validate_data(pred_answers, ref_answers, *args)
-        scores = self._compute_batch(pred_answers, ref_answers, *args)
+        scores = self._compute_batch(pred_answers, ref_answers, contexts, *args)
 
         return np.average(scores), scores
 
@@ -76,6 +77,7 @@ class Metric():
         self,
         pred_answer: Optional[Iterable] = None,
         ref_answer: Optional[Iterable] = None,
+        context: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> float:
         ...  # pragma: no cover
@@ -84,11 +86,17 @@ class Metric():
         self,
         pred_answers: Optional[Iterable] = None,
         ref_answers: Optional[Iterable] = None,
+        contexts: Optional[Iterable] = None,
         *args: Optional[Iterable]
     ) -> List[float]:
         """Compute the metric for a batch of predictions and references."""
         scores = []
-        if (pred_answers and ref_answers):  # if both columns exist
+        if contexts:
+            for pred_answer, ref_answer, context in tqdm(zip(pred_answers, ref_answers, contexts),
+                                                desc=f"Computing {self.name}",
+                                                total=len(pred_answers)):
+                scores.append(self._compute_one(pred_answer, ref_answer, context))
+        elif (pred_answers and ref_answers):  # if both columns exist
             for pred_answer, ref_answer in tqdm(zip(pred_answers, ref_answers),
                                                 desc=f"Computing {self.name}",
                                                 total=len(pred_answers)):
