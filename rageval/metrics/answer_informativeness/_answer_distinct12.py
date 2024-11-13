@@ -47,7 +47,7 @@ _CITATION = """\
 """
 
 
-def get_distinct_score(pred_answers: List[str], n_grams: int) -> dict:
+def get_distinct_score(pred_answers: List[str], n_grams: int) -> float:
     """Compute Distinct-1 and Distinct-2 metrics."""
     c = Counter()
     for answer in pred_answers:
@@ -94,13 +94,8 @@ class AnswerDistinct(Metric):
             reference_urls=["https://arxiv.org/abs/2305.02437"]
         )
 
-    def _validate_data(
-        self,
-        pred_answers: Optional[Iterable] = None,
-        ref_answers: Optional[Iterable] = None,
-    ) -> bool:
-        """Validate the input data."""
-        assert isinstance(pred_answers, str) or isinstance(pred_answers, list)  # pragma: no cover
+    def _compute_one(self, pred_answer):
+        return get_distinct_score([pred_answer], self.n_grams)
 
     def compute(
         self,
@@ -111,4 +106,5 @@ class AnswerDistinct(Metric):
 
         Return average scores of all inputs and a score list for each example.
         """
-        return get_distinct_score(pred_answers, self.n_grams), [get_distinct_score([pred_answer], self.n_grams) for pred_answer in pred_answers]
+        super()._validate_data(pred_answers)
+        return get_distinct_score(pred_answers, self.n_grams), [self._compute_one(pred_answer) for pred_answer in pred_answers]

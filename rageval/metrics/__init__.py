@@ -32,3 +32,6 @@ from .answer_informativeness._answer_distinct12 import AnswerDistinct
 
 # Metrics about the context aduquacy
 from .context_adequacy._context_recall import ContextRecall
+
+# Multi-dimensional metrics
+from .g_eval import GEval
