@@ -36,6 +36,8 @@ def test_case_on_text_length(testset):
                  api_base = "http://project.gomall.ac.cn:30590/notebook/tensorboard/wangwenshan/1161/v1",
                  api_key = "sk-123456789")
     assert metric.name == "claim_faithfulness"
-    score, results = metric.compute(testset["answers"], testset["questions"], testset["contexts"])
+    score, results = metric.compute(pred_answers = testset["answers"], 
+                                    ref_answers = testset["questions"], 
+                                    contexts = testset["contexts"])
     print(score, results)
     assert isinstance(score, float)
