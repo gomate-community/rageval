@@ -4,7 +4,6 @@ from typing import List, Optional, Iterable, Tuple
 import datasets
 from nltk import ngrams
 from rageval.metrics import Metric, add_attribute
-from tqdm import tqdm
 
 _DESCRIPTION = """\
 Distinct 1/2 measures the diversity of generated text by calculating the ratio of unique n-grams to the total number of n-grams.
@@ -48,12 +47,10 @@ _CITATION = """\
 """
 
 
-def get_distinct_score(pred_answers: List[str], n_grams: int) -> dict:
+def get_distinct_score(pred_answers: List[str], n_grams: int) -> float:
     """Compute Distinct-1 and Distinct-2 metrics."""
     c = Counter()
-    for answer in tqdm(pred_answers,
-                       desc=f"Computing answer_distinct",
-                       total=len(pred_answers)):
+    for answer in pred_answers:
         tokens = answer.split()
         c.update(ngrams(tokens, n_grams))
 
@@ -97,13 +94,8 @@ class AnswerDistinct(Metric):
             reference_urls=["https://arxiv.org/abs/2305.02437"]
         )
 
-    def _validate_data(
-        self,
-        pred_answers: Optional[Iterable] = None,
-        ref_answers: Optional[Iterable] = None,
-    ) -> bool:
-        """Validate the input data."""
-        assert isinstance(pred_answers, str) or isinstance(pred_answers, list)  # pragma: no cover
+    def _compute_one(self, pred_answer):
+        return get_distinct_score([pred_answer], self.n_grams)
 
     def compute(
         self,
@@ -114,4 +106,5 @@ class AnswerDistinct(Metric):
 
         Return average scores of all inputs and a score list for each example.
         """
-        return get_distinct_score(pred_answers, self.n_grams), [get_distinct_score([pred_answer], self.n_grams) for pred_answer in pred_answers]
+        super()._validate_data(pred_answers)
+        return get_distinct_score(pred_answers, self.n_grams), [self._compute_one(pred_answer) for pred_answer in pred_answers]
