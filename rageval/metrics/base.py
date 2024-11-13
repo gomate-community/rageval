@@ -58,8 +58,8 @@ class Metric():
         self,
         pred_answers: Optional[Iterable] = None,
         ref_answers: Optional[Iterable] = None,
-        contexts: Optional[Iterable] = None,
         batch_size: Optional[int] = None,
+        contexts: Optional[Iterable] = None,
         *args: Optional[Iterable],
     ) -> Tuple[float, List[float]]:
         """
