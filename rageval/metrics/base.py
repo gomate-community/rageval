@@ -68,7 +68,10 @@ class Metric():
         Return average scores of all inputs and a score list for each example.
         """
         self._validate_data(pred_answers, ref_answers, *args)
-        scores = self._compute_batch(pred_answers, ref_answers, contexts, *args)
+        if contexts:
+            scores = self._compute_batch(pred_answers, ref_answers, contexts, *args)
+        else:
+            scores = self._compute_batch(pred_answers, ref_answers, *args)
 
         return np.average(scores), scores
 
