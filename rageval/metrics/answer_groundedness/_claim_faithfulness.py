@@ -36,9 +36,7 @@ Examples:
     ...     ]
     ... }
     >>> dataset = Dataset.from_dict(sample)
-    >>> metric = ClaimFaithfulness(model = "openai//home/gomall/models/Qwen2-7B-Instruct",
-                 api_base = "http://localhost:5000/v1",
-                 api_key = "sk-123456789")
+    >>> metric = ClaimFaithfulness(model = "openai//home/gomall/models/Qwen2-7B-Instruct", api_base = "http://project.gomall.ac.cn:30590/notebook/tensorboard/wangwenshan/1161/v1"， api_key = "sk-123456789")
     >>> metric.mtype
     'answer_informativeness'
 """

@@ -33,9 +33,7 @@ Examples:
     ...     ]
     ... }
     >>> dataset = Dataset.from_dict(sample)
-    >>> metric = ClaimNum(model = "openai//home/gomall/models/Qwen2-7B-Instruct",
-                 api_base = "http://localhost:5000/v1",
-                 api_key = "sk-123456789")
+    >>> metric = ClaimNum(model = "openai//home/gomall/models/Qwen2-7B-Instruct", api_base = "http://localhost:5000/v1", api_key = "sk-123456789")
     >>> metric.mtype
     'answer_informativeness'
 """

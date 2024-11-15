@@ -5,7 +5,7 @@ from rageval.metrics import Repetitiveness
 import rageval as rl
 
 
-#@pytest.fixture(scope='module')
+@pytest.fixture(scope='module')
 def sample():
     test_case = {
         "answers": [
@@ -16,17 +16,15 @@ def sample():
     return test_case
 
 
-#@pytest.fixture(scope='module')
+@pytest.fixture(scope='module')
 def testset(sample):
     ds = Dataset.from_dict(sample)
     return ds
 
 
-#@pytest.mark.slow
+@pytest.mark.slow
 def test_case_on_text_length(testset):
     metric = Repetitiveness()
     assert metric.name == "repetitiveness"
     score, results = metric.compute(testset["answers"])
     assert round(score, 2) == 0.16
-
-test_case_on_text_length(testset(sample()))
