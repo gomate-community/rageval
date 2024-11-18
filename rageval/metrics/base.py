@@ -96,8 +96,8 @@ class Metric():
         scores = []
         if contexts:
             for pred_answer, ref_answer, context in tqdm(zip(pred_answers, ref_answers, contexts),
-                                                desc=f"Computing {self.name}",
-                                                total=len(pred_answers)):
+                                                         desc=f"Computing {self.name}",
+                                                         total=len(pred_answers)):
                 scores.append(self._compute_one(pred_answer, ref_answer, context))
         elif (pred_answers and ref_answers):  # if both columns exist
             for pred_answer, ref_answer in tqdm(zip(pred_answers, ref_answers),

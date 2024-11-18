@@ -90,25 +90,24 @@ class ClaimFaithfulness(Metric):
         *args: Optional[Iterable],
     ) -> float:
         """Evaluating the richness of claims contained in answers."""
-        extraction_results = self.extractor.extract(
-            batch_responses=[answer],
-            batch_questions=[question],
-            max_new_tokens=1000
-            )
+        extraction_results = self.extractor.extract(batch_responses=[answer],
+                                                    batch_questions=[question],
+                                                    max_new_tokens=1000
+                                                    )
         claims = [[c.content for c in res.claims] for res in extraction_results]
         merge_psg = False
-        checking_results = self.checker.check(
-            batch_claims=claims,
-            batch_references=[context],
-            batch_questions=[question],
-            max_reference_segment_length=0,
-            merge_psg=merge_psg,
-            is_joint=True,
-            joint_check_num=5,
-            sagemaker_client=None,
-            sagemaker_params=None,
-            sagemaker_get_response_func=None,
-            )
+        checking_results = self.checker.check(batch_claims=claims,
+                                              batch_references=[context],
+                                              batch_questions=[question],
+                                              max_reference_segment_length=0,
+                                              merge_psg=merge_psg,
+                                              is_joint=True,
+                                              joint_check_num=5,
+                                              sagemaker_client=None,
+                                              sagemaker_params=None,
+                                              sagemaker_get_response_func=None
+                                              )
+        
         def to_bool(checking_results):
             if isinstance(checking_results, str):
                 return checking_results == "Entailment"
