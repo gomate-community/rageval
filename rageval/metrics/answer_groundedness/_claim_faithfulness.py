@@ -11,7 +11,7 @@ import numpy as np
 
 
 _DESCRIPTION = """\
-ClaimFaithfulness is a metric that evaluates to what extend does the answer follows the given evidences. 
+ClaimFaithfulness is a metric that evaluates to what extend does the answer follows the given evidences.
 
 It is calculated by first utilizing the open-source tool RefChecker to extract claims from the generated text, and then use the same tool to check whether evidences can entail each claim. The ultimate measure is the total number of entailment, providing insight into the faithfulness to given evidences in the model's outputs.
 """
@@ -40,6 +40,7 @@ Examples:
     >>> metric.mtype
     'answer_informativeness'
 """
+
 
 @dataclass
 @add_attribute('mtype', 'answer_informativeness')
@@ -93,26 +94,26 @@ class ClaimFaithfulness(Metric):
             batch_responses=[answer],
             batch_questions=[question],
             max_new_tokens=1000
-        )
-        claims = [[c.content for c in res.claims] for  res in extraction_results]
+            )
+        claims = [[c.content for c in res.claims] for res in extraction_results]
         merge_psg = False
         checking_results = self.checker.check(
-                            batch_claims=claims,
-                            batch_references=[context],
-                            batch_questions=[question],
-                            max_reference_segment_length=0,
-                            merge_psg=merge_psg,
-                            is_joint=True,
-                            joint_check_num=5,
-                            sagemaker_client=None,
-                            sagemaker_params=None,
-                            sagemaker_get_response_func=None,
-                        )
+            batch_claims=claims,
+            batch_references=[context],
+            batch_questions=[question],
+            max_reference_segment_length=0,
+            merge_psg=merge_psg,
+            is_joint=True,
+            joint_check_num=5,
+            sagemaker_client=None,
+            sagemaker_params=None,
+            sagemaker_get_response_func=None,
+            )
         def to_bool(checking_results):
             if isinstance(checking_results, str):
                 return checking_results == "Entailment"
             return np.array([to_bool(res) for res in checking_results])
-        
+
         retrieved2response = to_bool(checking_results)
         faithful = np.max(retrieved2response, axis=2)
         faithfulness_score = np.mean(faithful)
