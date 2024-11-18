@@ -107,7 +107,7 @@ class ClaimFaithfulness(Metric):
                                               sagemaker_params=None,
                                               sagemaker_get_response_func=None
                                               )
-        
+
         def to_bool(checking_results):
             if isinstance(checking_results, str):
                 return checking_results == "Entailment"
